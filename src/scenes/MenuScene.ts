@@ -29,6 +29,7 @@ export class MenuScene extends Phaser.Scene {
     bg.setScale(scale);
 
     this.createFireEffect();
+    this.createShootingStarLoop();
 
     this.add
       .text(MENU_X, 36, 'VW T3 ADVENTURE', {
@@ -86,6 +87,55 @@ export class MenuScene extends Phaser.Scene {
       tint: [0xfff3b0, 0xffb347, 0xff6a1a, 0xff3d00],
       blendMode: 'ADD',
     });
+  }
+
+  private createShootingStarLoop(): void {
+    const graphics = this.add.graphics();
+    const w = 22;
+    const h = 3;
+    for (let x = 0; x < w; x++) {
+      const t = x / (w - 1); // 0 at tail, 1 at head
+      graphics.fillStyle(0xffffff, t * t);
+      graphics.fillRect(x, 0, 1, h);
+    }
+    graphics.generateTexture('star_streak', w, h);
+    graphics.destroy();
+
+    const spawn = () => {
+      const startX = Phaser.Math.Between(40, 260);
+      const startY = Phaser.Math.Between(8, 30);
+      const goingRight = Math.random() < 0.5;
+      const dx = goingRight ? Phaser.Math.Between(50, 80) : -Phaser.Math.Between(50, 80);
+      const dy = Phaser.Math.Between(20, 35);
+
+      const star = this.add.image(startX, startY, 'star_streak');
+      star.setOrigin(goingRight ? 0 : 1, 0.5);
+      star.setFlipX(!goingRight);
+      star.setRotation(Math.atan2(dy, dx));
+      star.setAlpha(0);
+      star.setBlendMode('ADD');
+
+      this.tweens.add({
+        targets: star,
+        x: startX + dx,
+        y: startY + dy,
+        alpha: { from: 0, to: 1 },
+        duration: 180,
+        ease: 'Quad.easeOut',
+        onComplete: () => {
+          this.tweens.add({
+            targets: star,
+            alpha: 0,
+            duration: 220,
+            onComplete: () => star.destroy(),
+          });
+        },
+      });
+
+      this.time.delayedCall(Phaser.Math.Between(3000, 8000), spawn);
+    };
+
+    this.time.delayedCall(Phaser.Math.Between(100, 300), spawn);
   }
 
   private showOptions(): void {
