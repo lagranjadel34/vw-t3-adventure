@@ -1,9 +1,9 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../config/constants';
 
-type MenuOption = 'Empezar' | 'Elegir VW' | 'Configuración';
+type MenuOption = 'Empezar' | 'Elegir camperizador' | 'Configuración';
 
-const MENU_OPTIONS: MenuOption[] = ['Empezar', 'Elegir VW', 'Configuración'];
+const MENU_OPTIONS: MenuOption[] = ['Empezar', 'Elegir camperizador', 'Configuración'];
 
 export class MenuScene extends Phaser.Scene {
   private pressStartText!: Phaser.GameObjects.Text;
