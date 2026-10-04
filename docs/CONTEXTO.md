@@ -5,6 +5,8 @@
 - Stack: Phaser 3 + TypeScript + Vite. Meta: PWA en Vercel y APK Android (Capacitor).
 - Coste/tokens mínimos: arte hecho a mano con Gemini (Nano Banana) + limpieza en Aseprite/Piskel; sin subagentes de gráficos por API. Sin búsquedas web salvo necesidad.
 - Sprite T3 V1 (hecho por Ara, vista cenital, verde con ventanas azules, ~30x60 px): referencia en docs/t3_v1_referencia.jpg. Falta el PNG limpio con fondo transparente en public/assets/sprites/t3_base.png.
-- Hitos en docs/HITOS.md. Hito 1 (proyecto base) escrito, pendiente de verificar con npm run build.
-- Pendiente: git init + commit, repo GitHub "vw-t3-adventure", hito 2 (furgoneta controlable).
+- Hitos en docs/HITOS.md. Hito 1 y 2 completados (base + furgoneta controlable con sprites reales).
+- Hito 3 en marcha: pantalla de menú/título, estilo pixel art SNES (paleta de 16 colores, hasta 32 si hace falta). Ara está creando el arte.
+- Idea de diseño futura (post-lanzamiento del juego jugable): el jugador podrá elegir entre varias camperizaciones de la VW T3 (vanagon, caravelle, etc.) como skins seleccionables. No es hito activo todavía, pero el sistema de sprites del Van debería permitir swap de textura fácilmente.
+- Repo GitHub: lagranjadel34/vw-t3-adventure. Despliegue online pendiente (Vercel aún no conectado al repo, lo retomará Ara desde casa).
 - Preferencias de Ara: respuestas concisas, pasos accionables, solo lo modificado, en español.

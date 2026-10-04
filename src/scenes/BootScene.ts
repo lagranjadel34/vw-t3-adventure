@@ -15,6 +15,13 @@ export class BootScene extends Phaser.Scene {
       })
       .setOrigin(0.5);
 
-    this.time.delayedCall(800, () => this.scene.start('Play'));
+    const fonts = Promise.all([
+      document.fonts.load('italic bold 20px Poppins'),
+      document.fonts.load('bold 14px Fredoka'),
+    ]).catch(() => undefined);
+
+    Promise.race([fonts, new Promise((resolve) => setTimeout(resolve, 1500))]).then(() => {
+      this.scene.start('Menu');
+    });
   }
 }
