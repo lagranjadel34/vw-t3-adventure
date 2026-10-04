@@ -14,5 +14,7 @@ export class BootScene extends Phaser.Scene {
         color: '#ffffff',
       })
       .setOrigin(0.5);
+
+    this.time.delayedCall(800, () => this.scene.start('Play'));
   }
 }
