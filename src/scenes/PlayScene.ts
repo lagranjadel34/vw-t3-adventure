@@ -10,7 +10,7 @@ export class PlayScene extends Phaser.Scene {
   }
 
   preload(): void {
-    this.load.image('t3_base', 'assets/sprites/t3_base.png');
+    this.load.image('t3_base', 'assets/sprites/Vwt3vanagonverdeV1.png');
   }
 
   create(): void {
