@@ -5,6 +5,10 @@ type MenuOption = 'Empezar' | 'Elegir camperizador' | 'Configuración';
 
 const MENU_OPTIONS: MenuOption[] = ['Empezar', 'Elegir camperizador', 'Configuración'];
 
+const MENU_X = 14;
+const FIRE_X = 179;
+const FIRE_Y = 156;
+
 export class MenuScene extends Phaser.Scene {
   private pressStartText!: Phaser.GameObjects.Text;
   private optionTexts: Phaser.GameObjects.Text[] = [];
@@ -24,8 +28,10 @@ export class MenuScene extends Phaser.Scene {
     const scale = Math.max(GAME_WIDTH / bg.width, GAME_HEIGHT / bg.height);
     bg.setScale(scale);
 
+    this.createFireEffect();
+
     this.add
-      .text(GAME_WIDTH / 2, 36, 'VW T3 ADVENTURE', {
+      .text(MENU_X, 36, 'VW T3 ADVENTURE', {
         fontFamily: 'Poppins, sans-serif',
         fontStyle: 'italic bold',
         fontSize: '20px',
@@ -33,17 +39,17 @@ export class MenuScene extends Phaser.Scene {
         stroke: '#000000',
         strokeThickness: 4,
       })
-      .setOrigin(0.5);
+      .setOrigin(0, 0.5);
 
     this.pressStartText = this.add
-      .text(GAME_WIDTH / 2, GAME_HEIGHT - 30, 'PULSA UNA TECLA', {
+      .text(MENU_X, GAME_HEIGHT - 30, 'PULSA UNA TECLA', {
         fontFamily: 'Fredoka, sans-serif',
         fontSize: '12px',
         color: '#ffffff',
         stroke: '#000000',
         strokeThickness: 3,
       })
-      .setOrigin(0.5);
+      .setOrigin(0, 0.5);
 
     this.tweens.add({
       targets: this.pressStartText,
@@ -62,13 +68,33 @@ export class MenuScene extends Phaser.Scene {
     });
   }
 
+  private createFireEffect(): void {
+    const graphics = this.add.graphics();
+    graphics.fillStyle(0xffffff, 1);
+    graphics.fillCircle(4, 4, 4);
+    graphics.generateTexture('flame_particle', 8, 8);
+    graphics.destroy();
+
+    this.add.particles(FIRE_X, FIRE_Y, 'flame_particle', {
+      x: { min: -4, max: 4 },
+      speedY: { min: -26, max: -14 },
+      speedX: { min: -4, max: 4 },
+      scale: { start: 0.9, end: 0 },
+      alpha: { start: 0.9, end: 0 },
+      lifespan: { min: 350, max: 600 },
+      frequency: 45,
+      tint: [0xfff3b0, 0xffb347, 0xff6a1a, 0xff3d00],
+      blendMode: 'ADD',
+    });
+  }
+
   private showOptions(): void {
     this.showingOptions = true;
     this.pressStartText.destroy();
 
     MENU_OPTIONS.forEach((label, i) => {
       const text = this.add
-        .text(GAME_WIDTH / 2, 100 + i * 20, label, {
+        .text(MENU_X, 100 + i * 20, label, {
           fontFamily: 'Fredoka, sans-serif',
           fontStyle: 'bold',
           fontSize: '14px',
@@ -76,7 +102,7 @@ export class MenuScene extends Phaser.Scene {
           stroke: '#000000',
           strokeThickness: 3,
         })
-        .setOrigin(0.5)
+        .setOrigin(0, 0.5)
         .setInteractive({ useHandCursor: true });
 
       text.on('pointerover', () => this.setSelected(i));
