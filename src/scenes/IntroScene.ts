@@ -9,6 +9,15 @@ import {
   INTRO_FADE_MS,
   INTRO_TEXT_BOX_HEIGHT,
   INTRO_TEXT_PADDING,
+  INTRO_HORN_WORDS,
+  INTRO_HORN_INTERVAL_MS,
+  INTRO_HORN_RISE_PX,
+  INTRO_HORN_LIFE_MS,
+  INTRO_HORN_SHAKE_MS,
+  INTRO_HORN_SHAKE_INTENSITY,
+  INTRO_HAZE_COLOR,
+  INTRO_HAZE_MAX_ALPHA,
+  IntroPanel,
 } from '../config/intro';
 
 export class IntroScene extends Phaser.Scene {
@@ -20,9 +29,16 @@ export class IntroScene extends Phaser.Scene {
   private typing = false;
   private finished = false;
   private transitioning = false;
+  private hornEvent?: Phaser.Time.TimerEvent;
 
   constructor() {
     super('Intro');
+  }
+
+  preload(): void {
+    for (const panel of INTRO_PANELS) {
+      if (panel.image) this.load.image(panel.image.key, panel.image.file);
+    }
   }
 
   create(): void {
@@ -78,6 +94,7 @@ export class IntroScene extends Phaser.Scene {
   private showPanel(): void {
     this.transitioning = false;
     const panel = INTRO_PANELS[this.panelIndex];
+    this.clearPanelFx();
     this.panelLayer.removeAll(true);
 
     const panelHeight = GAME_HEIGHT - INTRO_TEXT_BOX_HEIGHT;
@@ -100,8 +117,83 @@ export class IntroScene extends Phaser.Scene {
       }
     }
 
+    this.addPanelImage(panel);
+    this.addPanelFx(panel);
+
     this.cameras.main.fadeIn(INTRO_FADE_MS);
     this.typeText(panel.text);
+  }
+
+  private clearPanelFx(): void {
+    this.hornEvent?.remove();
+    this.hornEvent = undefined;
+    this.tweens.killAll();
+  }
+
+  private addPanelImage(panel: IntroPanel): void {
+    const img = panel.image;
+    if (!img) return;
+
+    const sprite = this.add.image(img.fromX, img.fromY, img.key).setScale(img.fromScale);
+    this.panelLayer.add(sprite);
+    this.tweens.add({
+      targets: sprite,
+      x: img.toX,
+      y: img.toY,
+      scale: img.toScale,
+      duration: img.durationMs,
+      ease: 'Sine.easeInOut',
+    });
+  }
+
+  private addPanelFx(panel: IntroPanel): void {
+    if (panel.haze) {
+      const haze = this.add
+        .rectangle(0, 0, GAME_WIDTH, GAME_HEIGHT - INTRO_TEXT_BOX_HEIGHT, INTRO_HAZE_COLOR, 0)
+        .setOrigin(0, 0);
+      this.panelLayer.add(haze);
+      this.tweens.add({
+        targets: haze,
+        fillAlpha: INTRO_HAZE_MAX_ALPHA,
+        duration: panel.image?.durationMs ?? 4000,
+      });
+    }
+
+    const horns = panel.horns;
+    if (horns) {
+      this.hornEvent = this.time.addEvent({
+        delay: INTRO_HORN_INTERVAL_MS,
+        loop: true,
+        callback: () => this.spawnHorn(horns.x, horns.y),
+      });
+    }
+  }
+
+  private spawnHorn(xRange: [number, number], yRange: [number, number]): void {
+    const word = Phaser.Utils.Array.GetRandom(INTRO_HORN_WORDS);
+    const x = Phaser.Math.Between(xRange[0], xRange[1]);
+    const y = Phaser.Math.Between(yRange[0], yRange[1]);
+
+    const text = this.add
+      .text(x, y, word, {
+        fontFamily: 'Fredoka, sans-serif',
+        fontStyle: 'bold',
+        fontSize: '10px',
+        color: '#ffd24d',
+        stroke: '#000000',
+        strokeThickness: 3,
+      })
+      .setOrigin(0.5);
+    this.panelLayer.add(text);
+
+    this.tweens.add({
+      targets: text,
+      y: y - INTRO_HORN_RISE_PX,
+      alpha: 0,
+      duration: INTRO_HORN_LIFE_MS,
+      onComplete: () => text.destroy(),
+    });
+    this.cameras.main.shake(INTRO_HORN_SHAKE_MS, INTRO_HORN_SHAKE_INTENSITY);
   }
 
   private typeText(full: string): void {
@@ -158,6 +250,7 @@ export class IntroScene extends Phaser.Scene {
     this.finished = true;
     this.typeEvent?.remove();
     this.advanceEvent?.remove();
+    this.clearPanelFx();
     this.cameras.main.fadeOut(INTRO_FADE_MS);
     this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => this.scene.start('Play'));
   }
