@@ -183,7 +183,7 @@ export class MenuScene extends Phaser.Scene {
 
     const selected = MENU_OPTIONS[this.selectedIndex];
     if (selected === 'Empezar') {
-      this.scene.start('Play');
+      this.scene.start('Intro');
     }
     // 'Elegir VW' y 'Configuración': pendientes de implementar.
   }
