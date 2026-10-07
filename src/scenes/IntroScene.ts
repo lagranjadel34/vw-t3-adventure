@@ -1,5 +1,7 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../config/constants';
+import { IS_TOUCH } from '../config/device';
+import { TAP_MIN_HEIGHT, TAP_PADDING_X } from '../config/touch';
 import {
   INTRO_PANELS,
   INTRO_TYPE_DELAY_MS,
@@ -39,20 +41,36 @@ export class IntroScene extends Phaser.Scene {
       wordWrap: { width: GAME_WIDTH - INTRO_TEXT_PADDING * 2 },
     });
 
-    this.add
-      .text(GAME_WIDTH - 4, 4, 'ESC: saltar', {
+    const skip = this.add
+      .text(GAME_WIDTH - TAP_PADDING_X, TAP_MIN_HEIGHT / 2, IS_TOUCH ? 'SALTAR »' : 'SALTAR (ESC) »', {
         fontFamily: 'Fredoka, sans-serif',
-        fontSize: '8px',
+        fontSize: '10px',
         color: '#ffffff',
+        stroke: '#000000',
+        strokeThickness: 2,
       })
-      .setOrigin(1, 0)
-      .setAlpha(0.6);
+      .setOrigin(1, 0.5)
+      .setAlpha(0.7);
+    skip.setInteractive({
+      hitArea: new Phaser.Geom.Rectangle(
+        -TAP_PADDING_X,
+        (skip.height - TAP_MIN_HEIGHT) / 2,
+        skip.width + TAP_PADDING_X * 2,
+        TAP_MIN_HEIGHT,
+      ),
+      hitAreaCallback: Phaser.Geom.Rectangle.Contains,
+      useHandCursor: true,
+    });
+    skip.on('pointerdown', () => this.finish());
 
     const keyboard = this.input.keyboard!;
     keyboard.on('keydown-SPACE', () => this.handleAdvance());
     keyboard.on('keydown-ENTER', () => this.handleAdvance());
     keyboard.on('keydown-ESC', () => this.finish());
-    this.input.on('pointerdown', () => this.handleAdvance());
+    // Tocar en cualquier sitio (salvo el botón SALTAR) avanza.
+    this.input.on('pointerdown', (_p: Phaser.Input.Pointer, over: Phaser.GameObjects.GameObject[]) => {
+      if (over.length === 0) this.handleAdvance();
+    });
 
     this.showPanel();
   }

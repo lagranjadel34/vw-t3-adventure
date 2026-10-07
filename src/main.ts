@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from './config/constants';
+import { TOUCH_ACTIVE_POINTERS } from './config/touch';
 import { BootScene } from './scenes/BootScene';
 import { MenuScene } from './scenes/MenuScene';
 import { IntroScene } from './scenes/IntroScene';
@@ -13,6 +14,7 @@ new Phaser.Game({
   backgroundColor: '#000000',
   pixelArt: true,
   scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
+  input: { activePointers: TOUCH_ACTIVE_POINTERS },
   physics: { default: 'arcade', arcade: { debug: false } },
   scene: [BootScene, MenuScene, IntroScene, PlayScene],
 });

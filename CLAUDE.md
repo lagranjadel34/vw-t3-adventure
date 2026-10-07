@@ -10,7 +10,7 @@ Phaser 3 + TypeScript + Vite. Objetivo final: web/PWA y APK Android (Capacitor).
 
 ## Reglas técnicas
 - Resolución interna 320x180, `pixelArt: true`, escala FIT. Tiles 16x16.
-- Cámara top-down. Controles: WASD/flechas (más tarde, joystick táctil).
+- Cámara top-down. Controles: WASD/flechas y, en táctil, joystick flotante (mitad izquierda). Zonas de toque >= `TAP_MIN_HEIGHT` (`src/config/touch.ts`).
 - Assets en `public/assets/` (sprites, maps, audio). Mapas con Tiled (JSON).
 - Una escena por archivo en `src/scenes/`. Entidades en `src/entities/`.
 - Constantes (tamaños, velocidades) en `src/config/`. Sin números mágicos.

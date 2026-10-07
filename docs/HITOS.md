@@ -11,5 +11,5 @@ Hito = entregable pequeño, probable y cerrado. Un prompt, una prueba, un commit
 - [ ] 7. Salida de la ciudad -> carretera -> bosque.
 - [ ] 8. Spot de acampada: zona trigger para aparcar.
 - [ ] 9. Final: acampada nocturna + "FIN".
-- [ ] 10. Pulido: audio, controles táctiles.
+- [ ] 10. Pulido: audio, controles táctiles (base táctil hecha: joystick, menú e intro por toque, layout móvil).
 - [ ] 11. PWA en Vercel y APK con Capacitor.

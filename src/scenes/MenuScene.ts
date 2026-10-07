@@ -1,5 +1,8 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../config/constants';
+import { IS_TOUCH } from '../config/device';
+import { TAP_MIN_HEIGHT, TAP_PADDING_X } from '../config/touch';
+import { enterMobileFullscreen } from '../ui/fullscreen';
 
 type MenuOption = 'Empezar' | 'Elegir camperizador' | 'Configuración';
 
@@ -8,6 +11,8 @@ const MENU_OPTIONS: MenuOption[] = ['Empezar', 'Elegir camperizador', 'Configura
 const MENU_X = 14;
 const FIRE_X = 179;
 const FIRE_Y = 156;
+const OPTIONS_Y = 96;
+const OPTION_SPACING = TAP_MIN_HEIGHT;
 
 export class MenuScene extends Phaser.Scene {
   private pressStartText!: Phaser.GameObjects.Text;
@@ -43,7 +48,7 @@ export class MenuScene extends Phaser.Scene {
       .setOrigin(0, 0.5);
 
     this.pressStartText = this.add
-      .text(MENU_X, GAME_HEIGHT - 30, 'PULSA UNA TECLA', {
+      .text(MENU_X, GAME_HEIGHT - 30, IS_TOUCH ? 'TOCA LA PANTALLA' : 'PULSA UNA TECLA', {
         fontFamily: 'Fredoka, sans-serif',
         fontSize: '12px',
         color: '#ffffff',
@@ -65,6 +70,10 @@ export class MenuScene extends Phaser.Scene {
     keyboard.on('keydown-DOWN', () => this.moveSelection(1));
     keyboard.on('keydown-ENTER', () => this.handleConfirm());
     keyboard.on('keydown', () => {
+      if (!this.showingOptions) this.showOptions();
+    });
+    this.input.on('pointerdown', () => {
+      if (IS_TOUCH) enterMobileFullscreen(this);
       if (!this.showingOptions) this.showOptions();
     });
   }
@@ -144,7 +153,7 @@ export class MenuScene extends Phaser.Scene {
 
     MENU_OPTIONS.forEach((label, i) => {
       const text = this.add
-        .text(MENU_X, 100 + i * 20, label, {
+        .text(MENU_X, OPTIONS_Y + i * OPTION_SPACING, label, {
           fontFamily: 'Fredoka, sans-serif',
           fontStyle: 'bold',
           fontSize: '14px',
@@ -152,8 +161,16 @@ export class MenuScene extends Phaser.Scene {
           stroke: '#000000',
           strokeThickness: 3,
         })
-        .setOrigin(0, 0.5)
-        .setInteractive({ useHandCursor: true });
+        .setOrigin(0, 0.5);
+
+      // Zona de toque más grande que el texto, para dedos.
+      const hitArea = new Phaser.Geom.Rectangle(
+        -TAP_PADDING_X,
+        (text.height - TAP_MIN_HEIGHT) / 2,
+        text.width + TAP_PADDING_X * 2,
+        TAP_MIN_HEIGHT,
+      );
+      text.setInteractive({ hitArea, hitAreaCallback: Phaser.Geom.Rectangle.Contains, useHandCursor: true });
 
       text.on('pointerover', () => this.setSelected(i));
       text.on('pointerdown', () => this.handleConfirm());

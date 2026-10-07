@@ -7,6 +7,12 @@ import {
   VAN_TURN_RATE,
 } from '../config/constants';
 
+/** Entrada analógica opcional (joystick táctil). Valores en [-1, 1]. */
+export interface VanAnalogInput {
+  steer: number;
+  throttle: number;
+}
+
 export class Van extends Phaser.Physics.Arcade.Sprite {
   private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
   private keyW: Phaser.Input.Keyboard.Key;
@@ -33,32 +39,24 @@ export class Van extends Phaser.Physics.Arcade.Sprite {
     this.keyD = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
   }
 
-  update(): void {
-    const throttle = this.cursors.up?.isDown || this.keyW.isDown;
-    const reverse = this.cursors.down?.isDown || this.keyS.isDown;
+  update(analog?: VanAnalogInput): void {
     const left = this.cursors.left?.isDown || this.keyA.isDown;
     const right = this.cursors.right?.isDown || this.keyD.isDown;
+    const forward = this.cursors.up?.isDown || this.keyW.isDown;
+    const back = this.cursors.down?.isDown || this.keyS.isDown;
 
-    if (left) this.setAngularVelocity(-VAN_TURN_RATE);
-    else if (right) this.setAngularVelocity(VAN_TURN_RATE);
-    else this.setAngularVelocity(0);
+    // Teclado manda; si no hay teclas pulsadas, se usa el joystick.
+    const steer = left ? -1 : right ? 1 : (analog?.steer ?? 0);
+    const throttle = forward ? 1 : back ? -1 : (analog?.throttle ?? 0);
 
-    const thrustAngle = Phaser.Math.DegToRad(this.angle - 90);
+    this.setAngularVelocity(VAN_TURN_RATE * steer);
 
-    if (throttle) {
-      this.scene.physics.velocityFromRotation(
-        thrustAngle,
-        VAN_ACCELERATION,
-        (this.body as Phaser.Physics.Arcade.Body).acceleration,
-      );
-    } else if (reverse) {
-      this.scene.physics.velocityFromRotation(
-        thrustAngle,
-        -VAN_ACCELERATION,
-        (this.body as Phaser.Physics.Arcade.Body).acceleration,
-      );
+    const body = this.body as Phaser.Physics.Arcade.Body;
+    if (throttle !== 0) {
+      const thrustAngle = Phaser.Math.DegToRad(this.angle - 90);
+      this.scene.physics.velocityFromRotation(thrustAngle, VAN_ACCELERATION * throttle, body.acceleration);
     } else {
-      (this.body as Phaser.Physics.Arcade.Body).setAcceleration(0, 0);
+      body.setAcceleration(0, 0);
     }
   }
 }
