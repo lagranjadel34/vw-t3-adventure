@@ -16,29 +16,82 @@ export interface IntroShape {
   label?: string;
 }
 
+export interface IntroImage {
+  key: string;
+  file: string;
+  // Escala y posición del centro de la imagen en pantalla (inicio -> fin).
+  fromScale: number;
+  toScale: number;
+  fromX: number;
+  toX: number;
+  fromY: number;
+  toY: number;
+  durationMs: number;
+}
+
+export interface IntroHorns {
+  // Zona de pantalla donde aparecen las bocinas.
+  x: [number, number];
+  y: [number, number];
+}
+
 export interface IntroPanel {
   bgColor: number;
   shapes: IntroShape[];
   text: string;
+  image?: IntroImage;
+  horns?: IntroHorns;
+  haze?: boolean;
 }
+
+export const INTRO_HORN_WORDS = ['PIII!', '¡PI PI!', 'BIP!', 'PÍIIII!'];
+export const INTRO_HORN_INTERVAL_MS = 650;
+export const INTRO_HORN_RISE_PX = 10;
+export const INTRO_HORN_LIFE_MS = 700;
+export const INTRO_HORN_SHAKE_MS = 120;
+export const INTRO_HORN_SHAKE_INTENSITY = 0.002;
+
+export const INTRO_HAZE_COLOR = 0xc9a66b;
+export const INTRO_HAZE_MAX_ALPHA = 0.4;
 
 export const INTRO_PANELS: IntroPanel[] = [
   {
-    // Ciudad de noche, atasco
-    bgColor: 0x1a1a2e,
-    shapes: [
-      { x: 10, y: 30, w: 40, h: 110, color: 0x2e2e4a },
-      { x: 60, y: 50, w: 50, h: 90, color: 0x34345a },
-      { x: 120, y: 20, w: 35, h: 120, color: 0x2e2e4a },
-      { x: 170, y: 45, w: 60, h: 95, color: 0x34345a },
-      { x: 245, y: 35, w: 65, h: 105, color: 0x2e2e4a },
-      { x: 20, y: 118, w: 30, h: 14, color: 0xc0392b, label: 'coche' },
-      { x: 70, y: 118, w: 30, h: 14, color: 0x2980b9 },
-      { x: 120, y: 118, w: 30, h: 14, color: 0xf1c40f },
-      { x: 170, y: 118, w: 30, h: 14, color: 0x27ae60 },
-      { x: 220, y: 118, w: 30, h: 14, color: 0xc0392b },
-    ],
-    text: 'Otra semana igual. Ruido, prisas, humo.',
+    // Sevilla, Torre del Oro: plano general con pan hacia la torre
+    bgColor: 0x000000,
+    shapes: [],
+    image: {
+      key: 'intro_torre_oro',
+      file: 'assets/backgrounds/intro_sevilla_torre_oro_v1.jpg',
+      fromScale: 0.26,
+      toScale: 0.26,
+      fromX: 193,
+      toX: 127,
+      fromY: 75,
+      toY: 65,
+      durationMs: 4500,
+    },
+    horns: { x: [150, 290], y: [75, 115] },
+    haze: true,
+    text: 'Otra semana igual.',
+  },
+  {
+    // Sevilla, avenida atascada: zoom hacia el tráfico
+    bgColor: 0x000000,
+    shapes: [],
+    image: {
+      key: 'intro_atasco',
+      file: 'assets/backgrounds/intro_sevilla_atasco_v1.jpg',
+      fromScale: 0.22,
+      toScale: 0.4,
+      fromX: 160,
+      toX: 298,
+      fromY: 70,
+      toY: 14,
+      durationMs: 4500,
+    },
+    horns: { x: [40, 140], y: [45, 110] },
+    haze: true,
+    text: 'Ruido, prisas, humo.',
   },
   {
     // Ara mirando por la ventana

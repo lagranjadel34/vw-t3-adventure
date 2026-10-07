@@ -11,14 +11,15 @@ Presentación de la historia antes de que el jugador tome el control: ciudad ca�
 
 ## Decisiones tomadas
 - Formato: viñetas fijas con narración letra a letra (provisional, para probar).
-- Arte: placeholders (rectángulos) hasta tener las viñetas dibujadas.
+- Arte: viñetas 1 y 2 con imágenes de Sevilla (`public/assets/backgrounds/intro_sevilla_*.jpg`); el resto placeholders (rectángulos).
 - Controles: Espacio/Enter/clic completa el texto o pasa de viñeta; ESC salta la intro. Avanza sola a los 2,5 s.
 - Flujo: Menú (Empezar) -> Intro -> Juego.
 
 ## Viñetas (borrador)
-1. Ciudad de noche, atasco: "Otra semana igual. Ruido, prisas, humo."
-2. Ara mirando por la ventana: "Necesito salir de aquí."
-3. La T3 aparcada en la calle: "Ella siempre está lista."
-4. Carretera hacia el bosque: "Rumbo al bosque. Sin plan. Solo un buen spot."
+1. Sevilla, Torre del Oro (imagen, pan lento + bocinas + neblina): "Otra semana igual."
+2. Sevilla, avenida atascada (imagen, zoom al tráfico + bocinas + neblina): "Ruido, prisas, humo."
+3. Ara mirando por la ventana (placeholder): "Necesito salir de aquí."
+4. La T3 aparcada en la calle: "Ella siempre está lista."
+5. Carretera hacia el bosque: "Rumbo al bosque. Sin plan. Solo un buen spot."
 
 Textos y colores en `src/config/intro.ts`.
