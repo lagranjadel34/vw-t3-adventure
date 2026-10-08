@@ -110,7 +110,7 @@ export const INTRO_PANELS: IntroPanel[] = [
     shapes: [],
     image: {
       key: 'intro_interior_furgo',
-      file: 'assets/backgrounds/intro_interior_furgo_v1.jpg',
+      file: 'assets/backgrounds/intro_interior_furgo_v2.jpg',
       fromScale: 0.25,
       toScale: 0.27,
       fromX: 175,
