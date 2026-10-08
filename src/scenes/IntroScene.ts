@@ -17,6 +17,14 @@ import {
   INTRO_HORN_SHAKE_INTENSITY,
   INTRO_HAZE_COLOR,
   INTRO_HAZE_MAX_ALPHA,
+  INTRO_SMOKE_TEXTURE_SIZE,
+  INTRO_SMOKE_TINTS,
+  INTRO_SMOKE_FREQUENCY_MS,
+  INTRO_SMOKE_LIFE_MS,
+  INTRO_SMOKE_SPEED_Y,
+  INTRO_SMOKE_SPEED_X,
+  INTRO_SMOKE_SCALE,
+  INTRO_SMOKE_ALPHA,
   IntroPanel,
 } from '../config/intro';
 
@@ -134,15 +142,48 @@ export class IntroScene extends Phaser.Scene {
     const img = panel.image;
     if (!img) return;
 
-    const sprite = this.add.image(img.fromX, img.fromY, img.key).setScale(img.fromScale);
-    this.panelLayer.add(sprite);
+    // El escenario (imagen + humo) se mueve y escala como un solo bloque.
+    const stage = this.add.container(img.fromX, img.fromY).setScale(img.fromScale);
+    stage.add(this.add.image(0, 0, img.key));
+    this.panelLayer.add(stage);
+
+    if (img.exhausts) {
+      const src = this.textures.get(img.key).getSourceImage();
+      this.ensureSmokeTexture();
+      for (const [px, py] of img.exhausts) {
+        stage.add(this.createExhaust(px - src.width / 2, py - src.height / 2));
+      }
+    }
+
     this.tweens.add({
-      targets: sprite,
+      targets: stage,
       x: img.toX,
       y: img.toY,
       scale: img.toScale,
       duration: img.durationMs,
       ease: 'Sine.easeInOut',
+    });
+  }
+
+  private ensureSmokeTexture(): void {
+    if (this.textures.exists('smoke_puff')) return;
+    const r = INTRO_SMOKE_TEXTURE_SIZE / 2;
+    const g = this.add.graphics();
+    g.fillStyle(0xffffff, 1);
+    g.fillCircle(r, r, r);
+    g.generateTexture('smoke_puff', INTRO_SMOKE_TEXTURE_SIZE, INTRO_SMOKE_TEXTURE_SIZE);
+    g.destroy();
+  }
+
+  private createExhaust(x: number, y: number): Phaser.GameObjects.Particles.ParticleEmitter {
+    return this.add.particles(x, y, 'smoke_puff', {
+      frequency: INTRO_SMOKE_FREQUENCY_MS,
+      lifespan: { min: INTRO_SMOKE_LIFE_MS[0], max: INTRO_SMOKE_LIFE_MS[1] },
+      speedY: { min: INTRO_SMOKE_SPEED_Y[0], max: INTRO_SMOKE_SPEED_Y[1] },
+      speedX: { min: INTRO_SMOKE_SPEED_X[0], max: INTRO_SMOKE_SPEED_X[1] },
+      scale: { start: INTRO_SMOKE_SCALE[0], end: INTRO_SMOKE_SCALE[1] },
+      alpha: { start: INTRO_SMOKE_ALPHA, end: 0 },
+      tint: INTRO_SMOKE_TINTS,
     });
   }
 

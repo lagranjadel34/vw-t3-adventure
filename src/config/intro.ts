@@ -27,6 +27,8 @@ export interface IntroImage {
   fromY: number;
   toY: number;
   durationMs: number;
+  // Tubos de escape (humo): posición en píxeles de la propia imagen original.
+  exhausts?: Array<[number, number]>;
 }
 
 export interface IntroHorns {
@@ -50,6 +52,15 @@ export const INTRO_HORN_RISE_PX = 10;
 export const INTRO_HORN_LIFE_MS = 700;
 export const INTRO_HORN_SHAKE_MS = 120;
 export const INTRO_HORN_SHAKE_INTENSITY = 0.002;
+
+export const INTRO_SMOKE_TEXTURE_SIZE = 16;
+export const INTRO_SMOKE_TINTS = [0xe0e0e0, 0xb5b5b5, 0x8f8f8f];
+export const INTRO_SMOKE_FREQUENCY_MS = 110;
+export const INTRO_SMOKE_LIFE_MS: [number, number] = [1100, 1800];
+export const INTRO_SMOKE_SPEED_Y: [number, number] = [-70, -35];
+export const INTRO_SMOKE_SPEED_X: [number, number] = [4, 22];
+export const INTRO_SMOKE_SCALE: [number, number] = [0.7, 2.2];
+export const INTRO_SMOKE_ALPHA = 0.75;
 
 export const INTRO_HAZE_COLOR = 0xc9a66b;
 export const INTRO_HAZE_MAX_ALPHA = 0.4;
@@ -94,12 +105,28 @@ export const INTRO_PANELS: IntroPanel[] = [
     text: 'Ruido, prisas, humo.',
   },
   {
-    // Ara mirando por la ventana
-    bgColor: 0x2c2c3e,
-    shapes: [
-      { x: 90, y: 20, w: 140, h: 100, color: 0x0f0f1f, label: 'ventana' },
-      { x: 145, y: 80, w: 30, h: 60, color: 0xe6a57e, label: 'Ara' },
-    ],
+    // Ara dentro de la T3, en mitad del atasco (humo de tubos de escape)
+    bgColor: 0x000000,
+    shapes: [],
+    image: {
+      key: 'intro_interior_furgo',
+      file: 'assets/backgrounds/intro_interior_furgo_v1.jpg',
+      fromScale: 0.25,
+      toScale: 0.27,
+      fromX: 175,
+      toX: 165,
+      fromY: 72,
+      toY: 70,
+      durationMs: 4500,
+      exhausts: [
+        [540, 452],
+        [610, 425],
+        [700, 492],
+        [820, 448],
+        [985, 418],
+      ],
+    },
+    horns: { x: [120, 280], y: [55, 100] },
     text: 'Necesito salir de aquí.',
   },
   {
