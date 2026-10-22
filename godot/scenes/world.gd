@@ -21,6 +21,8 @@ func _ready() -> void:
 			_map_root.add_child(_make_label(o.name, Vector2(o.x, o.y)))
 
 	_hud.add_gear_lever(_van.gearbox)
+	_hud.add_test_button("Luz", _van.toggle_lights)
+	_hud.add_test_button("Daño", _van.cycle_damage)
 
 	var spawn: Variant = map.find_object(GameConfig.MAP_SPAWN)
 	if spawn:

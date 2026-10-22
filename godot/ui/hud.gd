@@ -8,6 +8,8 @@ var gas: Pedal
 var brake: Pedal
 var lever: GearLever
 
+# Borde izquierdo del último botón de prueba colocado.
+var _buttons_left := 0.0
 # Dedos apoyados ahora mismo: índice -> posición en pantalla.
 var _touches := {}
 
@@ -26,6 +28,22 @@ func _ready() -> void:
 func add_gear_lever(gearbox: Gearbox) -> void:
 	lever = GearLever.new(gearbox)
 	add_child(lever)
+
+
+## Botones de prueba en la esquina superior derecha, de derecha a izquierda.
+func add_test_button(text: String, on_press: Callable) -> void:
+	var b := Button.new()
+	b.text = text
+	b.focus_mode = Control.FOCUS_NONE
+	b.add_theme_font_size_override("font_size", GameConfig.TEST_BUTTON_FONT_SIZE)
+	b.custom_minimum_size = GameConfig.TEST_BUTTON_SIZE
+	b.pressed.connect(on_press)
+	add_child(b)
+	b.size = b.get_combined_minimum_size()
+	if _buttons_left == 0.0:
+		_buttons_left = get_viewport().get_visible_rect().size.x
+	_buttons_left -= b.size.x + GameConfig.TEST_BUTTON_MARGIN
+	b.position = Vector2(_buttons_left, GameConfig.TEST_BUTTON_MARGIN)
 
 
 ## Volante actual (joystick o 0 si no hay pantalla táctil).
