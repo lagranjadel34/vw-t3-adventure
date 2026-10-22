@@ -6,22 +6,26 @@ Guion: ciudad caótica -> salir en la VW T3 -> bosque -> encontrar spot -> acamp
 Estado: ver docs/HITOS.md
 
 ## Stack
-Phaser 3 + TypeScript + Vite. Objetivo final: web/PWA y APK Android (Capacitor).
+**Godot 4.5 (GDScript) en `godot/`**, renderer Compatibility. Objetivo: APK Android (y escritorio).
+La versión Phaser 3 + TypeScript (`src/`, `public/`) queda congelada como referencia: solo se toca si hace falta.
 
 ## Reglas técnicas
 - Resolución interna 320x180, `pixelArt: true`, escala FIT. Tiles 16x16.
 - Cámara top-down. Controles: WASD/flechas y, en táctil, joystick flotante (mitad izquierda) = volante y pedales en pantalla (abajo derecha) = acelerar/frenar; sin acelerador no hay potencia. Zonas de toque >= `TAP_MIN_HEIGHT` (`src/config/touch.ts`).
-- Assets en `public/assets/` (sprites, maps, audio). Mapas con Tiled (JSON).
-- Una escena por archivo en `src/scenes/`. Entidades en `src/entities/`.
-- Constantes (tamaños, velocidades) en `src/config/`. Sin números mágicos.
+- Godot: assets en `godot/assets/`, escenas en `godot/scenes/`, entidades en `godot/entities/`, UI en `godot/ui/`.
+- Constantes (tamaños, velocidades) en `godot/config/game_config.gd`. Sin números mágicos.
+- Mapas con Tiled (JSON), cargados en runtime por `godot/scripts/tiled_map.gd`.
 - Placeholders (rectángulos) hasta tener arte. No inventes sprites.
 
 ## Flujo de trabajo
 - Trabaja por hitos (ver `docs/HITOS.md`): un hito = un prompt, una prueba, un commit.
-- Antes de dar algo por terminado: `npm run build` sin errores.
+- Antes de dar algo por terminado: `godot --headless --path godot -s res://tests/drive_test.gd` sin errores.
+- Cada push a master con cambios en `godot/` genera el APK (GitHub Actions) en Releases:
+  https://github.com/lagranjadel34/vw-t3-adventure/releases/latest/download/vw-t3-adventure.apk
 - Commits pequeños, en español, formato: `hito N: descripción`.
 - No hagas búsquedas web ni uses herramientas externas salvo necesidad.
 - Respuestas concisas; muestra solo lo modificado.
 
 ## Comandos
-- `npm run dev` servidor local · `npm run build` compila y empaqueta · `npm run preview`
+- Godot: abrir `godot/project.godot` en el editor (F5 juega). Con el móvil por USB, botón de despliegue remoto.
+- Phaser (referencia): `npm run dev` · `npm run build`

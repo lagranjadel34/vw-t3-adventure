@@ -1,0 +1,116 @@
+class_name Van
+extends CharacterBody2D
+## La T3. Modelo bicicleta portado de src/entities/Van.ts (versión Phaser):
+## giran las ruedas delanteras, la trasera sigue la trazada y no hay derrape.
+
+# Mandos que fija la escena cada frame: volante en [-1, 1] (joystick) y pedales.
+var steer_input := 0.0
+var gas_input := false
+var brake_input := false
+
+var _trip_meters := 0.0
+# Marcha atrás: solo si se pisa el freno con la furgo parada; dura mientras siga pisado.
+var _reversing := false
+var _brake_was_down := false
+
+@onready var _sprite: Sprite2D = $Sprite2D
+@onready var _shape: CollisionShape2D = $Shape
+
+
+func _ready() -> void:
+	(_shape.shape as CircleShape2D).radius = GameConfig.VAN_BODY_RADIUS
+
+
+## Distancia recorrida en esta partida (km). Fuente única para cuentakilómetros, averías, etc.
+var trip_km: float:
+	get:
+		return _trip_meters / GameConfig.METERS_PER_KM
+
+## Velocidad con signo en el sentido del morro (px/s; negativa = marcha atrás).
+var speed: float:
+	get:
+		return velocity.dot(_heading())
+
+## Acelerador por teclado (W/↑).
+var gas_key: bool:
+	get:
+		return Input.is_physical_key_pressed(KEY_W) or Input.is_physical_key_pressed(KEY_UP)
+
+## Freno por teclado (S/↓).
+var brake_key: bool:
+	get:
+		return Input.is_physical_key_pressed(KEY_S) or Input.is_physical_key_pressed(KEY_DOWN)
+
+## Eje delantero en coordenadas de mundo (la cámara mira hacia donde va el morro).
+var front: Vector2:
+	get:
+		return global_position + Vector2(0, -_length() * GameConfig.VAN_FRONT_AXLE_RATIO).rotated(rotation)
+
+
+func _physics_process(delta: float) -> void:
+	var left := Input.is_physical_key_pressed(KEY_A) or Input.is_physical_key_pressed(KEY_LEFT)
+	var right := Input.is_physical_key_pressed(KEY_D) or Input.is_physical_key_pressed(KEY_RIGHT)
+	# Teclado manda; si no hay teclas pulsadas, se usa el joystick.
+	var steer := -1.0 if left else (1.0 if right else steer_input)
+
+	var spd := maxf(speed, -GameConfig.VAN_MAX_REVERSE_SPEED)
+
+	# Modelo bicicleta: parada no gira; marcha atrás invierte el giro.
+	var wheelbase := _length() * (GameConfig.VAN_FRONT_AXLE_RATIO + GameConfig.VAN_REAR_AXLE_RATIO)
+	var yaw_rate := (spd / wheelbase) * tan(deg_to_rad(GameConfig.VAN_MAX_STEER_DEG) * steer)
+
+	# Pedales: sin acelerador no hay potencia (solo rueda por inercia).
+	# Freno: con la furgo parada, pisarlo mete marcha atrás (mientras siga pisado);
+	# en marcha (adelante o atrás) frena hasta parar.
+	var stopped := absf(spd) <= GameConfig.VAN_STOP_SPEED
+	var brake_pressed := brake_input and not _brake_was_down
+	_brake_was_down = brake_input
+	if not brake_input:
+		_reversing = false
+	elif brake_pressed and stopped:
+		_reversing = true
+
+	if _reversing:
+		spd -= GameConfig.VAN_REVERSE_ACCELERATION * delta
+	elif brake_input:
+		spd = _toward_zero(spd, GameConfig.VAN_BRAKE_DECELERATION * delta)
+	elif gas_input:
+		spd += GameConfig.VAN_ACCELERATION * delta
+	else:
+		spd = _toward_zero(spd, GameConfig.VAN_DRAG * delta)
+	spd = clampf(spd, -GameConfig.VAN_MAX_REVERSE_SPEED, GameConfig.VAN_MAX_SPEED)
+
+	# Sin derrape: la velocidad sigue siempre el morro (la parte que va de lado se pierde).
+	var prev_position := global_position
+	var prev_rotation := rotation
+	velocity = _heading() * spd
+	rotation += yaw_rate * delta
+	move_and_slide()
+	# Contra un muro solo queda la velocidad que de verdad se ha movido.
+	velocity = get_real_velocity()
+	_pivot_on_rear_axle(prev_rotation)
+
+	# Distancia real recorrida (no la velocidad), así choques y paradas no suman.
+	_trip_meters += global_position.distance_to(prev_position) * GameConfig.METERS_PER_PIXEL
+
+
+## El cuerpo gira sobre su centro; aquí se desplaza para que el eje trasero
+## no se mueva de lado: el morro marca la curva y la trasera la sigue.
+func _pivot_on_rear_axle(prev_rotation: float) -> void:
+	if rotation == prev_rotation:
+		return
+	# La trasera queda "abajo" del sprite: offset local (0, +r).
+	var rear := Vector2(0, _length() * GameConfig.VAN_REAR_AXLE_RATIO)
+	move_and_collide(rear.rotated(prev_rotation) - rear.rotated(rotation))
+
+
+func _heading() -> Vector2:
+	return Vector2.from_angle(rotation - PI / 2)
+
+
+func _length() -> float:
+	return _sprite.texture.get_height() * _sprite.scale.y
+
+
+static func _toward_zero(value: float, amount: float) -> float:
+	return 0.0 if absf(value) <= amount else value - signf(value) * amount
