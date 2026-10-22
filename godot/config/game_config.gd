@@ -8,8 +8,8 @@ const GAME_HEIGHT := 180
 const TILE_SIZE := 16
 
 # --- Conducción de la T3 ---
-const VAN_ACCELERATION := 220.0
-const VAN_MAX_SPEED := 90.0
+const VAN_ACCELERATION := 320.0
+const VAN_MAX_SPEED := 130.0
 # Inercia: sin pedales, la furgo pierde esta velocidad por segundo hasta parar.
 const VAN_DRAG := 160.0
 # Freno y marcha atrás. Por debajo de VAN_STOP_SPEED se considera parada.
@@ -26,15 +26,15 @@ const VAN_MAX_STEER_DEG := 35.0
 # Colisión: círculo centrado (gira con la furgo sin cambiar de forma).
 const VAN_BODY_RADIUS := 14.0
 
-# --- Cámara: se aleja con la velocidad para ver más mapa (zoom 1 parada -> MIN a tope) ---
-const CAMERA_ZOOM_STOPPED := 1.0
-const CAMERA_ZOOM_MIN := 0.75
+# --- Cámara: se aleja con la velocidad para ver más mapa (STOPPED parada -> MIN a tope) ---
+const CAMERA_ZOOM_STOPPED := 0.75
+const CAMERA_ZOOM_MIN := 0.55
 # Suavizado por frame a 60 fps (0-1); se corrige con el delta real.
 const CAMERA_ZOOM_LERP := 0.03
 const CAMERA_ZOOM_LERP_FPS := 60.0
 
 # --- Escala del mundo y cuentakilómetros ---
-# Con VAN_MAX_SPEED = 90 px/s, 0.28 m/px ≈ 90 km/h.
+# Con VAN_MAX_SPEED = 130 px/s, 0.28 m/px ≈ 130 km/h.
 const METERS_PER_PIXEL := 0.28
 const METERS_PER_KM := 1000.0
 # Kilometraje con el que sale la T3 (una furgo de 1980 ya tiene sus km).

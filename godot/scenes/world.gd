@@ -29,6 +29,7 @@ func _ready() -> void:
 	_camera.limit_right = int(map.size_px.x)
 	_camera.limit_bottom = int(map.size_px.y)
 	_camera.global_position = _van.front
+	_camera.zoom = Vector2.ONE * GameConfig.CAMERA_ZOOM_STOPPED
 	_camera.reset_smoothing()
 
 
