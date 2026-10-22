@@ -5,6 +5,11 @@ export const TILE_SIZE = 16;
 export const VAN_ACCELERATION = 220;
 export const VAN_MAX_SPEED = 90;
 export const VAN_DRAG = 160;
+// Freno y marcha atrás (px/s²; px/s). Por debajo de VAN_STOP_SPEED se considera parada.
+export const VAN_BRAKE_DECELERATION = 260;
+export const VAN_REVERSE_ACCELERATION = 120;
+export const VAN_MAX_REVERSE_SPEED = 30;
+export const VAN_STOP_SPEED = 2;
 // Dirección tipo coche: giran las ruedas delanteras y la trasera sigue la trazada.
 // Ejes como fracción del alto del sprite medida desde el centro (batalla T3 ≈ 54% del largo).
 export const VAN_FRONT_AXLE_RATIO = 0.3;

@@ -3,6 +3,7 @@ import { Van } from '../entities/Van';
 import { IS_TOUCH } from '../config/device';
 import { TouchJoystick } from '../ui/TouchJoystick';
 import { Odometer } from '../ui/Odometer';
+import { Pedals } from '../ui/Pedals';
 import { ODOMETER_START_KM } from '../config/odometer';
 import {
   MAP_GROUND_LAYER,
@@ -26,6 +27,7 @@ export class PlayScene extends Phaser.Scene {
   private van!: Van;
   private joystick?: TouchJoystick;
   private odometer!: Odometer;
+  private pedals!: Pedals;
   // La cámara sigue al eje delantero, así en pantalla se ve el giro sobre el morro.
   private cameraTarget = new Phaser.Math.Vector2();
 
@@ -69,12 +71,14 @@ export class PlayScene extends Phaser.Scene {
     this.cameras.main.startFollow(this.cameraTarget, true);
     this.joystick = IS_TOUCH ? new TouchJoystick(this) : undefined;
     this.odometer = new Odometer(this);
+    this.pedals = new Pedals(this);
     this.odometer.setKm(ODOMETER_START_KM);
   }
 
   update(): void {
-    // Joystick: horizontal = girar, vertical (arriba) = acelerar.
-    this.van.update(this.joystick && { steer: this.joystick.x, throttle: -this.joystick.y });
+    // Joystick = volante; la potencia sale solo de los pedales (pantalla o W/S).
+    this.pedals.update(this.van.gasKey, this.van.brakeKey);
+    this.van.update({ steer: this.joystick?.x ?? 0, gas: this.pedals.gasDown, brake: this.pedals.brakeDown });
     this.odometer.setKm(ODOMETER_START_KM + this.van.tripKm);
   }
 }

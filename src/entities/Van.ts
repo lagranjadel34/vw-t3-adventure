@@ -1,6 +1,10 @@
 import Phaser from 'phaser';
 import {
   VAN_ACCELERATION,
+  VAN_BRAKE_DECELERATION,
+  VAN_MAX_REVERSE_SPEED,
+  VAN_REVERSE_ACCELERATION,
+  VAN_STOP_SPEED,
   VAN_BODY_RADIUS,
   VAN_DRAG,
   VAN_FRONT_AXLE_RATIO,
@@ -10,10 +14,11 @@ import {
 } from '../config/constants';
 import { METERS_PER_KM, METERS_PER_PIXEL } from '../config/odometer';
 
-/** Entrada analógica opcional (joystick táctil). Valores en [-1, 1]. */
-export interface VanAnalogInput {
+/** Mandos de la furgo: volante en [-1, 1] (joystick) y pedales. */
+export interface VanControls {
   steer: number;
-  throttle: number;
+  gas: boolean;
+  brake: boolean;
 }
 
 export class Van extends Phaser.Physics.Arcade.Sprite {
@@ -60,20 +65,30 @@ export class Van extends Phaser.Physics.Arcade.Sprite {
     return this.tripMeters / METERS_PER_KM;
   }
 
-  update(analog?: VanAnalogInput): void {
+  /** Acelerador por teclado (W/↑). */
+  get gasKey(): boolean {
+    return !!(this.cursors.up?.isDown || this.keyW.isDown);
+  }
+
+  /** Freno por teclado (S/↓). */
+  get brakeKey(): boolean {
+    return !!(this.cursors.down?.isDown || this.keyS.isDown);
+  }
+
+  update(controls: VanControls): void {
     const left = this.cursors.left?.isDown || this.keyA.isDown;
     const right = this.cursors.right?.isDown || this.keyD.isDown;
-    const forward = this.cursors.up?.isDown || this.keyW.isDown;
-    const back = this.cursors.down?.isDown || this.keyS.isDown;
 
     // Teclado manda; si no hay teclas pulsadas, se usa el joystick.
-    const steer = left ? -1 : right ? 1 : (analog?.steer ?? 0);
-    const throttle = forward ? 1 : back ? -1 : (analog?.throttle ?? 0);
+    const steer = left ? -1 : right ? 1 : controls.steer;
 
     const body = this.body as Phaser.Physics.Arcade.Body;
     // Sin derrape: la velocidad sigue siempre el morro (la parte que va de lado se pierde).
     const heading = this.rotation - Math.PI / 2;
-    const speed = body.velocity.x * Math.cos(heading) + body.velocity.y * Math.sin(heading);
+    const speed = Math.max(
+      body.velocity.x * Math.cos(heading) + body.velocity.y * Math.sin(heading),
+      -VAN_MAX_REVERSE_SPEED,
+    );
     body.velocity.setToPolar(heading, speed);
 
     // Modelo bicicleta: parada no gira; marcha atrás invierte el giro.
@@ -81,12 +96,12 @@ export class Van extends Phaser.Physics.Arcade.Sprite {
     const yawRate = (speed / wheelbase) * Math.tan(Phaser.Math.DegToRad(VAN_MAX_STEER_DEG) * steer);
     this.setAngularVelocity(Phaser.Math.RadToDeg(yawRate));
 
-    if (throttle !== 0) {
-      const thrustAngle = Phaser.Math.DegToRad(this.angle - 90);
-      this.scene.physics.velocityFromRotation(thrustAngle, VAN_ACCELERATION * throttle, body.acceleration);
-    } else {
-      body.setAcceleration(0, 0);
-    }
+    // Pedales: sin acelerador no hay potencia (solo rueda por inercia).
+    // El freno manda; con la furgo parada, mantenerlo pisado mete marcha atrás.
+    let force = 0;
+    if (controls.brake) force = speed > VAN_STOP_SPEED ? -VAN_BRAKE_DECELERATION : -VAN_REVERSE_ACCELERATION;
+    else if (controls.gas) force = VAN_ACCELERATION;
+    body.acceleration.setToPolar(heading, force);
   }
 
   /** Eje delantero en coordenadas de mundo (la cámara mira hacia donde va el morro). */
