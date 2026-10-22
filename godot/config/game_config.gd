@@ -97,3 +97,44 @@ const PEDAL_COLORS := {
 	"rib": Color("0f0f0f"),
 	"rib_light": Color("3e3e3e"),
 }
+
+# --- Caja de cambios de la T3 (4 marchas) ---
+# Rejilla real de la T3 de 4 marchas: 1ª arriba-izquierda, 2ª abajo-izquierda,
+# 3ª arriba-derecha, 4ª abajo-derecha. (columna, fila) con -1/+1 = izquierda/derecha, arriba/abajo.
+const GEAR_GATE: Array[Vector2i] = [Vector2i(-1, -1), Vector2i(-1, 1), Vector2i(1, -1), Vector2i(1, 1)]
+# Por marcha: velocidad máxima (fracción de VAN_MAX_SPEED) y fuerza (fracción de VAN_ACCELERATION).
+const GEAR_MAX_SPEED_RATIO: Array[float] = [0.3, 0.55, 0.8, 1.0]
+const GEAR_ACCEL_RATIO: Array[float] = [1.0, 0.75, 0.5, 0.35]
+# Marcha larga a pocas vueltas: por debajo de esta fracción del tope de la marcha anterior,
+# el motor se ahoga y apenas empuja (arrancar en 3ª cuesta).
+const GEAR_LUG_SPEED_RATIO := 0.5
+const GEAR_LUG_ACCEL_RATIO := 0.25
+# Por encima del tope de la marcha (al reducir), el motor retiene hasta ese tope.
+const GEAR_ENGINE_BRAKE := 140.0
+# Embrague pisado durante el cambio: ese tiempo no hay potencia (s).
+const GEAR_SHIFT_TIME := 0.25
+# Automático: sube al llegar a esta fracción del tope; baja por debajo de esta fracción
+# del tope de la marcha anterior.
+const GEAR_AUTO_UP_RATIO := 0.95
+const GEAR_AUTO_DOWN_RATIO := 0.6
+
+# --- Palanca de cambios en el HUD, a la izquierda de los pedales ---
+# Rectángulo relativo a la esquina inferior derecha de la pantalla.
+const LEVER_RECT := Rect2(-98, -46, 30, 40)
+const LEVER_HIT_PADDING := 4.0
+const LEVER_SWIPE_MIN := 6.0 # px de deslizamiento para cambiar de marcha
+const LEVER_SHIFT_S := 0.15 # duración del recorrido de la bola por la H
+const LEVER_SLOT_INSET := Vector2(8, 9) # de la ranura al borde de la placa
+const LEVER_KNOB_RADIUS := 4.0
+const LEVER_MODE_TOP := 2.0 # letra A/M desde el borde superior de la placa
+const LEVER_IDLE_ALPHA := 0.8
+const LEVER_COLORS := {
+	"plate": Color("2a2620"),
+	"plate_edge": Color("6b6150"),
+	"slot": Color("080808"),
+	"number": Color("c9bf9f"),
+	"knob": Color("141414"),
+	"knob_shine": Color("5a5a5a"),
+	"mode_auto": Color("6fbf4a"),
+	"mode_manual": Color("ffd24d"),
+}

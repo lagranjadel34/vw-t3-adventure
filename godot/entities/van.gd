@@ -8,6 +8,9 @@ var steer_input := 0.0
 var gas_input := false
 var brake_input := false
 
+## Caja de cambios: la potencia depende de la marcha metida.
+var gearbox := Gearbox.new()
+
 var _trip_meters := 0.0
 # Marcha atrás: solo si se pisa el freno con la furgo parada; dura mientras siga pisado.
 var _reversing := false
@@ -40,6 +43,19 @@ var gas_key: bool:
 var brake_key: bool:
 	get:
 		return Input.is_physical_key_pressed(KEY_S) or Input.is_physical_key_pressed(KEY_DOWN)
+
+## Teclado: E sube marcha, Q baja, M alterna automático/manual.
+func _unhandled_input(event: InputEvent) -> void:
+	if not (event is InputEventKey and event.pressed and not event.echo):
+		return
+	match event.physical_keycode:
+		KEY_E:
+			gearbox.manual_shift(true)
+		KEY_Q:
+			gearbox.manual_shift(false)
+		KEY_M:
+			gearbox.set_automatic(not gearbox.automatic)
+
 
 ## Eje delantero en coordenadas de mundo (la cámara mira hacia donde va el morro).
 var front: Vector2:
@@ -74,10 +90,14 @@ func _physics_process(delta: float) -> void:
 		spd -= GameConfig.VAN_REVERSE_ACCELERATION * delta
 	elif brake_input:
 		spd = _toward_zero(spd, GameConfig.VAN_BRAKE_DECELERATION * delta)
-	elif gas_input:
-		spd += GameConfig.VAN_ACCELERATION * delta
-	else:
+	elif gas_input and spd < Gearbox.max_speed(gearbox.gear):
+		spd = minf(spd + gearbox.acceleration(spd) * delta, Gearbox.max_speed(gearbox.gear))
+	elif not gas_input:
 		spd = _toward_zero(spd, GameConfig.VAN_DRAG * delta)
+	# Pasado de vueltas (tras reducir): el motor retiene hasta el tope de la marcha.
+	if not _reversing and spd > Gearbox.max_speed(gearbox.gear):
+		spd = move_toward(spd, Gearbox.max_speed(gearbox.gear), GameConfig.GEAR_ENGINE_BRAKE * delta)
+	gearbox.update(spd, delta)
 	spd = clampf(spd, -GameConfig.VAN_MAX_REVERSE_SPEED, GameConfig.VAN_MAX_SPEED)
 
 	# Sin derrape: la velocidad sigue siempre el morro (la parte que va de lado se pierde).

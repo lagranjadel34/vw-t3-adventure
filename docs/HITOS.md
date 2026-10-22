@@ -21,3 +21,4 @@ Migración por paridad: Phaser queda como referencia. Hitos con prefijo G.
 - [x] G1. Proyecto Godot: T3 conduciendo por Sevilla (modelo bicicleta portado), cámara con zoom, joystick y pedales, APK automático en Releases.
 - [x] G2. Menú de inicio (hoguera, estrellas fugaces) e intro con viñetas, portados de Phaser.
 - [ ] G3. HUD: cuentakilómetros de rodillos.
+- [x] G4. Caja de cambios de 4 marchas (rejilla T3, 1ª arriba): automática por defecto, manual deslizando la palanca o con Q/E.
