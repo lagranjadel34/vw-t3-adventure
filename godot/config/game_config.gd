@@ -124,9 +124,10 @@ const PEDAL_COLORS := {
 }
 
 # --- Caja de cambios de la T3 (4 marchas) ---
-# Rejilla real de la T3 de 4 marchas: 1ª arriba-izquierda, 2ª abajo-izquierda,
-# 3ª arriba-derecha, 4ª abajo-derecha. (columna, fila) con -1/+1 = izquierda/derecha, arriba/abajo.
-const GEAR_GATE: Array[Vector2i] = [Vector2i(-1, -1), Vector2i(-1, 1), Vector2i(1, -1), Vector2i(1, 1)]
+# Rejilla de la T3 de 4 marchas (al revés que un coche normal): 1ª abajo-izquierda,
+# 2ª arriba-izquierda, 3ª abajo-derecha, 4ª arriba-derecha.
+# (columna, fila) con -1/+1 = izquierda/derecha, arriba/abajo.
+const GEAR_GATE: Array[Vector2i] = [Vector2i(-1, 1), Vector2i(-1, -1), Vector2i(1, 1), Vector2i(1, -1)]
 # Por marcha: velocidad máxima (fracción de VAN_MAX_SPEED) y fuerza (fracción de VAN_ACCELERATION).
 const GEAR_MAX_SPEED_RATIO: Array[float] = [0.3, 0.55, 0.8, 1.0]
 const GEAR_ACCEL_RATIO: Array[float] = [1.0, 0.75, 0.5, 0.35]
@@ -143,9 +144,10 @@ const GEAR_SHIFT_TIME := 0.25
 const GEAR_AUTO_UP_RATIO := 0.95
 const GEAR_AUTO_DOWN_RATIO := 0.6
 
-# --- Palanca de cambios en el HUD, a la izquierda de los pedales ---
+# --- Palanca de cambios en el HUD, encima de los pedales ---
+# Así el mismo pulgar que acelera y frena tiene que soltar el pedal para cambiar.
 # Rectángulo relativo a la esquina inferior derecha de la pantalla.
-const LEVER_RECT := Rect2(-98, -46, 30, 40)
+const LEVER_RECT := Rect2(-48, -94, 30, 40)
 const LEVER_HIT_PADDING := 4.0
 const LEVER_SWIPE_MIN := 6.0 # px de deslizamiento para cambiar de marcha
 const LEVER_SHIFT_S := 0.15 # duración del recorrido de la bola por la H

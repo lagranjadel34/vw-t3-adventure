@@ -11,7 +11,7 @@ La versión Phaser 3 + TypeScript (`src/`, `public/`) queda congelada como refer
 
 ## Reglas técnicas
 - Resolución interna 320x180, `pixelArt: true`, escala FIT. Tiles 16x16.
-- Cámara top-down. Controles: WASD/flechas y, en táctil, joystick flotante (mitad izquierda) = volante y pedales en pantalla (abajo derecha) = acelerar/frenar; sin acelerador no hay potencia; palanca de cambios junto a los pedales (deslizar = subir/bajar, toque = auto/manual; teclado Q/E/M). Zonas de toque >= `TAP_MIN_HEIGHT` (`src/config/touch.ts`).
+- Cámara top-down. Controles: WASD/flechas y, en táctil, joystick flotante (mitad izquierda) = volante y pedales en pantalla (abajo derecha) = acelerar/frenar; sin acelerador no hay potencia; palanca de cambios encima de los pedales (deslizar = subir/bajar, toque = auto/manual; teclado Q/E/M). Zonas de toque >= `TAP_MIN_HEIGHT` (`src/config/touch.ts`).
 - Godot: assets en `godot/assets/`, escenas en `godot/scenes/`, entidades en `godot/entities/`, UI en `godot/ui/`.
 - Constantes (tamaños, velocidades) en `godot/config/game_config.gd`. Sin números mágicos.
 - Mapas con Tiled (JSON), cargados en runtime por `godot/scripts/tiled_map.gd`.
