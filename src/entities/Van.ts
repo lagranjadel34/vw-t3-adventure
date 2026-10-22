@@ -31,6 +31,9 @@ export class Van extends Phaser.Physics.Arcade.Sprite {
   private lastY: number;
   private lastRotation = 0;
   private tripMeters = 0;
+  // Marcha atrás: solo si se pisa el freno con la furgo parada; dura mientras siga pisado.
+  private reversing = false;
+  private brakeWasDown = false;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y, 't3_base');
@@ -65,6 +68,13 @@ export class Van extends Phaser.Physics.Arcade.Sprite {
     return this.tripMeters / METERS_PER_KM;
   }
 
+  /** Velocidad con signo en el sentido del morro (px/s; negativa = marcha atrás). */
+  get speed(): number {
+    const body = this.body as Phaser.Physics.Arcade.Body;
+    const heading = this.rotation - Math.PI / 2;
+    return body.velocity.x * Math.cos(heading) + body.velocity.y * Math.sin(heading);
+  }
+
   /** Acelerador por teclado (W/↑). */
   get gasKey(): boolean {
     return !!(this.cursors.up?.isDown || this.keyW.isDown);
@@ -85,11 +95,7 @@ export class Van extends Phaser.Physics.Arcade.Sprite {
     const body = this.body as Phaser.Physics.Arcade.Body;
     // Sin derrape: la velocidad sigue siempre el morro (la parte que va de lado se pierde).
     const heading = this.rotation - Math.PI / 2;
-    const speed = Math.max(
-      body.velocity.x * Math.cos(heading) + body.velocity.y * Math.sin(heading),
-      -VAN_MAX_REVERSE_SPEED,
-    );
-    body.velocity.setToPolar(heading, speed);
+    let speed = Math.max(this.speed, -VAN_MAX_REVERSE_SPEED);
 
     // Modelo bicicleta: parada no gira; marcha atrás invierte el giro.
     const wheelbase = this.displayHeight * (VAN_FRONT_AXLE_RATIO + VAN_REAR_AXLE_RATIO);
@@ -97,10 +103,25 @@ export class Van extends Phaser.Physics.Arcade.Sprite {
     this.setAngularVelocity(Phaser.Math.RadToDeg(yawRate));
 
     // Pedales: sin acelerador no hay potencia (solo rueda por inercia).
-    // El freno manda; con la furgo parada, mantenerlo pisado mete marcha atrás.
+    // Freno: con la furgo parada, pisarlo mete marcha atrás (mientras siga pisado);
+    // en marcha (adelante o atrás) frena hasta parar.
+    const stopped = Math.abs(speed) <= VAN_STOP_SPEED;
+    const brakePressed = controls.brake && !this.brakeWasDown;
+    this.brakeWasDown = controls.brake;
+    if (!controls.brake) this.reversing = false;
+    else if (brakePressed && stopped) this.reversing = true;
+
     let force = 0;
-    if (controls.brake) force = speed > VAN_STOP_SPEED ? -VAN_BRAKE_DECELERATION : -VAN_REVERSE_ACCELERATION;
-    else if (controls.gas) force = VAN_ACCELERATION;
+    if (this.reversing) {
+      force = -VAN_REVERSE_ACCELERATION;
+    } else if (controls.brake) {
+      // Frena contra el sentido de la marcha sin pasarse de cero.
+      const dv = VAN_BRAKE_DECELERATION * (this.scene.game.loop.delta / 1000);
+      speed = Math.abs(speed) <= dv ? 0 : speed - Math.sign(speed) * dv;
+    } else if (controls.gas) {
+      force = VAN_ACCELERATION;
+    }
+    body.velocity.setToPolar(heading, speed);
     body.acceleration.setToPolar(heading, force);
   }
 

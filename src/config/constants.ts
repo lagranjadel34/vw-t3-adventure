@@ -19,3 +19,8 @@ export const VAN_MAX_STEER_DEG = 35;
 
 // Colisión de la T3: círculo centrado (el cuerpo Arcade no rota con el sprite).
 export const VAN_BODY_RADIUS = 14;
+
+// Cámara: se aleja con la velocidad para ver más mapa (zoom 1 parada -> MIN a tope).
+export const CAMERA_ZOOM_STOPPED = 1;
+export const CAMERA_ZOOM_MIN = 0.75;
+export const CAMERA_ZOOM_LERP = 0.03; // suavizado por frame (0-1)

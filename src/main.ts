@@ -5,6 +5,7 @@ import { BootScene } from './scenes/BootScene';
 import { MenuScene } from './scenes/MenuScene';
 import { IntroScene } from './scenes/IntroScene';
 import { PlayScene } from './scenes/PlayScene';
+import { HudScene } from './scenes/HudScene';
 
 new Phaser.Game({
   type: Phaser.AUTO,
@@ -16,5 +17,5 @@ new Phaser.Game({
   scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
   input: { activePointers: TOUCH_ACTIVE_POINTERS },
   physics: { default: 'arcade', arcade: { debug: false } },
-  scene: [BootScene, MenuScene, IntroScene, PlayScene],
+  scene: [BootScene, MenuScene, IntroScene, PlayScene, HudScene],
 });
