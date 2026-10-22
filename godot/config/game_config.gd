@@ -26,6 +26,29 @@ const VAN_MAX_STEER_DEG := 35.0
 # Colisión: círculo centrado (gira con la furgo sin cambiar de forma).
 const VAN_BODY_RADIUS := 14.0
 
+# --- Peso: según la camperización la T3 pesa más o menos ---
+# Masa en vacío y carga por defecto (camperización media). Con la carga por defecto el
+# factor de peso es 1; más carga = acelera, frena y agarra menos (y al revés).
+const VAN_EMPTY_MASS_KG := 1400.0
+const VAN_DEFAULT_LOAD_KG := 300.0
+const VAN_LOAD_PRESETS_KG := {"furgon": 0.0, "camper": 300.0, "westfalia": 450.0}
+
+# --- Agarre y derrape (motor y tracción traseros: se va de atrás) ---
+# Aceleración lateral (v · giro, px/s²) que aguantan las ruedas antes de derrapar.
+const VAN_GRIP_LIMIT := 140.0
+# Agarre lateral durante el derrape: la velocidad de lado se pierde a este ritmo (1/s).
+const VAN_DRIFT_GRIP := 3.0
+# Con gas en pleno derrape las ruedas traseras patinan: agarre multiplicado por esto.
+const VAN_DRIFT_GAS_GRIP_RATIO := 0.6
+# Motor trasero: el peso de atrás empuja la cola hacia fuera (rad/s por px/s de deslizamiento).
+const VAN_DRIFT_TAIL_YAW := 0.012
+const VAN_DRIFT_MAX_TAIL_YAW := 1.5
+# El derrape acaba cuando la velocidad de lado baja de esto (px/s).
+const VAN_DRIFT_END_SLIP := 6.0
+# Freno de mano (Espacio): bloquea las traseras, casi sin agarre lateral.
+const VAN_HANDBRAKE_GRIP := 1.2
+const VAN_HANDBRAKE_DECELERATION := 110.0
+
 # --- Cámara: se aleja con la velocidad para ver más mapa (STOPPED parada -> MIN a tope) ---
 const CAMERA_ZOOM_STOPPED := 0.75
 const CAMERA_ZOOM_MIN := 0.55
@@ -34,8 +57,10 @@ const CAMERA_ZOOM_LERP := 0.03
 const CAMERA_ZOOM_LERP_FPS := 60.0
 
 # --- Escala del mundo y cuentakilómetros ---
-# Con VAN_MAX_SPEED = 130 px/s, 0.28 m/px ≈ 130 km/h.
-const METERS_PER_PIXEL := 0.28
+# Escala elegida para que VAN_MAX_SPEED marque la punta real de la T3 (100 km/h).
+const VAN_TOP_SPEED_KMH := 100.0
+const KMH_PER_MPS := 3.6
+const METERS_PER_PIXEL := VAN_TOP_SPEED_KMH / KMH_PER_MPS / VAN_MAX_SPEED
 const METERS_PER_KM := 1000.0
 # Kilometraje con el que sale la T3 (una furgo de 1980 ya tiene sus km).
 const ODOMETER_START_KM := 184263.0
