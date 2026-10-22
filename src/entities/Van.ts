@@ -6,6 +6,7 @@ import {
   VAN_DRAG,
   VAN_TURN_RATE,
 } from '../config/constants';
+import { METERS_PER_KM, METERS_PER_PIXEL } from '../config/odometer';
 
 /** Entrada analógica opcional (joystick táctil). Valores en [-1, 1]. */
 export interface VanAnalogInput {
@@ -19,6 +20,9 @@ export class Van extends Phaser.Physics.Arcade.Sprite {
   private keyA: Phaser.Input.Keyboard.Key;
   private keyS: Phaser.Input.Keyboard.Key;
   private keyD: Phaser.Input.Keyboard.Key;
+  private lastX: number;
+  private lastY: number;
+  private tripMeters = 0;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y, 't3_base');
@@ -30,6 +34,8 @@ export class Van extends Phaser.Physics.Arcade.Sprite {
     this.setMaxVelocity(VAN_MAX_SPEED);
     this.setAngularDrag(VAN_ANGULAR_DRAG);
     this.setAngle(0);
+    this.lastX = x;
+    this.lastY = y;
 
     const keyboard = scene.input.keyboard as Phaser.Input.Keyboard.KeyboardPlugin;
     this.cursors = keyboard.createCursorKeys();
@@ -39,7 +45,17 @@ export class Van extends Phaser.Physics.Arcade.Sprite {
     this.keyD = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
   }
 
+  /** Distancia recorrida en esta partida (km). Fuente única para cuentakilómetros, averías, etc. */
+  get tripKm(): number {
+    return this.tripMeters / METERS_PER_KM;
+  }
+
   update(analog?: VanAnalogInput): void {
+    // Distancia real recorrida (no la velocidad), así choques y paradas no suman.
+    this.tripMeters += Phaser.Math.Distance.Between(this.lastX, this.lastY, this.x, this.y) * METERS_PER_PIXEL;
+    this.lastX = this.x;
+    this.lastY = this.y;
+
     const left = this.cursors.left?.isDown || this.keyA.isDown;
     const right = this.cursors.right?.isDown || this.keyD.isDown;
     const forward = this.cursors.up?.isDown || this.keyW.isDown;
