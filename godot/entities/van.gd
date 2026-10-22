@@ -16,6 +16,12 @@ var load_kg := GameConfig.VAN_DEFAULT_LOAD_KG
 ## La furgo va de lado (para HUD, humo, sonido...).
 var drifting := false
 
+## Volante aplicado este frame en [-1, 1] (teclado o joystick), para el sprite.
+var steer := 0.0
+## Faros encendidos (L) y daño de la carrocería 0-3 (K, de prueba hasta que haya averías).
+var lights_on := false
+var damage_level := 0
+
 ## Caja de cambios: la potencia depende de la marcha metida.
 var gearbox := Gearbox.new()
 
@@ -26,7 +32,6 @@ var _brake_was_down := false
 # Velocidad de lado (px/s, + = hacia la izquierda del morro). Solo existe derrapando.
 var _slip := 0.0
 
-@onready var _sprite: Sprite2D = $Sprite2D
 @onready var _shape: CollisionShape2D = $Shape
 
 
@@ -64,7 +69,7 @@ var weight_factor: float:
 	get:
 		return (GameConfig.VAN_EMPTY_MASS_KG + GameConfig.VAN_DEFAULT_LOAD_KG) / (GameConfig.VAN_EMPTY_MASS_KG + load_kg)
 
-## Teclado: E sube marcha, Q baja, M alterna automático/manual.
+## Teclado: E sube marcha, Q baja, M alterna automático/manual, L faros, K daño.
 func _unhandled_input(event: InputEvent) -> void:
 	if not (event is InputEventKey and event.pressed and not event.echo):
 		return
@@ -75,6 +80,18 @@ func _unhandled_input(event: InputEvent) -> void:
 			gearbox.manual_shift(false)
 		KEY_M:
 			gearbox.set_automatic(not gearbox.automatic)
+		KEY_L:
+			toggle_lights()
+		KEY_K:
+			cycle_damage()
+
+
+func toggle_lights() -> void:
+	lights_on = not lights_on
+
+
+func cycle_damage() -> void:
+	damage_level = (damage_level + 1) % GameConfig.VAN_DAMAGE_LEVELS
 
 
 ## Eje delantero en coordenadas de mundo (la cámara mira hacia donde va el morro).
@@ -87,7 +104,7 @@ func _physics_process(delta: float) -> void:
 	var left := Input.is_physical_key_pressed(KEY_A) or Input.is_physical_key_pressed(KEY_LEFT)
 	var right := Input.is_physical_key_pressed(KEY_D) or Input.is_physical_key_pressed(KEY_RIGHT)
 	# Teclado manda; si no hay teclas pulsadas, se usa el joystick.
-	var steer := -1.0 if left else (1.0 if right else steer_input)
+	steer = -1.0 if left else (1.0 if right else steer_input)
 
 	var spd := maxf(speed, -GameConfig.VAN_MAX_REVERSE_SPEED)
 	var handbrake := handbrake_input or handbrake_key
@@ -185,7 +202,7 @@ func _side_speed() -> float:
 
 
 func _length() -> float:
-	return _sprite.texture.get_height() * _sprite.scale.y
+	return GameConfig.VAN_LENGTH_PX
 
 
 static func _toward_zero(value: float, amount: float) -> float:

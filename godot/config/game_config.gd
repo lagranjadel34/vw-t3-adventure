@@ -26,6 +26,44 @@ const VAN_REAR_AXLE_RATIO := 0.24
 const VAN_MAX_STEER_DEG := 35.0
 # Colisión: círculo centrado (gira con la furgo sin cambiar de forma).
 const VAN_BODY_RADIUS := 14.0
+# Largo de la furgo para las físicas (ejes, batalla). Antes salía del alto del sprite cenital.
+const VAN_LENGTH_PX := 64.0
+
+# --- Sprite isométrico de la T3 Dehler (hojas generadas con tools/sprites/export_godot.py) ---
+# Una hoja por estado: d<daño>.png y d<daño>_luces.png. Columnas = rumbos; filas =
+# volante (izq, recto, dcha) × frames de rueda. El sprite no gira: se elige el frame.
+const VAN_SPRITE_PATH := "res://assets/sprites/dehler/d%d%s.png"
+const VAN_SPRITE_LIGHTS_SUFFIX := "_luces"
+const VAN_SPRITE_DIRECTIONS := 16
+const VAN_SPRITE_WHEEL_FRAMES := 4
+const VAN_SPRITE_STEER_ROWS := 3
+# Volante por encima de esto (en [-1, 1]) muestra las ruedas giradas.
+const VAN_SPRITE_STEER_THRESHOLD := 0.33
+# Celda 80x80 con el centro de la furgo (en el suelo) en (40, 46).
+const VAN_SPRITE_OFFSET := Vector2(0, -6)
+# Escala y cámara con las que se generaron las hojas.
+const VAN_SPRITE_PX_PER_M := 13.0
+const VAN_SPRITE_CAMERA_DEG := 60.0
+# Avance (px) que hace pasar un frame de la rueda.
+const VAN_WHEEL_FRAME_PX := 3.0
+# Estados de daño de la carrocería (0 bien · 1 desgastado · 2 averiado · 3 crítico).
+const VAN_DAMAGE_LEVELS := 4
+
+# --- Humo del escape (según el daño) ---
+# Escape en metros del modelo: x adelante, y izquierda, z altura.
+const VAN_EXHAUST_M := Vector3(-2.39, 0.5, 0.25)
+const VAN_SMOKE_AMOUNT: Array[int] = [6, 10, 18, 28]
+const VAN_SMOKE_COLORS: Array[Color] = [Color(0.8, 0.8, 0.8, 0.35), Color(0.7, 0.7, 0.7, 0.5), Color(0.47, 0.47, 0.48, 0.7), Color(0.16, 0.16, 0.17, 0.85)]
+const VAN_SMOKE_LIFETIME := 0.9
+const VAN_SMOKE_SPEED := Vector2(4, 10)
+const VAN_SMOKE_RISE := -10.0
+const VAN_SMOKE_SPREAD_DEG := 30.0
+const VAN_SMOKE_SIZE := Vector2(1, 3)
+
+# --- Botones de prueba (arriba a la derecha): luces y daño ---
+const TEST_BUTTON_SIZE := Vector2(30, 22)
+const TEST_BUTTON_MARGIN := 4.0
+const TEST_BUTTON_FONT_SIZE := 8
 
 # --- Peso: según la camperización la T3 pesa más o menos ---
 # Masa en vacío y carga por defecto (camperización media). Con la carga por defecto el
