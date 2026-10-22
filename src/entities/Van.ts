@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import {
   VAN_ACCELERATION,
   VAN_ANGULAR_DRAG,
+  VAN_BODY_RADIUS,
   VAN_MAX_SPEED,
   VAN_DRAG,
   VAN_PIVOT_FRONT_RATIO,
@@ -31,6 +32,8 @@ export class Van extends Phaser.Physics.Arcade.Sprite {
     scene.add.existing(this);
     scene.physics.add.existing(this);
 
+    this.setCircle(VAN_BODY_RADIUS, this.width / 2 - VAN_BODY_RADIUS, this.height / 2 - VAN_BODY_RADIUS);
+    this.setCollideWorldBounds(true);
     this.setDamping(true);
     this.setDrag(VAN_DRAG);
     this.setMaxVelocity(VAN_MAX_SPEED);

@@ -9,3 +9,6 @@ export const VAN_TURN_RATE = 180;
 export const VAN_ANGULAR_DRAG = 220;
 // Punto de giro: eje delantero, a esta fracción del alto del sprite por delante del centro.
 export const VAN_PIVOT_FRONT_RATIO = 0.35;
+
+// Colisión de la T3: círculo centrado (el cuerpo Arcade no rota con el sprite).
+export const VAN_BODY_RADIUS = 14;

@@ -1,0 +1,258 @@
+// Genera el mapa Tiled de Sevilla (esquemático) y su tileset placeholder.
+// Uso: node scripts/gen-sevilla-map.mjs
+// Salida: public/assets/maps/sevilla.json + tiles-sevilla.png (editables luego en Tiled).
+import { writeFileSync } from 'node:fs';
+import { deflateSync } from 'node:zlib';
+
+const OUT_DIR = 'public/assets/maps';
+const TILE = 16;
+const W = 200;
+const H = 150;
+
+// ---------- Tiles (gid = índice + 1) ----------
+const T = {
+  ASFALTO: 1, ACERA: 2, TEJADO: 3, PARQUE: 4, AGUA: 5, PUENTE: 6,
+  MONUMENTO: 7, ALBERO: 8, ARBOL: 9, CAL: 10, OCRE: 11, TORRE: 12,
+};
+const TILE_DEFS = [
+  { name: 'asfalto', color: [58, 58, 64] },
+  { name: 'acera', color: [150, 142, 132], grid: [170, 162, 152] },
+  { name: 'tejado', color: [178, 98, 70], border: [140, 72, 50], collides: true },
+  { name: 'parque', color: [86, 140, 62] },
+  { name: 'agua', color: [44, 92, 138], wave: [90, 140, 186], collides: true },
+  { name: 'puente', color: [110, 106, 112], border: [190, 186, 180] },
+  { name: 'monumento', color: [214, 192, 136], border: [170, 146, 96], collides: true },
+  { name: 'albero', color: [218, 166, 74] },
+  { name: 'arbol', color: [86, 140, 62], tree: [40, 92, 36], collides: true },
+  { name: 'cal', color: [232, 226, 210], border: [190, 180, 160], collides: true },
+  { name: 'ocre', color: [212, 160, 60], border: [170, 120, 40], collides: true },
+  { name: 'torre', color: [196, 150, 90], border: [120, 84, 50], collides: true },
+];
+const BUILDING = new Set([T.TEJADO, T.CAL, T.OCRE]);
+
+// ---------- RNG con semilla (mapa reproducible) ----------
+let seed = 1992;
+const rnd = () => {
+  seed = (seed + 0x6d2b79f5) | 0;
+  let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+  t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+};
+const rint = (a, b) => a + Math.floor(rnd() * (b - a + 1));
+
+// ---------- Rejilla ----------
+const g = new Array(W * H).fill(T.TEJADO);
+const inside = (x, y) => x >= 0 && y >= 0 && x < W && y < H;
+const get = (x, y) => g[y * W + x];
+const set = (x, y, t) => inside(x, y) && (g[y * W + x] = t);
+const rect = (x0, y0, x1, y1, t) => {
+  for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) set(x, y, t);
+};
+
+// Río Guadalquivir: eje con meandro suave.
+const RIVER_W = 12;
+const riverX = (y) => Math.round(62 + 6 * Math.sin(y / 25));
+// Casco antiguo: elipse de la Ronda histórica.
+const CASCO = { cx: 110, cy: 62, rx: 38, ry: 44 };
+const ellipse = (x, y) => ((x - CASCO.cx) / CASCO.rx) ** 2 + ((y - CASCO.cy) / CASCO.ry) ** 2;
+
+// 1) Triana / Los Remedios (orilla oeste): cuadrícula con algo de desorden.
+for (let x = 6; x < 60; x += rint(13, 17)) rect(x, 0, x + 3, H - 1, T.ASFALTO);
+for (let y = 6; y < H; y += rint(12, 15)) rect(0, y, 60, y + 3, T.ASFALTO);
+
+// 2) Cartuja (norte de la orilla oeste): parque con pabellones de la Expo.
+rect(0, 0, 60, 34, T.PARQUE);
+for (let i = 0; i < 6; i++) {
+  const x = rint(4, 44), y = rint(4, 26);
+  rect(x, y, x + rint(4, 8), y + rint(3, 5), T.MONUMENTO);
+}
+
+// 3) Nervión y ensanche (este y alrededores del casco): avenidas anchas.
+for (let x = 152; x < W; x += 18) rect(x, 0, x + 5, H - 1, T.ASFALTO);
+for (let y = 4; y < H; y += 18) rect(70, y, W - 1, y + 5, T.ASFALTO);
+
+// 4) Casco antiguo: calles quebradas de 4 tiles (la T3 cabe justa).
+for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (ellipse(x, y) < 1) set(x, y, T.TEJADO);
+for (let y0 = CASCO.cy - CASCO.ry + 10; y0 < CASCO.cy + CASCO.ry; y0 += rint(14, 17)) {
+  let y = y0;
+  for (let x = CASCO.cx - CASCO.rx; x < CASCO.cx + CASCO.rx; ) {
+    const len = rint(7, 13);
+    for (let i = 0; i <= len; i++) for (let k = 0; k < 4; k++) if (ellipse(x + i, y + k) < 1.05) set(x + i, y + k, T.ASFALTO);
+    x += len;
+    const dy = rint(-2, 2);
+    for (let k = 0; k < 4 + Math.abs(dy); k++) for (let j = 0; j < 4; j++) if (ellipse(x + j, Math.min(y, y + dy) + k) < 1.05) set(x + j, Math.min(y, y + dy) + k, T.ASFALTO);
+    y += dy;
+  }
+}
+for (let x0 = CASCO.cx - CASCO.rx + 10; x0 < CASCO.cx + CASCO.rx; x0 += rint(15, 19)) {
+  let x = x0;
+  for (let y = CASCO.cy - CASCO.ry; y < CASCO.cy + CASCO.ry; ) {
+    const len = rint(6, 12);
+    // Algunas calles se cortan: callejones sin salida, muy de casco antiguo.
+    if (rnd() < 0.2) { y += len; continue; }
+    for (let i = 0; i <= len; i++) for (let k = 0; k < 4; k++) if (ellipse(x + k, y + i) < 1.05) set(x + k, y + i, T.ASFALTO);
+    y += len;
+    const dx = rint(-2, 2);
+    for (let k = 0; k < 4 + Math.abs(dx); k++) for (let j = 0; j < 4; j++) if (ellipse(Math.min(x, x + dx) + k, y + j) < 1.05) set(Math.min(x, x + dx) + k, y + j, T.ASFALTO);
+    x += dx;
+  }
+}
+
+// 5) Ronda histórica: anillo de 6 tiles alrededor del casco.
+for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+  const e = ellipse(x, y);
+  if (e >= 1.0 && e < 1.32) set(x, y, T.ASFALTO);
+}
+
+// 6) Catedral y Giralda (con plaza alrededor) y Avenida de la Constitución.
+rect(102, 78, 124, 94, T.ACERA);
+rect(105, 81, 121, 91, T.MONUMENTO);
+rect(119, 79, 122, 82, T.TORRE);
+rect(108, 94, 112, 112, T.ASFALTO);
+
+// 7) Maestranza: coso de albero junto al río.
+const MAE = { x: 84, y: 76, r: 6 };
+for (let y = MAE.y - MAE.r - 2; y <= MAE.y + MAE.r + 2; y++) for (let x = MAE.x - MAE.r - 2; x <= MAE.x + MAE.r + 2; x++) {
+  const d = Math.hypot(x - MAE.x, y - MAE.y);
+  if (d <= MAE.r - 2) set(x, y, T.ALBERO);
+  else if (d <= MAE.r + 0.5) set(x, y, T.MONUMENTO);
+}
+
+// 8) Río, avenidas de ribera (Torneo/Colón y Betis) y puentes.
+for (let y = 0; y < H; y++) {
+  const c = riverX(y);
+  rect(c - 17, y, c - 12, y, T.ASFALTO);
+  rect(c - 11, y, c - 7, y, T.ACERA);
+  rect(c - 6, y, c + 5, y, T.AGUA);
+  rect(c + 6, y, c + 8, y, T.ACERA);
+  rect(c + 9, y, c + 14, y, T.ASFALTO);
+}
+const BRIDGES = [
+  { y: 22, name: 'Puente de la Barqueta' },
+  { y: 60, name: 'Puente de Triana' },
+  { y: 98, name: 'Puente de San Telmo' },
+  { y: 132, name: 'Puente de Los Remedios' },
+];
+for (const b of BRIDGES) {
+  for (let y = b.y; y < b.y + 5; y++) {
+    const c = riverX(y);
+    rect(c - 12, y, c + 9, y, T.PUENTE);
+  }
+}
+
+// 9) Parque de María Luisa y Plaza de España.
+const PARK = { x0: 92, y0: 112, x1: 150, y1: 146 };
+rect(PARK.x0, PARK.y0, PARK.x1, PARK.y1, T.PARQUE);
+for (let y = PARK.y0; y <= PARK.y1; y++) for (let x = PARK.x0; x <= PARK.x1; x++) if (rnd() < 0.09) set(x, y, T.ARBOL);
+rect(PARK.x0, 126, PARK.x1, 129, T.ALBERO); // paseo central
+rect(118, PARK.y0, 121, PARK.y1, T.ALBERO);
+const PE = { x: 150, y: 128, r: 16 };
+for (let y = PE.y - PE.r - 4; y <= PE.y + PE.r + 4; y++) for (let x = PE.x - PE.r - 4; x <= PE.x; x++) {
+  const d = Math.hypot(x - PE.x, y - PE.y);
+  if (d <= PE.r) set(x, y, T.ALBERO);
+  else if (d <= PE.r + 3) set(x, y, T.MONUMENTO);
+}
+rect(PE.x - PE.r - 4, PE.y - 2, PE.x - PE.r + 1, PE.y + 1, T.ALBERO); // entrada a la plaza
+
+// 10) Salida hacia el bosque: Autovía A-4 al este.
+const EXIT_Y = 58;
+rect(CASCO.cx + CASCO.rx, EXIT_Y, W - 1, EXIT_Y + 5, T.ASFALTO);
+
+// 11) Aceras: todo edificio que toca asfalto pasa a ser acera.
+const isRoad = (t) => t === T.ASFALTO;
+const toSidewalk = [];
+for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+  if (!BUILDING.has(get(x, y))) continue;
+  const n = [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => inside(x + dx, y + dy) && isRoad(get(x + dx, y + dy)));
+  if (n) toSidewalk.push([x, y]);
+}
+for (const [x, y] of toSidewalk) set(x, y, T.ACERA);
+
+// 12) Manzanas: cada una con su color (teja, cal o albero ocre).
+const seen = new Uint8Array(W * H);
+for (let i = 0; i < W * H; i++) {
+  if (seen[i] || !BUILDING.has(g[i])) continue;
+  const r = rnd();
+  const color = r < 0.5 ? T.CAL : r < 0.8 ? T.TEJADO : T.OCRE;
+  const stack = [i];
+  seen[i] = 1;
+  while (stack.length) {
+    const j = stack.pop();
+    g[j] = color;
+    const x = j % W, y = (j / W) | 0;
+    for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+      const k = (y + dy) * W + x + dx;
+      if (inside(x + dx, y + dy) && !seen[k] && BUILDING.has(g[k])) { seen[k] = 1; stack.push(k); }
+    }
+  }
+}
+
+// ---------- Objetos: spawn, salida y rótulos ----------
+const px = (t) => t * TILE;
+let oid = 1;
+const point = (name, type, tx, ty) => ({ id: oid++, name, type, x: px(tx), y: px(ty), width: 0, height: 0, rotation: 0, visible: true, point: true });
+const objects = [
+  point('spawn', 'spawn', riverX(62) - 14.5, 70),
+  { id: oid++, name: 'salida_a4', type: 'salida', x: px(W - 4), y: px(EXIT_Y), width: px(4), height: px(6), rotation: 0, visible: true },
+  point('Triana', 'rotulo', 30, 64),
+  point('La Cartuja', 'rotulo', 30, 16),
+  point('Guadalquivir', 'rotulo', riverX(40), 40),
+  point('Casco Antiguo', 'rotulo', 112, 46),
+  point('Catedral', 'rotulo', 113, 76),
+  point('Maestranza', 'rotulo', MAE.x, MAE.y - MAE.r - 2),
+  point('Parque de María Luisa', 'rotulo', 112, 120),
+  point('Plaza de España', 'rotulo', 142, 128),
+  point('Nervión', 'rotulo', 172, 92),
+  point('Salida A-4', 'rotulo', W - 12, EXIT_Y - 2),
+  ...BRIDGES.map((b) => point(b.name, 'rotulo', riverX(b.y), b.y - 1)),
+];
+
+// ---------- Tiled JSON ----------
+const map = {
+  type: 'map', version: '1.10', tiledversion: '1.10.2', orientation: 'orthogonal', renderorder: 'right-down',
+  width: W, height: H, tilewidth: TILE, tileheight: TILE, infinite: false,
+  nextlayerid: 3, nextobjectid: oid,
+  layers: [
+    { id: 1, name: 'suelo', type: 'tilelayer', width: W, height: H, x: 0, y: 0, opacity: 1, visible: true, data: g },
+    { id: 2, name: 'objetos', type: 'objectgroup', draworder: 'topdown', x: 0, y: 0, opacity: 1, visible: true, objects },
+  ],
+  tilesets: [{
+    firstgid: 1, name: 'placeholder', image: 'tiles-sevilla.png',
+    imagewidth: TILE * TILE_DEFS.length, imageheight: TILE, tilewidth: TILE, tileheight: TILE,
+    tilecount: TILE_DEFS.length, columns: TILE_DEFS.length, margin: 0, spacing: 0,
+    tiles: TILE_DEFS.map((d, id) => ({ id, type: d.name, properties: [{ name: 'collides', type: 'bool', value: !!d.collides }] })),
+  }],
+};
+writeFileSync(`${OUT_DIR}/sevilla.json`, JSON.stringify(map));
+
+// ---------- Tileset PNG (rectángulos placeholder) ----------
+const IW = TILE * TILE_DEFS.length;
+const pix = Buffer.alloc(IW * TILE * 4);
+const put = (x, y, [r, gg, b]) => { const o = (y * IW + x) * 4; pix[o] = r; pix[o + 1] = gg; pix[o + 2] = b; pix[o + 3] = 255; };
+TILE_DEFS.forEach((d, i) => {
+  for (let y = 0; y < TILE; y++) for (let x = 0; x < TILE; x++) {
+    let c = d.color;
+    if (d.border && (x === 0 || y === 0 || x === TILE - 1 || y === TILE - 1)) c = d.border;
+    if (d.grid && (x % 8 === 0 || y % 8 === 0)) c = d.grid;
+    if (d.wave && (y % 6 === 2) && ((x + y) % 8 < 3)) c = d.wave;
+    if (d.tree && Math.hypot(x - 7.5, y - 7.5) < 6) c = d.tree;
+    put(i * TILE + x, y, c);
+  }
+});
+const crcTable = Array.from({ length: 256 }, (_, n) => { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1; return c >>> 0; });
+const crc = (buf) => { let c = 0xffffffff; for (const b of buf) c = crcTable[(c ^ b) & 0xff] ^ (c >>> 8); return (c ^ 0xffffffff) >>> 0; };
+const chunk = (type, data) => {
+  const len = Buffer.alloc(4); len.writeUInt32BE(data.length);
+  const td = Buffer.concat([Buffer.from(type), data]);
+  const c = Buffer.alloc(4); c.writeUInt32BE(crc(td));
+  return Buffer.concat([len, td, c]);
+};
+const ihdr = Buffer.alloc(13);
+ihdr.writeUInt32BE(IW, 0); ihdr.writeUInt32BE(TILE, 4); ihdr[8] = 8; ihdr[9] = 6;
+const raw = Buffer.alloc((IW * 4 + 1) * TILE);
+for (let y = 0; y < TILE; y++) pix.copy(raw, y * (IW * 4 + 1) + 1, y * IW * 4, (y + 1) * IW * 4);
+writeFileSync(`${OUT_DIR}/tiles-sevilla.png`, Buffer.concat([
+  Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+  chunk('IHDR', ihdr), chunk('IDAT', deflateSync(raw)), chunk('IEND', Buffer.alloc(0)),
+]));
+console.log(`sevilla.json ${W}x${H} tiles, ${objects.length} objetos`);

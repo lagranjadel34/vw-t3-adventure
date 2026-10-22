@@ -6,7 +6,7 @@ Hito = entregable pequeño, probable y cerrado. Un prompt, una prueba, un commit
 - [x] 2. Furgoneta controlable (sprite T3 de Ara): aceleración, giro, inercia.
 - [x] 3. Pantalla de menú/título: fondo (arte de Ara) + Empezar/Elegir VW/Configuración.
 - [ ] 4. Intro: presentación de la historia (ciudad caótica -> salir en la VW T3 -> bosque).
-- [ ] 5. Mapa Tiled: ciudad con calles y colisiones.
+- [x] 5. Mapa Tiled: ciudad con calles y colisiones (Sevilla esquemática: río, Triana, casco, Catedral, Maestranza, María Luisa, Plaza de España, salida A-4; regenerar con `npm run map`).
 - [ ] 6. Caos urbano: coches IA, peatones, obstáculos.
 - [ ] 7. Salida de la ciudad -> carretera -> bosque.
 - [ ] 8. Spot de acampada: zona trigger para aparcar.
