@@ -13,3 +13,11 @@ Hito = entregable pequeño, probable y cerrado. Un prompt, una prueba, un commit
 - [ ] 9. Final: acampada nocturna + "FIN".
 - [ ] 10. Pulido: audio, controles táctiles (base táctil hecha: joystick, menú e intro por toque, layout móvil).
 - [ ] 11. PWA en Vercel y APK con Capacitor.
+
+## Godot (desde 2026-10-22)
+
+Migración por paridad: Phaser queda como referencia. Hitos con prefijo G.
+
+- [x] G1. Proyecto Godot: T3 conduciendo por Sevilla (modelo bicicleta portado), cámara con zoom, joystick y pedales, APK automático en Releases.
+- [ ] G2. HUD: cuentakilómetros de rodillos.
+- [ ] G3. Menú e intro.
