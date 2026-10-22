@@ -85,13 +85,15 @@ func _draw() -> void:
 	draw_rect(_rect, colors.plate)
 
 	# Rejilla en H: dos ranuras verticales y el pasillo central.
-	var top := _slot(1)
-	var bottom := _slot(2)
-	var right_top := _slot(3)
-	draw_rect(Rect2(top.x - 1, top.y, 2, bottom.y - top.y), colors.slot)
-	draw_rect(Rect2(right_top.x - 1, right_top.y, 2, bottom.y - top.y), colors.slot)
-	var mid := _slot(1, 0)
-	draw_rect(Rect2(mid.x, mid.y - 1, right_top.x - mid.x, 2), colors.slot)
+	var inset := GameConfig.LEVER_SLOT_INSET
+	var left := _rect.position.x + inset.x
+	var right := _rect.end.x - inset.x
+	var top := _rect.position.y + inset.y
+	var bottom := _rect.end.y - inset.y
+	var mid := _rect.get_center().y
+	draw_rect(Rect2(left - 1, top, 2, bottom - top), colors.slot)
+	draw_rect(Rect2(right - 1, top, 2, bottom - top), colors.slot)
+	draw_rect(Rect2(left, mid - 1, right - left, 2), colors.slot)
 
 	# Número de cada marcha por fuera de su ranura, a la altura del final.
 	var gap := GameConfig.LEVER_KNOB_RADIUS
