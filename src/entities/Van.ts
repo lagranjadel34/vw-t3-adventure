@@ -1,12 +1,12 @@
 import Phaser from 'phaser';
 import {
   VAN_ACCELERATION,
-  VAN_ANGULAR_DRAG,
   VAN_BODY_RADIUS,
-  VAN_MAX_SPEED,
   VAN_DRAG,
-  VAN_PIVOT_FRONT_RATIO,
-  VAN_TURN_RATE,
+  VAN_FRONT_AXLE_RATIO,
+  VAN_MAX_SPEED,
+  VAN_MAX_STEER_DEG,
+  VAN_REAR_AXLE_RATIO,
 } from '../config/constants';
 import { METERS_PER_KM, METERS_PER_PIXEL } from '../config/odometer';
 
@@ -37,7 +37,6 @@ export class Van extends Phaser.Physics.Arcade.Sprite {
     this.setDamping(true);
     this.setDrag(VAN_DRAG);
     this.setMaxVelocity(VAN_MAX_SPEED);
-    this.setAngularDrag(VAN_ANGULAR_DRAG);
     this.setAngle(0);
     this.lastX = x;
     this.lastY = y;
@@ -71,9 +70,17 @@ export class Van extends Phaser.Physics.Arcade.Sprite {
     const steer = left ? -1 : right ? 1 : (analog?.steer ?? 0);
     const throttle = forward ? 1 : back ? -1 : (analog?.throttle ?? 0);
 
-    this.setAngularVelocity(VAN_TURN_RATE * steer);
-
     const body = this.body as Phaser.Physics.Arcade.Body;
+    // Sin derrape: la velocidad sigue siempre el morro (la parte que va de lado se pierde).
+    const heading = this.rotation - Math.PI / 2;
+    const speed = body.velocity.x * Math.cos(heading) + body.velocity.y * Math.sin(heading);
+    body.velocity.setToPolar(heading, speed);
+
+    // Modelo bicicleta: parada no gira; marcha atrás invierte el giro.
+    const wheelbase = this.displayHeight * (VAN_FRONT_AXLE_RATIO + VAN_REAR_AXLE_RATIO);
+    const yawRate = (speed / wheelbase) * Math.tan(Phaser.Math.DegToRad(VAN_MAX_STEER_DEG) * steer);
+    this.setAngularVelocity(Phaser.Math.RadToDeg(yawRate));
+
     if (throttle !== 0) {
       const thrustAngle = Phaser.Math.DegToRad(this.angle - 90);
       this.scene.physics.velocityFromRotation(thrustAngle, VAN_ACCELERATION * throttle, body.acceleration);
@@ -82,33 +89,33 @@ export class Van extends Phaser.Physics.Arcade.Sprite {
     }
   }
 
-  /**
-   * La física gira el sprite sobre su centro; aquí se desplaza para que el eje
-   * delantero quede quieto y sea la trasera la que barre (como una furgo real).
-   */
-  /** Punto de giro (eje delantero) en coordenadas de mundo. */
+  /** Eje delantero en coordenadas de mundo (la cámara mira hacia donde va el morro). */
   get front(): Phaser.Math.Vector2 {
-    const r = this.displayHeight * VAN_PIVOT_FRONT_RATIO;
+    const r = this.displayHeight * VAN_FRONT_AXLE_RATIO;
     return new Phaser.Math.Vector2(this.x + r * Math.sin(this.rotation), this.y - r * Math.cos(this.rotation));
   }
 
   private afterPhysics(): void {
     // Distancia real recorrida (no la velocidad), así choques y paradas no suman.
     this.tripMeters += Phaser.Math.Distance.Between(this.lastX, this.lastY, this.x, this.y) * METERS_PER_PIXEL;
-    this.pivotOnFront();
+    this.pivotOnRearAxle();
     this.lastX = this.x;
     this.lastY = this.y;
   }
 
-  private pivotOnFront(): void {
+  /**
+   * La física gira el sprite sobre su centro; aquí se desplaza para que el eje
+   * trasero no se mueva de lado: el morro marca la curva y la trasera la sigue.
+   */
+  private pivotOnRearAxle(): void {
     const prev = this.lastRotation;
     this.lastRotation = this.rotation;
     if (this.rotation === prev) return;
 
-    const r = this.displayHeight * VAN_PIVOT_FRONT_RATIO;
-    // El morro apunta a "arriba" del sprite: offset local (0, -r).
-    const frontX = this.x + r * Math.sin(prev);
-    const frontY = this.y - r * Math.cos(prev);
-    this.setPosition(frontX - r * Math.sin(this.rotation), frontY + r * Math.cos(this.rotation));
+    const r = this.displayHeight * VAN_REAR_AXLE_RATIO;
+    // La trasera queda "abajo" del sprite: offset local (0, +r).
+    const rearX = this.x - r * Math.sin(prev);
+    const rearY = this.y + r * Math.cos(prev);
+    this.setPosition(rearX + r * Math.sin(this.rotation), rearY - r * Math.cos(this.rotation));
   }
 }
