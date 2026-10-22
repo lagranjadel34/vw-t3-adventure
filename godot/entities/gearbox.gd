@@ -45,6 +45,7 @@ func acceleration(spd: float) -> float:
 	if _clutch > 0.0 or spd >= max_speed(gear):
 		return 0.0
 	var accel := GameConfig.VAN_ACCELERATION * GameConfig.GEAR_ACCEL_RATIO[gear - 1]
+	accel *= 1.0 - GameConfig.GEAR_TORQUE_FALLOFF * clampf(spd / max_speed(gear), 0.0, 1.0)
 	if gear > 1 and spd < max_speed(gear - 1) * GameConfig.GEAR_LUG_SPEED_RATIO:
 		accel *= GameConfig.GEAR_LUG_ACCEL_RATIO
 	return accel
