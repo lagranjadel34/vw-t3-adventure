@@ -20,6 +20,8 @@ func _ready() -> void:
 		if o.type == GameConfig.MAP_LABEL_TYPE:
 			_map_root.add_child(_make_label(o.name, Vector2(o.x, o.y)))
 
+	_hud.add_gear_lever(_van.gearbox)
+
 	var spawn: Variant = map.find_object(GameConfig.MAP_SPAWN)
 	if spawn:
 		_van.global_position = Vector2(spawn.x, spawn.y)

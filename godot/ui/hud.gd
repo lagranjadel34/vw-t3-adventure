@@ -6,6 +6,7 @@ extends CanvasLayer
 var joystick: TouchJoystick
 var gas: Pedal
 var brake: Pedal
+var lever: GearLever
 
 # Dedos apoyados ahora mismo: índice -> posición en pantalla.
 var _touches := {}
@@ -19,6 +20,12 @@ func _ready() -> void:
 	brake = Pedal.new(GameConfig.PEDAL_BRAKE)
 	add_child(gas)
 	add_child(brake)
+
+
+## La palanca necesita la caja de cambios de la furgo (la pone la escena).
+func add_gear_lever(gearbox: Gearbox) -> void:
+	lever = GearLever.new(gearbox)
+	add_child(lever)
 
 
 ## Volante actual (joystick o 0 si no hay pantalla táctil).
