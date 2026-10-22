@@ -1,4 +1,10 @@
-; Proyecto Godot 4 de VW T3 Adventure.
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
 
 config_version=5
 
@@ -7,6 +13,7 @@ config_version=5
 config/name="VW T3 Adventure"
 run/main_scene="res://scenes/world.tscn"
 config/features=PackedStringArray("4.5", "GL Compatibility")
+config/icon="res://assets/sprites/t3_vanagon.png"
 
 [display]
 
@@ -24,8 +31,9 @@ pointing/emulate_touch_from_mouse=true
 
 [rendering]
 
+textures/canvas_textures/default_texture_filter=0
+textures/vram_compression/import_etc2_astc=true
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
-textures/canvas_textures/default_texture_filter=0
-2d/snap/snap_2d_transforms_to_pixel=true
 environment/defaults/default_clear_color=Color(0, 0, 0, 1)
+2d/snap/snap_2d_transforms_to_pixel=true
