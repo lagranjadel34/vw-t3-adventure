@@ -15,6 +15,11 @@ Lo más nuevo arriba. El número coincide con el que muestra Obtainium (0.1.N = 
 - Semáforos en los cruces que cambian de color; los coches paran en rojo.
 - Naranjos en las aceras y algún peatón paseando, que se aparta de un salto si llega la furgo.
 
+### 0.1.32 · 2026-10-23
+- Nuevo mapa: el bosque. Sigue por la salida A-4 hacia el este y llegas a la extensión: A-4 entre olivares, carretera comarcal, camino de tierra por el pinar y un claro junto a una laguna con el spot de acampada. Allí solo se oyen el motor y los pájaros.
+- Al cambiar de mapa la pantalla funde a negro y la furgo mantiene la velocidad. Volviendo por la A-4 hacia el oeste regresas a Sevilla.
+- La T3 sale ahora al pie del Puente de Triana, en la orilla del Arenal.
+
 ### 0.1.31 · 2026-10-23
 - Ciudad: de vez en cuando pasa un avión por encima (rugido que crece y se aleja); en el campo no suena.
 
