@@ -8,6 +8,9 @@ Motor: Godot 4.5 (`godot/`). Cada cambio en `godot/` que llega a master genera u
 
 Lo más nuevo arriba. El número coincide con el que muestra Obtainium (0.1.N = Release `apk-N`).
 
+### 0.1.37 · 2026-10-23
+- La T3 y los coches del tráfico, redibujados con la cámara nueva del mapa: vistos desde arriba, con la misma perspectiva que los edificios.
+
 ### 0.1.36 · 2026-10-23
 - Los peatones ahora tienen el tamaño que les toca al lado de la T3: se ven de pie, con piernas, brazos y pelo.
 - Si atropellas a alguien, se queda tendido en el suelo con un charco de sangre.
