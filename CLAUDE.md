@@ -22,6 +22,7 @@ La versión Phaser 3 + TypeScript (`src/`, `public/`) queda congelada como refer
 - Antes de dar algo por terminado: `godot --headless --path godot -s res://tests/drive_test.gd` sin errores.
 - Cada push a master con cambios en `godot/` genera el APK (GitHub Actions) en Releases:
   https://github.com/lagranjadel34/vw-t3-adventure/releases/latest/download/vw-t3-adventure.apk
+- Ara instala con Obtainium: no adjuntes el APK en el chat. Cuando salga la Release, añade al principio de la sección `## Versiones` de `README.md` la entrada `### 0.1.N · fecha` (N = número de `apk-N`) con los cambios en lenguaje de jugador, y súbela a master (un cambio solo en README no genera APK).
 - Commits pequeños, en español, formato: `hito N: descripción`.
 - No hagas búsquedas web ni uses herramientas externas salvo necesidad.
 - Respuestas concisas; muestra solo lo modificado.
