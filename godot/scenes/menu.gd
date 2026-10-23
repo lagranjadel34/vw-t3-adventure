@@ -2,6 +2,7 @@ extends Node2D
 ## Pantalla de título: fondo de acampada, hoguera, estrellas fugaces y menú (portada de MenuScene.ts).
 
 const INTRO_SCENE := "res://scenes/intro.tscn"
+const OPTIONS_SCENE := "res://scenes/options.tscn"
 
 var _press_text: Label
 var _options: Array[Label] = []
@@ -146,4 +147,6 @@ func _move_selection(delta: int) -> void:
 func _confirm() -> void:
 	if _selected == MenuConfig.START_OPTION:
 		get_tree().change_scene_to_file(INTRO_SCENE)
-	# 'Elegir camperizador' y 'Configuración': pendientes de implementar.
+	elif _selected == MenuConfig.SETTINGS_OPTION:
+		get_tree().change_scene_to_file(OPTIONS_SCENE)
+	# 'Elegir camperizador': pendiente de implementar.

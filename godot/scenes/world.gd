@@ -6,6 +6,11 @@ extends Node2D
 @onready var _hud: Hud = $Hud
 @onready var _map_root: Node2D = $Map
 
+var _van_sound := VanSound.new()
+var _soundscape := Soundscape.new()
+# Salida de la ciudad: cuanto más cerca, más campo suena.
+var _exit: Variant
+
 
 func _ready() -> void:
 	var map := TiledMap.load_json(
@@ -22,6 +27,8 @@ func _ready() -> void:
 
 	_hud.add_gear_lever(_van.gearbox)
 
+	_exit = map.find_object(GameConfig.MAP_EXIT)
+
 	var spawn: Variant = map.find_object(GameConfig.MAP_SPAWN)
 	if spawn:
 		_van.global_position = Vector2(spawn.x, spawn.y)
@@ -34,6 +41,11 @@ func _ready() -> void:
 	_hud.odometer.set_km(GameConfig.ODOMETER_START_KM + _van.trip_km)
 	_camera.zoom = Vector2.ONE * GameConfig.CAMERA_ZOOM_STOPPED
 	_camera.reset_smoothing()
+
+	_soundscape.countryside = _countryside()
+	add_child(_soundscape)
+	add_child(_van_sound)
+	_van_sound.setup(_van)
 
 
 func _physics_process(_delta: float) -> void:
@@ -54,6 +66,15 @@ func _process(delta: float) -> void:
 	var target := lerpf(GameConfig.CAMERA_ZOOM_STOPPED, GameConfig.CAMERA_ZOOM_MIN, t)
 	var weight := 1.0 - pow(1.0 - GameConfig.CAMERA_ZOOM_LERP, delta * GameConfig.CAMERA_ZOOM_LERP_FPS)
 	_camera.zoom = Vector2.ONE * lerpf(_camera.zoom.x, target, weight)
+	_soundscape.countryside = _countryside()
+
+
+## 0 en plena ciudad, 1 al llegar a la salida (el ruido se va quedando atrás).
+func _countryside() -> float:
+	if _exit == null:
+		return 0.0
+	var center := Vector2(_exit.x + _exit.width / 2.0, _exit.y + _exit.height / 2.0)
+	return 1.0 - clampf(_van.global_position.distance_to(center) / AudioConfig.COUNTRY_FADE_PX, 0.0, 1.0)
 
 
 func _make_label(text: String, pos: Vector2) -> Label:
