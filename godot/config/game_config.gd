@@ -79,6 +79,9 @@ const VAN_GRIP_LIMIT := 140.0
 const VAN_DRIFT_GRIP := 3.0
 # Con gas en pleno derrape las ruedas traseras patinan: agarre multiplicado por esto.
 const VAN_DRIFT_GAS_GRIP_RATIO := 0.6
+# Tracción trasera: con gas, las ruedas de atrás gastan agarre en empujar y la cola se
+# suelta antes en curva (sobreviraje de potencia). Límite de agarre restado con empuje máximo.
+const VAN_REAR_DRIVE_GRIP_LOSS := 0.6
 # Motor trasero: el peso de atrás empuja la cola hacia fuera (rad/s por px/s de deslizamiento).
 const VAN_DRIFT_TAIL_YAW := 0.012
 const VAN_DRIFT_MAX_TAIL_YAW := 1.5
@@ -168,8 +171,9 @@ const PEDAL_COLORS := {
 # (columna, fila) con -1/+1 = izquierda/derecha, arriba/abajo.
 const GEAR_GATE: Array[Vector2i] = [Vector2i(-1, 1), Vector2i(-1, -1), Vector2i(1, 1), Vector2i(1, -1)]
 # Por marcha: velocidad máxima (fracción de VAN_MAX_SPEED) y fuerza (fracción de VAN_ACCELERATION).
-const GEAR_MAX_SPEED_RATIO: Array[float] = [0.3, 0.55, 0.8, 1.0]
-const GEAR_ACCEL_RATIO: Array[float] = [1.0, 0.5, 0.3, 0.17]
+# Cada marcha estira un poco más que la anterior (1ª ≈ 34, 2ª ≈ 60, 3ª ≈ 85, 4ª = 100 km/h).
+const GEAR_MAX_SPEED_RATIO: Array[float] = [0.34, 0.6, 0.85, 1.0]
+const GEAR_ACCEL_RATIO: Array[float] = [1.0, 0.55, 0.34, 0.2]
 # Dentro de cada marcha el empuje cae al subir de vueltas: al tope de la marcha queda
 # (1 - GEAR_TORQUE_FALLOFF) del empuje. Así la T3 sale fuerte y va cogiendo velocidad poco a poco.
 const GEAR_TORQUE_FALLOFF := 0.5
