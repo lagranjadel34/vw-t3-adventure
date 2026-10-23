@@ -145,24 +145,33 @@ const MAP_LABEL_OUTLINE_COLOR := Color.BLACK
 const MAP_LABEL_OUTLINE_SIZE := 2
 const MAP_LABEL_ALPHA := 0.75
 # Por encima de los edificios.
-const MAP_LABEL_Z := 1
+const MAP_LABEL_Z := 2
 
-# --- Edificios en perspectiva (scripts/city_builder.gd) ---
-# Misma cámara que la T3 (VAN_SPRITE_CAMERA_DEG): el tejado sube en pantalla la propiedad
-# `altura` del tile (px, ya comprimida) y la fachada sur queda a la vista.
-# Ancho (tiles) de cada trozo de fila: trozos pequeños para que la cámara recorte lo que no ve.
-const CITY_CHUNK_TILES := 16
-const CITY_ROOF_EDGE_LIGHTEN := 0.15 # borde norte del tejado, al sol
+# --- Edificios con perspectiva estilo GTA 1 (scripts/city_view.gd) ---
+# Cámara cenital a esta altura (px de mundo) sobre el suelo: más baja = los edificios se
+# abren más hacia los bordes de la pantalla. Las alturas de los tiles van en la misma unidad.
+const CITY_CAMERA_HEIGHT := 300.0
+# Celda de culling (tiles): solo se pinta lo que cae cerca de la pantalla.
+const CITY_CULL_CELL_TILES := 16
+const CITY_Z := 1 # por encima de la furgo: los edificios se abren hacia fuera y no la tapan
+# Orden a igual altura: fachadas, luego tejados, árboles y chapiteles.
+const CITY_DRAW_ORDER := {&"wall": 0, &"roof": 1, &"edge": 2, &"tree": 3, &"spire": 4}
+# Sombras en el suelo: dirección, largo (fracción de la altura) y color con su transparencia.
+const CITY_SHADOW_DIR := Vector2(0.8, -0.6)
+const CITY_SHADOW_LENGTH := 0.35
+const CITY_SHADOW_COLOR := Color(0, 0, 0, 0.3)
+# Oscurecido de cada fachada según hacia dónde mira (luz de mediodía desde el sur).
+const CITY_WALL_SHADE := {Vector2i.DOWN: 0.0, Vector2i.LEFT: 0.15, Vector2i.RIGHT: 0.25, Vector2i.UP: 0.35}
 const CITY_EAVE_DARKEN := 0.35 # alero: línea oscura entre tejado y fachada
-const CITY_ZOCALO_PX := 2.0
-const CITY_SPIRE_HEIGHT := 16.0
+const CITY_ZOCALO_HEIGHT := 6.0
+# Ventanas: px de patrón por px de altura (una fila de ventanas ≈ una planta).
+const CITY_PATTERN_SCALE := 0.45
+const CITY_SPIRE_HEIGHT := 30.0
 const CITY_SPIRE_BASE_RATIO := 0.5
 const CITY_TREE_CANOPY_RADIUS := 7.0
 const CITY_TREE_HIGHLIGHT_RADIUS := 3.0
 const CITY_TREE_HIGHLIGHT_OFFSET := Vector2(-2, -2)
 const CITY_TREE_TRUNK_WIDTH := 2.0
-# Almenas sobre el alero (alcázar, Torre del Oro).
-const CITY_MERLON := {"cell": Vector2i(4, 3), "rects": [Rect2i(0, 0, 2, 3)]}
 # Patrones de fachada: celda que se repite y rectángulos pintados con el color `detalle`.
 const CITY_PATTERNS := {
 	"ventanas": {"cell": Vector2i(6, 8), "rects": [Rect2i(2, 2, 2, 3)]},

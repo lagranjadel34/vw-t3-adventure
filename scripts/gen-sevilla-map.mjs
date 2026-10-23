@@ -2,7 +2,7 @@
 // Uso: npm run map
 // Salida: godot/assets/maps/sevilla.json + tiles-sevilla.png (editables luego en Tiled).
 // Los tiles de edificio llevan propiedades de volumen (altura, colores, patrón de fachada):
-// el juego los levanta con la misma cámara inclinada que la T3 (godot/scripts/city_builder.gd).
+// el juego los levanta con perspectiva de cámara cenital, estilo GTA 1 (godot/scripts/city_view.gd).
 // La versión Phaser (congelada) conserva su copia en public/assets/maps.
 import { writeFileSync } from 'node:fs';
 import { deflateSync } from 'node:zlib';
@@ -19,9 +19,8 @@ const T = {
   CATEDRAL: 13, TORRE_ORO: 14, MAESTRANZA: 15, PLAZA_ESPANA: 16, TORRE_PE: 17,
   ALCAZAR: 18, ARCHIVO: 19, SETAS: 20, TORRE_SEVILLA: 21, PABELLON: 22, BLOQUE: 23,
 };
-// Volumen: altura = px que sube el tejado en pantalla (alturas comprimidas como las calles,
-// si no los edificios taparían la calzada); patrón de fachada; remate = franja alta de otro
-// color (campanario); aguja = chapitel sobre el tejado.
+// Volumen: altura en px de mundo (≈ 18 px por planta; debe quedar por debajo de CITY_CAMERA_HEIGHT); patrón de fachada; remate = franja
+// alta de otro color (campanario) que ocupa remate_frac de la altura; aguja = chapitel.
 const vol = (altura, tejado, fachada, detalle, patron, extra = {}) => ({ altura, tejado, fachada, detalle, patron, ...extra });
 const TILE_DEFS = [
   { name: 'asfalto', color: [58, 58, 64] },
@@ -32,25 +31,25 @@ const TILE_DEFS = [
   { name: 'puente', color: [110, 106, 112], border: [190, 186, 180] },
   { name: 'monumento', color: [214, 192, 136], border: [170, 146, 96], collides: true },
   { name: 'albero', color: [218, 166, 74] },
-  { name: 'arbol', color: [86, 140, 62], tree: [40, 92, 36], collides: true, vol: vol(12, '#2e6b2a', '#6b4a2e', '#3f8a38', 'arbol') },
+  { name: 'arbol', color: [86, 140, 62], tree: [40, 92, 36], collides: true, vol: vol(24, '#2e6b2a', '#6b4a2e', '#3f8a38', 'arbol') },
   // Casas de cal con azotea y zócalo de albero; casas ocres y rosadas con teja.
-  { name: 'cal', color: [232, 226, 210], border: [190, 180, 160], collides: true, vol: vol(18, '#d6d0c2', '#f2eee2', '#4a3f3a', 'ventanas', { zocalo: '#d6a53c' }) },
-  { name: 'ocre', color: [212, 160, 60], border: [170, 120, 40], collides: true, vol: vol(20, '#c6603f', '#e0a83c', '#4a3328', 'ventanas', { zocalo: '#f2eee2' }) },
-  { name: 'giralda', color: [201, 143, 90], border: [120, 84, 50], collides: true, vol: vol(96, '#b77b4a', '#c98f5a', '#8a5a36', 'ladrillo', { remate: '#efe6d0', remate_px: 22, aguja: '#d9b44a' }) },
-  { name: 'catedral', color: [205, 181, 138], border: [154, 129, 96], collides: true, vol: vol(36, '#a8936d', '#cdb58a', '#9a8160', 'contrafuertes') },
-  { name: 'torre_oro', color: [217, 176, 98], border: [170, 130, 60], collides: true, vol: vol(40, '#c9a050', '#d9b062', '#a88440', 'almenas', { remate: '#e9cf8a', remate_px: 12 }) },
-  { name: 'maestranza', color: [244, 239, 228], border: [214, 165, 60], collides: true, vol: vol(12, '#c6603f', '#f4efe4', '#d6a53c', 'arcos') },
-  { name: 'plaza_espana', color: [181, 87, 58], border: [239, 224, 192], collides: true, vol: vol(26, '#9a4630', '#b5573a', '#efe0c0', 'arcos') },
-  { name: 'torre_pe', color: [181, 87, 58], border: [239, 224, 192], collides: true, vol: vol(62, '#9a4630', '#b5573a', '#efe0c0', 'ventanas', { remate: '#efe0c0', remate_px: 14, aguja: '#7aa6b8' }) },
-  { name: 'alcazar', color: [216, 183, 122], border: [170, 140, 90], collides: true, vol: vol(20, '#c9a96a', '#d8b77a', '#a8874a', 'almenas') },
-  { name: 'archivo', color: [201, 143, 90], border: [239, 230, 208], collides: true, vol: vol(24, '#b0a090', '#c98f5a', '#efe6d0', 'ventanas') },
-  { name: 'setas', color: [232, 210, 166], border: [184, 154, 104], collides: true, vol: vol(28, '#e8d2a6', '#e8d2a6', '#b89a68', 'rejilla') },
-  { name: 'torre_sevilla', color: [143, 179, 201], border: [109, 143, 166], collides: true, vol: vol(130, '#6d8fa6', '#8fb3c9', '#c8dce8', 'cristal') },
-  { name: 'pabellon', color: [232, 232, 232], border: [176, 184, 192], collides: true, vol: vol(14, '#b0b8c0', '#e8e8e8', '#7f9bb0', 'cristal') },
-  { name: 'bloque', color: [201, 194, 181], border: [143, 138, 130], collides: true, vol: vol(34, '#8f8a82', '#c9c2b5', '#4f5d6b', 'ventanas') },
+  { name: 'cal', color: [232, 226, 210], border: [190, 180, 160], collides: true, vol: vol(55, '#d6d0c2', '#f2eee2', '#4a3f3a', 'ventanas', { zocalo: '#d6a53c' }) },
+  { name: 'ocre', color: [212, 160, 60], border: [170, 120, 40], collides: true, vol: vol(65, '#c6603f', '#e0a83c', '#4a3328', 'ventanas', { zocalo: '#f2eee2' }) },
+  { name: 'giralda', color: [201, 143, 90], border: [120, 84, 50], collides: true, vol: vol(170, '#b77b4a', '#c98f5a', '#8a5a36', 'ladrillo', { remate: '#efe6d0', remate_frac: 0.2, aguja: '#d9b44a' }) },
+  { name: 'catedral', color: [205, 181, 138], border: [154, 129, 96], collides: true, vol: vol(95, '#a8936d', '#cdb58a', '#9a8160', 'contrafuertes') },
+  { name: 'torre_oro', color: [217, 176, 98], border: [170, 130, 60], collides: true, vol: vol(70, '#c9a050', '#d9b062', '#a88440', 'almenas', { remate: '#e9cf8a', remate_frac: 0.25 }) },
+  { name: 'maestranza', color: [244, 239, 228], border: [214, 165, 60], collides: true, vol: vol(30, '#c6603f', '#f4efe4', '#d6a53c', 'arcos') },
+  { name: 'plaza_espana', color: [181, 87, 58], border: [239, 224, 192], collides: true, vol: vol(65, '#9a4630', '#b5573a', '#efe0c0', 'arcos') },
+  { name: 'torre_pe', color: [181, 87, 58], border: [239, 224, 192], collides: true, vol: vol(130, '#9a4630', '#b5573a', '#efe0c0', 'ventanas', { remate: '#efe0c0', remate_frac: 0.15, aguja: '#7aa6b8' }) },
+  { name: 'alcazar', color: [216, 183, 122], border: [170, 140, 90], collides: true, vol: vol(45, '#c9a96a', '#d8b77a', '#a8874a', 'almenas') },
+  { name: 'archivo', color: [201, 143, 90], border: [239, 230, 208], collides: true, vol: vol(55, '#b0a090', '#c98f5a', '#efe6d0', 'ventanas') },
+  { name: 'setas', color: [232, 210, 166], border: [184, 154, 104], collides: true, vol: vol(60, '#e8d2a6', '#e8d2a6', '#b89a68', 'rejilla') },
+  { name: 'torre_sevilla', color: [143, 179, 201], border: [109, 143, 166], collides: true, vol: vol(200, '#6d8fa6', '#8fb3c9', '#c8dce8', 'cristal') },
+  { name: 'pabellon', color: [232, 232, 232], border: [176, 184, 192], collides: true, vol: vol(35, '#b0b8c0', '#e8e8e8', '#7f9bb0', 'cristal') },
+  { name: 'bloque', color: [201, 194, 181], border: [143, 138, 130], collides: true, vol: vol(110, '#8f8a82', '#c9c2b5', '#4f5d6b', 'ventanas') },
 ];
 // La casa rosada con teja usa el tile 'tejado'.
-TILE_DEFS[T.TEJADO - 1].vol = vol(16, '#b85a3c', '#e7b9a0', '#4a3328', 'ventanas', { zocalo: '#f2eee2' });
+TILE_DEFS[T.TEJADO - 1].vol = vol(45, '#b85a3c', '#e7b9a0', '#4a3328', 'ventanas', { zocalo: '#f2eee2' });
 const BUILDING = new Set([T.TEJADO, T.CAL, T.OCRE]);
 
 // ---------- RNG con semilla (mapa reproducible) ----------
@@ -263,7 +262,7 @@ const objects = [
 
 // ---------- Tiled JSON ----------
 const volProps = (v) => !v ? [] : Object.entries(v).map(([name, value]) => (
-  typeof value === 'number' ? { name, type: 'int', value }
+  typeof value === 'number' ? { name, type: Number.isInteger(value) ? 'int' : 'float', value }
     : value.startsWith('#') ? { name, type: 'color', value: `#ff${value.slice(1)}` }
     : { name, type: 'string', value }));
 const map = {

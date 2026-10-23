@@ -21,8 +21,12 @@ func _ready() -> void:
 		GameConfig.MAP_COLLIDES_PROPERTY,
 	)
 	_map_root.add_child(map.ground)
-	# Edificios en perspectiva, ordenados por Y junto con la furgo (la escena tiene Y-sort).
-	add_child(CityBuilder.build(map))
+	# Edificios con perspectiva de cámara cenital (estilo GTA 1).
+	var city := CityView.create(map)
+	city.z_index = GameConfig.CITY_Z
+	add_child(city)
+	# Sombras sobre el suelo y bajo la furgo.
+	_map_root.add_child(city.shadows)
 	for o: Dictionary in map.objects:
 		if o.type == GameConfig.MAP_LABEL_TYPE:
 			_map_root.add_child(_make_label(o.name, Vector2(o.x, o.y)))
