@@ -17,6 +17,8 @@ var height := 0
 var cells := PackedInt32Array()
 ## Propiedades de cada tile del tileset: id -> {nombre: valor}. Los colores llegan como Color.
 var tile_props := {}
+## Tipo (nombre) de cada tile del tileset: id -> "acera", "asfalto"...
+var tile_types := {}
 
 
 static func load_json(json_path: String, tileset_image: Texture2D, ground_layer: String, objects_layer: String, collides_property: String) -> TiledMap:
@@ -45,6 +47,7 @@ static func load_json(json_path: String, tileset_image: Texture2D, ground_layer:
 	var square := PackedVector2Array([-half, Vector2(half.x, -half.y), half, Vector2(-half.x, half.y)])
 	for t: Dictionary in ts.get("tiles", []):
 		map.tile_props[int(t.id)] = _properties(t)
+		map.tile_types[int(t.id)] = String(t.get("type", ""))
 		if not _bool_property(t, collides_property):
 			continue
 		var tile_data := source.get_tile_data(_atlas_coords(int(t.id), columns), 0)
@@ -67,6 +70,19 @@ static func load_json(json_path: String, tileset_image: Texture2D, ground_layer:
 		elif layer.type == "objectgroup" and layer.name == objects_layer:
 			map.objects = layer.objects
 	return map
+
+
+## Objetos de un tipo.
+func objects_of_type(type: String) -> Array:
+	return objects.filter(func(o: Dictionary) -> bool: return o.get("type", "") == type)
+
+
+## Propiedad de un objeto de Tiled, o `default`.
+static func object_property(o: Dictionary, property: String, default: Variant = null) -> Variant:
+	for p: Dictionary in o.get("properties", []):
+		if p.name == property:
+			return p.value
+	return default
 
 
 ## Primer objeto con ese nombre, o null.

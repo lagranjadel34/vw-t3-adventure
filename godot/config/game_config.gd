@@ -143,10 +143,7 @@ const MAPS := {
 		"tileset": "res://assets/maps/tiles-sevilla.png",
 		"ambient_exit": "salida_a4",
 		"campo": null,
-		# Salida de la T3: orilla del Arenal, al pie del Puente de Triana, mirando al norte.
-		# TODO: pasarla al objeto `spawn` de gen-sevilla-map.mjs cuando el hilo de gráficos suba su versión.
-		"start_tile": Vector2(78, 63),
-		"start_rot_deg": 0.0,
+		# La T3 sale en el objeto `spawn` (al pie del Puente de Triana, orilla del Arenal).
 		"exits": {"salida_a4": {"to": &"bosque", "at": "entrada_a4", "offset_tiles": Vector2.ZERO, "rot_deg": 90.0}},
 	},
 	&"bosque": {
@@ -209,6 +206,88 @@ const CITY_PATTERNS := {
 	"cristal": {"cell": Vector2i(8, 4), "rects": [Rect2i(0, 0, 8, 1), Rect2i(0, 0, 1, 4)]},
 	"rejilla": {"cell": Vector2i(4, 4), "rects": [Rect2i(0, 0, 4, 1), Rect2i(0, 0, 1, 4)]},
 }
+
+# --- Vida en la calle: tráfico, semáforos, farolas y peatones (objetos del mapa) ---
+const MAP_ROUTE_TYPE := "ruta"
+const MAP_LIGHT_TYPE := "semaforo"
+const MAP_LAMP_TYPE := "farola"
+const MAP_BRIDGE_ARCHES_TYPE := "puente_arcos"
+const STREET_Z := 1 # postes y arcos, a la altura de los edificios
+
+# Coches: hoja de tools/sprites/cars.py (24 rumbos x un modelo por fila).
+const CAR_SPRITES := "res://assets/sprites/coches/coches.png"
+const CAR_SPRITE_DIRECTIONS := 24
+const CAR_MODELS := 4
+const CAR_SPRITE_OFFSET := Vector2(0, -6) # celda 64x64 con el centro del coche en (32, 38)
+const CAR_RADIUS := 10.0
+const CAR_SPEED := 48.0 # px/s, bastante menos que la T3 a tope
+const CAR_ACCEL := 40.0
+const CAR_BRAKE := 120.0
+# Mira esto por delante para girar suave en las esquinas (px de ruta).
+const CAR_STEER_LOOKAHEAD := 14.0
+# Frena si hay algo delante: distancia y anchura del carril que vigila.
+const CAR_STOP_DISTANCE := 40.0
+const CAR_STOP_HALF_WIDTH := 16.0
+
+# Semáforos: verde, ámbar y rojo por eje (h = este-oeste, v = norte-sur), desfasados.
+const LIGHT_GREEN_S := 6.0
+const LIGHT_AMBER_S := 1.5
+const LIGHT_POLE_HEIGHT := 22.0
+const LIGHT_BOX := Vector2(3, 7)
+# Los coches paran ante un rojo de su eje si está a esta distancia por delante y de lado.
+const LIGHT_STOP_AHEAD := Vector2(6, 34)
+const LIGHT_STOP_SIDE := 72.0
+const LIGHT_COLORS := {
+	"pole": Color("2a2e33"),
+	"box": Color("15171a"),
+	"off": Color("3a3a3a"),
+	"red": Color("ff3b30"),
+	"amber": Color("ffb000"),
+	"green": Color("3ddc6a"),
+}
+
+# Farolas del puente de Triana.
+const LAMP_HEIGHT := 24.0
+const LAMP_POLE := Color("2f3a40")
+const LAMP_GLASS := Color("f4e7b8")
+const LAMP_RADIUS := 2.0
+
+# Arcos de hierro del puente de Triana (costados bajo la calzada, hasta el agua).
+const BRIDGE_DEPTH := 80.0
+const BRIDGE_TEXTURE_HEIGHT := 24
+const BRIDGE_PIER_WIDTH := 8
+const BRIDGE_DECK_ROWS := 2
+const BRIDGE_ARCH_THICKNESS := 2
+const BRIDGE_RING_SPACING := 7
+const BRIDGE_COLORS := {
+	"iron": Color("55636d"),
+	"iron_light": Color("a9b6bf"),
+	"stone": Color("d8cfbd"),
+	"stone_dark": Color("a89f8e"),
+}
+# Barandilla de hierro: pasamanos a esta altura y barrotes cada tantos px.
+const BRIDGE_RAIL_HEIGHT := 8.0
+const BRIDGE_RAIL_POST_SPACING := 4.0
+const BRIDGE_RAIL_COLOR := Color("3d4850")
+
+# Peatones por las aceras: pocos y solo cerca de la furgo.
+const PED_COUNT := 24
+const PED_SPAWN_RANGE := Vector2(140, 280) # distancia a la cámara al aparecer (px)
+const PED_DESPAWN_DISTANCE := 360.0
+const PED_SPEED := 14.0
+const PED_FLEE_SPEED := 60.0
+const PED_FLEE_DISTANCE := 30.0
+const PED_STEP_S := 0.25 # cada cuánto alternan las piernas
+const PED_TURN_CHANCE := 0.15 # en cada tile, probabilidad de girar aunque pueda seguir recto
+const PED_JITTER := 4.0 # px: no van todos en fila por el centro de la acera
+# Tamaño visto desde arriba (px de mundo): hombros de lado a lado y cabeza.
+const PED_SHOULDERS := Vector2(6, 3)
+const PED_HEAD := 3.0
+const PED_LEGS := Color("2b2b33")
+const PED_WALKABLE := ["acera", "albero", "parque"]
+const PED_SHIRTS: Array[Color] = [Color("c0392b"), Color("2e86c1"), Color("f1c40f"), Color("27ae60"), Color("ecf0f1"), Color("8e44ad"), Color("e67e22")]
+const PED_HAIR: Array[Color] = [Color("2b1d14"), Color("4a3020"), Color("d9b36c"), Color("111111"), Color("8a8a8a")]
+const PED_SKIN := Color("d9a27a")
 
 # --- Controles táctiles ---
 # Joystick flotante: aparece donde se apoya el pulgar en la mitad izquierda.

@@ -13,6 +13,8 @@ var map_id: StringName
 var _map_def: Dictionary
 var _map: TiledMap
 var _city: CityView
+var _street: StreetProps
+var _traffic: Traffic
 # Salida de la ciudad: cuanto más cerca, más campo suena.
 var _exit: Variant
 # Zonas que llevan a otro mapa: [{rect: Rect2, link: Dictionary}].
@@ -57,8 +59,9 @@ func _load_map(id: StringName) -> void:
 	_map_def = GameConfig.MAPS[id]
 	for child in _map_root.get_children():
 		child.queue_free()
-	if _city:
-		_city.queue_free()
+	for node: Node in [_city, _street, _traffic]:
+		if node:
+			node.queue_free()
 	_map = TiledMap.load_json(
 		_map_def.json,
 		load(_map_def.tileset),
@@ -73,6 +76,13 @@ func _load_map(id: StringName) -> void:
 	add_child(_city)
 	# Sombras sobre el suelo y bajo la furgo.
 	_map_root.add_child(_city.shadows)
+	# Vida en la calle: peatones (bajo la furgo), semáforos y farolas (altos) y tráfico.
+	_map_root.add_child(Pedestrians.create(_map, _van))
+	_street = StreetProps.create(_map)
+	_street.z_index = GameConfig.STREET_Z
+	add_child(_street)
+	_traffic = Traffic.create(_map, _van, _street)
+	add_child(_traffic)
 	for o: Dictionary in _map.objects:
 		if o.type == GameConfig.MAP_LABEL_TYPE:
 			_map_root.add_child(_make_label(o.name, Vector2(o.x, o.y)))
