@@ -10,10 +10,12 @@ var mix := 0.0
 var _city := AudioStreamPlayer.new()
 var _horn := AudioStreamPlayer.new()
 var _bird := AudioStreamPlayer.new()
+var _plane := AudioStreamPlayer.new()
 var _horns: Array[AudioStreamWAV] = []
 var _birds: Array[AudioStreamWAV] = []
 var _horn_wait := 0.0
 var _bird_wait := 0.0
+var _plane_wait := 0.0
 
 
 func _ready() -> void:
@@ -22,13 +24,15 @@ func _ready() -> void:
 		_horns.append(Synth.horn(randf_range(AudioConfig.HORN_S.x, AudioConfig.HORN_S.y)))
 	for i in AudioConfig.BIRD_VARIANTS:
 		_birds.append(Synth.bird(randi_range(AudioConfig.BIRD_CHIRPS.x, AudioConfig.BIRD_CHIRPS.y)))
-	for p in [_city, _horn, _bird]:
+	_plane.stream = Synth.plane()
+	for p in [_city, _horn, _bird, _plane]:
 		add_child(p)
 	mix = countryside
 	_apply_mix()
 	_city.play()
 	_horn_wait = randf_range(AudioConfig.HORN_DELAY_S.x, AudioConfig.HORN_DELAY_S.y)
 	_bird_wait = randf_range(AudioConfig.BIRD_DELAY_S.x, AudioConfig.BIRD_DELAY_S.y)
+	_plane_wait = randf_range(AudioConfig.PLANE_DELAY_S.x, AudioConfig.PLANE_DELAY_S.y)
 
 
 func _process(delta: float) -> void:
@@ -40,6 +44,10 @@ func _process(delta: float) -> void:
 		# Cuanto más campo, menos bocinas.
 		if randf() < 1.0 - mix:
 			_one_shot(_horn, _horns.pick_random(), AudioConfig.HORN_DB, AudioConfig.HORN_PITCH, 1.0 - mix)
+	_plane_wait -= delta
+	if _plane_wait <= 0.0:
+		_plane_wait = randf_range(AudioConfig.PLANE_DELAY_S.x, AudioConfig.PLANE_DELAY_S.y)
+		_one_shot(_plane, _plane.stream, AudioConfig.PLANE_DB, AudioConfig.PLANE_PITCH, 1.0 - mix)
 	_bird_wait -= delta
 	if _bird_wait <= 0.0:
 		_bird_wait = randf_range(AudioConfig.BIRD_DELAY_S.x, AudioConfig.BIRD_DELAY_S.y)

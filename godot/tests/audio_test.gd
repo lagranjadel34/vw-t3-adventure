@@ -19,7 +19,7 @@ func _initialize() -> void:
 	world.ready.connect(func() -> void: world.set_physics_process(false))
 
 func _check_synth() -> void:
-	for s: AudioStreamWAV in [Synth.engine_loop(), Synth.city_loop(), Synth.horn(0.3), Synth.bird(3), Synth.clack(1.0)]:
+	for s: AudioStreamWAV in [Synth.engine_loop(), Synth.city_loop(), Synth.horn(0.3), Synth.bird(3), Synth.plane(), Synth.clack(1.0)]:
 		_expect(s.data.size() > 0 and _peak(s) > 0.1, "sonido vacío")
 	_expect(Synth.engine_loop().loop_mode == AudioStreamWAV.LOOP_FORWARD, "el motor no va en bucle")
 	_expect(Synth.clack(1.0).get_length() > Synth.clack(0.0).get_length(), "con holgura el clac debería durar más (rascado)")
