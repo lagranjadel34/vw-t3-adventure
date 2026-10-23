@@ -1,7 +1,7 @@
 """Exporta las hojas de la T3 para Godot: python3 tools/sprites/export_godot.py
 
 Una textura por estado (daño 0-3, luces sí/no): godot/assets/sprites/dehler/d<daño>[_luces].png
-Columnas: 16 direcciones (frame k = rumbo k·22,5° horario desde la derecha).
+Columnas: 24 direcciones (frame k = rumbo k·15° horario desde la derecha).
 Filas: volante (izq, recto, dcha) × 4 frames de rueda girando.
 """
 import math
@@ -14,7 +14,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import t3gen as T
 import dehler  # noqa: F401  (registra el modelo Dehler)
 
-DIRS = 16
+DIRS = 24
 SPIN_FRAMES = 4
 SPIN_STEP = (math.pi / 4) / SPIN_FRAMES * 2
 STEER = math.radians(25)
