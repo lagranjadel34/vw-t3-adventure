@@ -135,6 +135,7 @@ const MAP_TILESET_IMAGE := "res://assets/maps/tiles-sevilla.png"
 const MAP_GROUND_LAYER := "suelo"
 const MAP_OBJECTS_LAYER := "objetos"
 const MAP_SPAWN := "spawn"
+const MAP_EXIT := "salida_a4" # salida de la ciudad: hacia aquí el ambiente pasa a campo
 const MAP_LABEL_TYPE := "rotulo"
 const MAP_COLLIDES_PROPERTY := "collides"
 # Rótulos de barrios y monumentos sobre el mapa.
@@ -240,6 +241,8 @@ const GEAR_SHIFT_TIME := 0.15
 # del tope de la marcha anterior.
 const GEAR_AUTO_UP_RATIO := 0.95
 const GEAR_AUTO_DOWN_RATIO := 0.6
+# Holgura de la caja de serie (1 = gastada, como las T3 de verdad; el taller la deja en 0).
+const GEARBOX_PLAY_STOCK := 1.0
 
 # --- Palanca de cambios en el HUD, encima de los pedales ---
 # Así el mismo pulgar que acelera y frena tiene que soltar el pedal para cambiar.

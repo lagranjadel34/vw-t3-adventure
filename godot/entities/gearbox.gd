@@ -7,8 +7,17 @@ signal mode_changed(automatic: bool)
 
 var gear := 1
 var automatic := true
+## Holgura de la caja (1 = de serie, las T3 la traen gastada; 0 = arreglada en el taller).
+## De momento solo cambia el sonido: con holgura la marcha cuesta entrar.
+var play := GameConfig.GEARBOX_PLAY_STOCK
 # Tiempo que queda de embrague pisado tras un cambio (sin potencia).
 var _clutch := 0.0
+
+
+## Embrague pisado: durante el cambio no hay potencia.
+var shifting: bool:
+	get:
+		return _clutch > 0.0
 
 
 func shift_up() -> void:

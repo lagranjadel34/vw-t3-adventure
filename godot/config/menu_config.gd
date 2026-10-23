@@ -47,3 +47,27 @@ const STAR_FLY_S := 0.18
 const STAR_FADE_S := 0.22
 const STAR_FIRST_DELAY_S := Vector2(0.1, 0.3)
 const STAR_DELAY_S := Vector2(3.0, 8.0)
+
+# --- Configuración (opción 3 del menú). De momento, solo el apartado Sonido ---
+const SETTINGS_OPTION := 2
+const CFG_TITLE := "CONFIGURACIÓN"
+const CFG_TITLE_Y := 22.0
+const CFG_SECTION := "Sonido"
+const CFG_SECTION_Y := 50.0
+const CFG_SECTION_COLOR := Color("c9bf9f")
+const CFG_ROWS_Y := 78.0 # una fila por TAP_MIN_HEIGHT
+const CFG_VOLUME := "Volumen"
+const CFG_MUTE := "Silencio"
+const CFG_BACK := "Volver"
+const CFG_YES := "Sí"
+const CFG_NO := "No"
+const CFG_VALUE_X := 150.0 # columna de los valores
+const CFG_MINUS := "-"
+const CFG_PLUS := "+"
+const CFG_BAR_X := 170.0 # barra de volumen, entre - y +
+const CFG_BAR_STEP_W := 6.0
+const CFG_BAR_H := 8.0
+const CFG_BAR_GAP := 1.0
+const CFG_BAR_ON := Color("ffd24d")
+const CFG_BAR_OFF := Color(1, 1, 1, 0.25)
+const CFG_DIM := Color(0, 0, 0, 0.55) # velo sobre el fondo
