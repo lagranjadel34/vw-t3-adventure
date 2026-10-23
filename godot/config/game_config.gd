@@ -129,13 +129,38 @@ const ODOMETER_COLORS := {
 	"label": Color("c9bf9f"),
 }
 
-# --- Mapa de Sevilla (Tiled). Generado con scripts/gen-sevilla-map.mjs ---
-const MAP_JSON := "res://assets/maps/sevilla.json"
-const MAP_TILESET_IMAGE := "res://assets/maps/tiles-sevilla.png"
+# --- Mapas (Tiled). Sevilla: scripts/gen-sevilla-map.mjs; bosque: scripts/gen-bosque-map.mjs ---
 const MAP_GROUND_LAYER := "suelo"
 const MAP_OBJECTS_LAYER := "objetos"
 const MAP_SPAWN := "spawn"
-const MAP_EXIT := "salida_a4" # salida de la ciudad: hacia aquí el ambiente pasa a campo
+const MAP_START := &"sevilla"
+# Cada mapa: json, tileset, `campo` (null = el ambiente pasa a campo al acercarse a `ambient_exit`;
+# número = mezcla fija) y `exits`: zona del mapa -> {to: mapa, at: objeto de llegada,
+# offset_tiles: desplazamiento desde su centro, rot_deg: rumbo (0 = norte, 90 = este)}.
+const MAPS := {
+	&"sevilla": {
+		"json": "res://assets/maps/sevilla.json",
+		"tileset": "res://assets/maps/tiles-sevilla.png",
+		"ambient_exit": "salida_a4",
+		"campo": null,
+		# Salida de la T3: orilla del Arenal, al pie del Puente de Triana, mirando al norte.
+		# TODO: pasarla al objeto `spawn` de gen-sevilla-map.mjs cuando el hilo de gráficos suba su versión.
+		"start_tile": Vector2(78, 63),
+		"start_rot_deg": 0.0,
+		"exits": {"salida_a4": {"to": &"bosque", "at": "entrada_a4", "offset_tiles": Vector2.ZERO, "rot_deg": 90.0}},
+	},
+	&"bosque": {
+		"json": "res://assets/maps/bosque.json",
+		"tileset": "res://assets/maps/tiles-bosque.png",
+		"ambient_exit": "",
+		"campo": 1.0,
+		"exits": {"vuelta_sevilla": {"to": &"sevilla", "at": "salida_a4", "offset_tiles": Vector2(-8, 0), "rot_deg": -90.0}},
+	},
+}
+# Fundido a negro al cambiar de mapa.
+const MAP_FADE_S := 0.35
+const MAP_FADE_COLOR := Color.BLACK
+const MAP_FADE_LAYER := 10
 const MAP_LABEL_TYPE := "rotulo"
 const MAP_COLLIDES_PROPERTY := "collides"
 # Rótulos de barrios y monumentos sobre el mapa.
@@ -163,6 +188,8 @@ const CITY_SHADOW_COLOR := Color(0, 0, 0, 0.3)
 # Oscurecido de cada fachada según hacia dónde mira (luz de mediodía desde el sur).
 const CITY_WALL_SHADE := {Vector2i.DOWN: 0.0, Vector2i.LEFT: 0.15, Vector2i.RIGHT: 0.25, Vector2i.UP: 0.35}
 const CITY_EAVE_DARKEN := 0.35 # alero: línea oscura entre tejado y fachada
+# Fachada casi de canto (px): no se pinta, su polígono degenera y Godot no lo triangula.
+const CITY_WALL_MIN_FACING := 0.5
 const CITY_ZOCALO_HEIGHT := 6.0
 # Ventanas: px de patrón por px de altura (una fila de ventanas ≈ una planta).
 const CITY_PATTERN_SCALE := 0.45

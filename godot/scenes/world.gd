@@ -1,5 +1,5 @@
 extends Node2D
-## Escena de juego: mapa de Sevilla, la T3, cámara y HUD.
+## Escena de juego: mapa (Sevilla o el bosque, se pasa por la A-4), la T3, cámara y HUD.
 
 @onready var _van: Van = $Van
 @onready var _camera: Camera2D = $Camera
@@ -8,50 +8,105 @@ extends Node2D
 
 var _van_sound := VanSound.new()
 var _soundscape := Soundscape.new()
+## Mapa en el que está la furgo (clave de GameConfig.MAPS).
+var map_id: StringName
+var _map_def: Dictionary
+var _map: TiledMap
+var _city: CityView
 # Salida de la ciudad: cuanto más cerca, más campo suena.
 var _exit: Variant
+# Zonas que llevan a otro mapa: [{rect: Rect2, link: Dictionary}].
+var _exits: Array = []
+var _fade := ColorRect.new()
 
 
 func _ready() -> void:
-	var map := TiledMap.load_json(
-		GameConfig.MAP_JSON,
-		load(GameConfig.MAP_TILESET_IMAGE),
-		GameConfig.MAP_GROUND_LAYER,
-		GameConfig.MAP_OBJECTS_LAYER,
-		GameConfig.MAP_COLLIDES_PROPERTY,
-	)
-	_map_root.add_child(map.ground)
-	# Edificios con perspectiva de cámara cenital (estilo GTA 1).
-	var city := CityView.create(map)
-	city.z_index = GameConfig.CITY_Z
-	add_child(city)
-	# Sombras sobre el suelo y bajo la furgo.
-	_map_root.add_child(city.shadows)
-	for o: Dictionary in map.objects:
-		if o.type == GameConfig.MAP_LABEL_TYPE:
-			_map_root.add_child(_make_label(o.name, Vector2(o.x, o.y)))
-
 	_hud.add_gear_lever(_van.gearbox)
+	var fade_layer := CanvasLayer.new()
+	fade_layer.layer = GameConfig.MAP_FADE_LAYER
+	_fade.color = GameConfig.MAP_FADE_COLOR
+	_fade.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_fade.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_fade.modulate.a = 0.0
+	fade_layer.add_child(_fade)
+	add_child(fade_layer)
 
-	_exit = map.find_object(GameConfig.MAP_EXIT)
-
-	var spawn: Variant = map.find_object(GameConfig.MAP_SPAWN)
-	if spawn:
-		_van.global_position = Vector2(spawn.x, spawn.y)
-
-	_camera.limit_left = 0
-	_camera.limit_top = 0
-	_camera.limit_right = int(map.size_px.x)
-	_camera.limit_bottom = int(map.size_px.y)
-	_camera.global_position = _van.front
+	_load_map(GameConfig.MAP_START)
+	var start: Variant = _map_def.get("start_tile")
+	if start != null:
+		_van.global_position = (start as Vector2) * GameConfig.TILE_SIZE
+		_van.rotation = deg_to_rad(_map_def.start_rot_deg)
+	else:
+		var spawn: Variant = _map.find_object(GameConfig.MAP_SPAWN)
+		if spawn:
+			_van.global_position = Vector2(spawn.x, spawn.y)
 	_hud.odometer.set_km(GameConfig.ODOMETER_START_KM + _van.trip_km)
 	_camera.zoom = Vector2.ONE * GameConfig.CAMERA_ZOOM_STOPPED
-	_camera.reset_smoothing()
+	_snap_camera()
 
 	_soundscape.countryside = _countryside()
 	add_child(_soundscape)
 	add_child(_van_sound)
 	_van_sound.setup(_van)
+
+
+
+## Cambia el mapa cargado (suelo, edificios/árboles, sombras, rótulos, salidas).
+func _load_map(id: StringName) -> void:
+	map_id = id
+	_map_def = GameConfig.MAPS[id]
+	for child in _map_root.get_children():
+		child.queue_free()
+	if _city:
+		_city.queue_free()
+	_map = TiledMap.load_json(
+		_map_def.json,
+		load(_map_def.tileset),
+		GameConfig.MAP_GROUND_LAYER,
+		GameConfig.MAP_OBJECTS_LAYER,
+		GameConfig.MAP_COLLIDES_PROPERTY,
+	)
+	_map_root.add_child(_map.ground)
+	# Edificios y árboles con perspectiva de cámara cenital (estilo GTA 1).
+	_city = CityView.create(_map)
+	_city.z_index = GameConfig.CITY_Z
+	add_child(_city)
+	# Sombras sobre el suelo y bajo la furgo.
+	_map_root.add_child(_city.shadows)
+	for o: Dictionary in _map.objects:
+		if o.type == GameConfig.MAP_LABEL_TYPE:
+			_map_root.add_child(_make_label(o.name, Vector2(o.x, o.y)))
+
+	_exit = _map.find_object(_map_def.ambient_exit) if _map_def.ambient_exit != "" else null
+	_exits.clear()
+	for exit_name: String in _map_def.exits:
+		var o: Variant = _map.find_object(exit_name)
+		if o:
+			_exits.append({"rect": Rect2(o.x, o.y, o.width, o.height), "link": _map_def.exits[exit_name]})
+
+	_camera.limit_left = 0
+	_camera.limit_top = 0
+	_camera.limit_right = int(_map.size_px.x)
+	_camera.limit_bottom = int(_map.size_px.y)
+
+
+## Al entrar en una salida, la furgo aparece en el otro mapa con la misma velocidad.
+func _travel(link: Dictionary) -> void:
+	var spd := _van.speed
+	_load_map(link.to)
+	var at: Variant = _map.find_object(link.at)
+	var pos := Vector2(at.x + at.width / 2.0, at.y + at.height / 2.0) if at else _map.size_px / 2
+	_van.global_position = pos + (link.offset_tiles as Vector2) * GameConfig.TILE_SIZE
+	_van.rotation = deg_to_rad(link.rot_deg)
+	_van.velocity = Vector2.from_angle(_van.rotation - PI / 2) * spd
+	_snap_camera()
+	_fade.modulate.a = 1.0
+	create_tween().tween_property(_fade, "modulate:a", 0.0, GameConfig.MAP_FADE_S)
+
+
+func _snap_camera() -> void:
+	_camera.global_position = _van.front
+	_camera.reset_smoothing()
 
 
 func _physics_process(_delta: float) -> void:
@@ -74,9 +129,16 @@ func _process(delta: float) -> void:
 	_camera.zoom = Vector2.ONE * lerpf(_camera.zoom.x, target, weight)
 	_soundscape.countryside = _countryside()
 
+	for e: Dictionary in _exits:
+		if (e.rect as Rect2).has_point(_van.global_position):
+			_travel(e.link)
+			break
+
 
 ## 0 en plena ciudad, 1 al llegar a la salida (el ruido se va quedando atrás).
 func _countryside() -> float:
+	if _map_def.campo != null:
+		return _map_def.campo
 	if _exit == null:
 		return 0.0
 	var center := Vector2(_exit.x + _exit.width / 2.0, _exit.y + _exit.height / 2.0)

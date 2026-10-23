@@ -93,7 +93,7 @@ func _draw_wall(p: Dictionary, center: Vector2) -> void:
 	var a: Vector2 = p.a
 	var b: Vector2 = p.b
 	# Solo se ve si la cámara está del lado hacia el que mira la fachada.
-	if (center - a).dot(p.normal) <= 0.0:
+	if (center - a).dot(p.normal) <= GameConfig.CITY_WALL_MIN_FACING:
 		return
 	var props: Dictionary = p.props
 	var h: float = p.h
