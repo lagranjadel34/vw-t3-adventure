@@ -8,6 +8,11 @@ Motor: Godot 4.5 (`godot/`). Cada cambio en `godot/` que llega a master genera u
 
 Lo más nuevo arriba. El número coincide con el que muestra Obtainium (0.1.N = Release `apk-N`).
 
+### 0.1.29 · 2026-10-23
+- Edificios altos con perspectiva estilo GTA 1: la cámara mira desde arriba y los edificios se abren hacia los bordes de la pantalla, así que se ven sus fachadas y la calle por la que vas nunca queda tapada.
+- Alturas de verdad: casas de 3 plantas, pisos en Nervión y la Giralda y la Torre Sevilla destacando sobre todo lo demás.
+- Sombras de los edificios en el suelo.
+
 ### 0.1.26 · 2026-10-23
 - Sevilla en perspectiva: los edificios tienen fachada y altura, vistos con el mismo ángulo que la T3, y la furgo pasa por delante o por detrás de ellos.
 - Monumentos reconocibles: Giralda, Catedral, Torre del Oro, Reales Alcázares, Archivo de Indias, Las Setas, Torre Sevilla, Maestranza y Plaza de España con sus torres.
