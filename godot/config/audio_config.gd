@@ -60,6 +60,16 @@ const HORN_DELAY_S := Vector2(1.5, 5.0)
 const HORN_DB := -14.0
 const HORN_PITCH := Vector2(0.85, 1.15)
 const HORN_VARIANTS := 3
+# Avión que pasa por encima de vez en cuando (Sevilla tiene aeropuerto al lado).
+const PLANE_S := 9.0
+const PLANE_RUMBLE_SMOOTH := 0.01 # rugido grave (ruido marrón)
+const PLANE_WHINE_HZ := Vector2(950.0, 720.0) # silbido de turbina al acercarse, al alejarse (Doppler)
+const PLANE_WHINE_GAIN := 0.08
+const PLANE_PEAK_AT := 0.45 # fracción del paso en la que está justo encima
+const PLANE_GAIN := 0.9
+const PLANE_DELAY_S := Vector2(25.0, 60.0)
+const PLANE_DB := -10.0
+const PLANE_PITCH := Vector2(0.9, 1.1)
 const BIRD_CHIRP_HZ := Vector2(2600.0, 4600.0) # barrido de cada pío
 const BIRD_GAIN := 0.7
 const BIRD_TOP_MIN := 0.6 # cada pío llega al menos a esta fracción del barrido
