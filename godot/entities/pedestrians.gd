@@ -2,11 +2,13 @@ class_name Pedestrians
 extends Node2D
 ## Algún transeúnte por las aceras, solo cerca de la cámara. Andan de tile en tile de
 ## acera (siguen recto y giran en las esquinas) y se apartan de un salto si llega la T3.
+## Si la T3 los pilla, quedan tendidos en el suelo con un charco de sangre.
 
 var _map: TiledMap
 var _van: Van
 var _walkable := {}
 var _peds: Array[Dictionary] = []
+var _bodies: Array[Dictionary] = []
 var _rng := RandomNumberGenerator.new()
 
 
@@ -36,8 +38,36 @@ func _process(delta: float) -> void:
 		if p.pos.distance_to(center) > GameConfig.PED_DESPAWN_DISTANCE:
 			_peds.remove_at(i)
 			continue
+		if _run_over(p):
+			_peds.remove_at(i)
+			_add_body(p)
+			continue
 		_walk(p, delta)
+	for i in range(_bodies.size() - 1, -1, -1):
+		_bodies[i].clock += delta
+		if _bodies[i].pos.distance_to(center) > GameConfig.PED_DESPAWN_DISTANCE:
+			_bodies.remove_at(i)
 	queue_redraw()
+
+
+## ¿Está dentro de la caja de la furgo, que va lanzada?
+func _run_over(p: Dictionary) -> bool:
+	if absf(_van.speed) < GameConfig.PED_HIT_SPEED:
+		return false
+	var local: Vector2 = (p.pos - _van.global_position).rotated(-_van.rotation)
+	return absf(local.x) < GameConfig.PED_HIT_HALF.x and absf(local.y) < GameConfig.PED_HIT_HALF.y
+
+
+func _add_body(p: Dictionary) -> void:
+	var blobs: Array[Vector3] = []
+	for b in GameConfig.PED_BLOOD_BLOBS:
+		var off := Vector2.from_angle(_rng.randf() * TAU) * _rng.randf() * GameConfig.PED_BLOOD_SPREAD
+		blobs.append(Vector3(off.x, off.y, _rng.randf_range(GameConfig.PED_BLOOD_RADIUS.x, GameConfig.PED_BLOOD_RADIUS.y)))
+	# Cae en el sentido en que iba la furgo, con algo de giro.
+	var angle := _van.rotation - PI / 2 + _rng.randf_range(-PI / 2, PI / 2)
+	_bodies.append({"pos": p.pos, "angle": angle, "shirt": p.shirt, "hair": p.hair, "blobs": blobs, "clock": 0.0})
+	if _bodies.size() > GameConfig.PED_MAX_BODIES:
+		_bodies.pop_front()
 
 
 func _walk(p: Dictionary, delta: float) -> void:
@@ -67,20 +97,58 @@ func _walk(p: Dictionary, delta: float) -> void:
 
 
 func _draw() -> void:
+	for b in _bodies:
+		_draw_body(b)
 	for p in _peds:
-		var pos: Vector2 = (p.pos as Vector2).round()
-		# Vistos desde arriba: piernas que se alternan, hombros con la camiseta y la cabeza.
-		var leg := 1.0 if int(p.clock / GameConfig.PED_STEP_S) % 2 == 0 else -1.0
-		var side := Vector2(p.dir).orthogonal()
-		var fwd := Vector2(p.dir)
-		var legs := GameConfig.PED_LEGS
-		draw_rect(Rect2(pos + side * 1.5 + fwd * leg * 2 - Vector2.ONE, Vector2.ONE * 2), legs)
-		draw_rect(Rect2(pos - side * 1.5 - fwd * leg * 2 - Vector2.ONE, Vector2.ONE * 2), legs)
-		var s := GameConfig.PED_SHOULDERS
-		var shoulders := s if p.dir.x == 0 else Vector2(s.y, s.x)
-		draw_rect(Rect2(pos - shoulders / 2, shoulders), p.shirt)
-		var head := Vector2.ONE * GameConfig.PED_HEAD
-		draw_rect(Rect2(pos - head / 2, head), p.hair)
+		_draw_walker(p)
+
+
+## De pie, con la vista oblicua de la T3: sombra, piernas, camiseta, brazos y cabeza.
+func _draw_walker(p: Dictionary) -> void:
+	var feet: Vector2 = (p.pos as Vector2).round()
+	var step := 1.0 if int(p.clock / GameConfig.PED_STEP_S) % 2 == 0 else -1.0
+	var dir: Vector2i = p.dir
+	var skin := GameConfig.PED_SKIN
+	draw_set_transform(feet)
+	draw_rect(GameConfig.PED_SHADOW, GameConfig.PED_SHADOW_COLOR)
+	# Al andar, una pierna se levanta y los brazos se balancean al revés.
+	draw_rect(_lift(GameConfig.PED_LEG_L, maxf(step, 0)), GameConfig.PED_LEGS)
+	draw_rect(_lift(GameConfig.PED_LEG_R, maxf(-step, 0)), GameConfig.PED_LEGS)
+	draw_rect(GameConfig.PED_TORSO, p.shirt)
+	draw_rect(GameConfig.PED_ARM_L.grow_side(SIDE_TOP, -step), skin)
+	draw_rect(GameConfig.PED_ARM_R.grow_side(SIDE_TOP, step), skin)
+	var head := GameConfig.PED_HEAD
+	draw_rect(head, skin)
+	# Pelo: arriba si mira hacia la cámara, toda la cabeza de espaldas, la nuca de lado.
+	var hair := Rect2(head.position, Vector2(head.size.x, GameConfig.PED_HAIR_ROWS))
+	if dir == Vector2i.UP:
+		hair = head
+	elif dir.x != 0:
+		hair = Rect2(head.position, Vector2(head.size.x, head.size.y - 1))
+		hair = hair.grow_side(SIDE_RIGHT if dir.x > 0 else SIDE_LEFT, -2)
+	draw_rect(hair, p.hair)
+	draw_set_transform(Vector2.ZERO)
+
+
+func _lift(r: Rect2, amount: float) -> Rect2:
+	return r.grow_side(SIDE_BOTTOM, -amount)
+
+
+## Tendido en el suelo, sobre el charco de sangre que se va extendiendo.
+func _draw_body(b: Dictionary) -> void:
+	var grow := clampf(b.clock / GameConfig.PED_BLOOD_GROW_S, 0.5, 1.0)
+	draw_set_transform((b.pos as Vector2).round(), b.angle)
+	for blob: Vector3 in b.blobs:
+		draw_circle(Vector2(blob.x, blob.y) * grow, blob.z * grow + 1, GameConfig.PED_BLOOD_DARK, true, -1.0, false)
+	for blob: Vector3 in b.blobs:
+		draw_circle(Vector2(blob.x, blob.y) * grow, blob.z * grow, GameConfig.PED_BLOOD, true, -1.0, false)
+	var legs := GameConfig.PED_BODY_LEGS
+	draw_rect(legs, GameConfig.PED_LEGS)
+	draw_rect(Rect2(legs.position + Vector2(0, GameConfig.PED_BODY_LEG_GAP), legs.size), GameConfig.PED_LEGS)
+	draw_rect(GameConfig.PED_BODY_ARMS, GameConfig.PED_SKIN)
+	draw_rect(GameConfig.PED_BODY_TORSO, b.shirt)
+	draw_rect(GameConfig.PED_BODY_HEAD, b.hair)
+	draw_set_transform(Vector2.ZERO)
 
 
 func _spawn(center: Vector2) -> Dictionary:

@@ -276,13 +276,38 @@ const PED_SPAWN_RANGE := Vector2(140, 280) # distancia a la cámara al aparecer 
 const PED_DESPAWN_DISTANCE := 360.0
 const PED_SPEED := 14.0
 const PED_FLEE_SPEED := 60.0
-const PED_FLEE_DISTANCE := 30.0
+const PED_FLEE_DISTANCE := 48.0 # desde el centro de la furgo (mide 64 px de largo)
 const PED_STEP_S := 0.25 # cada cuánto alternan las piernas
 const PED_TURN_CHANCE := 0.15 # en cada tile, probabilidad de girar aunque pueda seguir recto
 const PED_JITTER := 4.0 # px: no van todos en fila por el centro de la acera
-# Tamaño visto desde arriba (px de mundo): hombros de lado a lado y cabeza.
-const PED_SHOULDERS := Vector2(6, 3)
-const PED_HEAD := 3.0
+# Figura de pie con la misma vista oblicua que la T3 (algo exagerada, estilo GTA 1):
+# rectángulos relativos a los pies, y hacia arriba en negativo. Mide 16 px de alto.
+const PED_SHADOW := Rect2(-3, -1, 8, 2)
+const PED_LEG_L := Rect2(-3, -5, 2, 5)
+const PED_LEG_R := Rect2(2, -5, 2, 5)
+const PED_TORSO := Rect2(-3, -11, 7, 6)
+const PED_ARM_L := Rect2(-4, -10, 1, 4)
+const PED_ARM_R := Rect2(4, -10, 1, 4)
+const PED_HEAD := Rect2(-2, -16, 5, 5)
+const PED_HAIR_ROWS := 2
+const PED_SHADOW_COLOR := Color(0, 0, 0, 0.3)
+# Atropellos: dentro de la caja de la furgo (medio ancho, medio largo) y por encima de
+# esta velocidad, el peatón queda tendido en el suelo con su charco de sangre.
+const PED_HIT_HALF := Vector2(13, 34)
+const PED_HIT_SPEED := 15.0
+const PED_MAX_BODIES := 12
+# Tendido visto desde arriba, a lo largo de x desde el centro del cuerpo.
+const PED_BODY_TORSO := Rect2(-4, -3, 7, 6)
+const PED_BODY_HEAD := Rect2(3, -2, 4, 4)
+const PED_BODY_LEGS := Rect2(-10, -3, 6, 2)
+const PED_BODY_LEG_GAP := 4.0
+const PED_BODY_ARMS := Rect2(-2, -6, 2, 12)
+const PED_BLOOD_BLOBS := 8
+const PED_BLOOD_RADIUS := Vector2(3, 8)
+const PED_BLOOD_SPREAD := 10.0
+const PED_BLOOD_GROW_S := 1.5 # el charco se extiende durante este tiempo
+const PED_BLOOD := Color("7a0d0d")
+const PED_BLOOD_DARK := Color("4f0606")
 const PED_LEGS := Color("2b2b33")
 const PED_WALKABLE := ["acera", "albero", "parque"]
 const PED_SHIRTS: Array[Color] = [Color("c0392b"), Color("2e86c1"), Color("f1c40f"), Color("27ae60"), Color("ecf0f1"), Color("8e44ad"), Color("e67e22")]
