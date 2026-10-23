@@ -118,6 +118,8 @@ func _physics_process(delta: float) -> void:
 	# Freno: con la furgo parada, pisarlo mete marcha atrás (mientras siga pisado);
 	# en marcha (adelante o atrás) frena hasta parar.
 	var stopped := absf(spd) <= GameConfig.VAN_STOP_SPEED
+	# Empuje que llega a las ruedas traseras este frame (px/s²), para el agarre.
+	var drive := 0.0
 	var brake_pressed := brake_input and not _brake_was_down
 	_brake_was_down = brake_input
 	if not brake_input:
@@ -132,7 +134,8 @@ func _physics_process(delta: float) -> void:
 	elif handbrake:
 		spd = _toward_zero(spd, GameConfig.VAN_HANDBRAKE_DECELERATION * weight * delta)
 	elif gas_input and spd < Gearbox.max_speed(gearbox.gear):
-		spd = minf(spd + gearbox.acceleration(spd) * weight * delta, Gearbox.max_speed(gearbox.gear))
+		drive = gearbox.acceleration(spd)
+		spd = minf(spd + drive * weight * delta, Gearbox.max_speed(gearbox.gear))
 	elif not gas_input:
 		spd = _toward_zero(spd, GameConfig.VAN_DRAG * delta)
 	# Pasado de vueltas (tras reducir): el motor retiene hasta el tope de la marcha.
@@ -141,10 +144,13 @@ func _physics_process(delta: float) -> void:
 	gearbox.update(spd, delta)
 	spd = clampf(spd, -GameConfig.VAN_MAX_REVERSE_SPEED, GameConfig.VAN_MAX_SPEED)
 
-	# Agarre: más carga, antes se suelta la cola.
+	# Agarre: más carga, antes se suelta la cola. Tracción trasera: acelerando en curva
+	# las ruedas de atrás tienen menos agarre lateral (más empuje, antes se va).
 	var lateral_accel := absf(spd * yaw_rate)
 	var moving := absf(spd) > GameConfig.VAN_STOP_SPEED
-	var over_limit := lateral_accel > GameConfig.VAN_GRIP_LIMIT * weight
+	var drive_share := drive / GameConfig.VAN_ACCELERATION
+	var grip_limit := GameConfig.VAN_GRIP_LIMIT * weight * (1.0 - GameConfig.VAN_REAR_DRIVE_GRIP_LOSS * drive_share)
+	var over_limit := lateral_accel > grip_limit
 	if moving and (handbrake or over_limit):
 		drifting = true
 	if drifting:
