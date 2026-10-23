@@ -92,6 +92,29 @@ static func horn(seconds: float) -> AudioStreamWAV:
 	return _wav(out, AudioConfig.HORN_GAIN, false)
 
 
+## Avión pasando: rugido grave que crece y se va, con silbido de turbina que baja de tono (Doppler).
+static func plane() -> AudioStreamWAV:
+	var n := _samples(AudioConfig.PLANE_S)
+	var out := PackedFloat32Array()
+	out.resize(n)
+	var brown := 0.0
+	var peak := 0.0
+	var phase := 0.0
+	for i in n:
+		var k := float(i) / n
+		brown += AudioConfig.PLANE_RUMBLE_SMOOTH * (randf_range(-1.0, 1.0) - brown)
+		peak = maxf(peak, absf(brown))
+		var hz := lerpf(AudioConfig.PLANE_WHINE_HZ.x, AudioConfig.PLANE_WHINE_HZ.y, smoothstep(AudioConfig.PLANE_PEAK_AT - 0.1, AudioConfig.PLANE_PEAK_AT + 0.1, k))
+		phase += TAU * hz / AudioConfig.MIX_RATE
+		out[i] = brown + AudioConfig.PLANE_WHINE_GAIN * sin(phase)
+	for i in n:
+		var k := float(i) / n
+		# Sube despacio hasta tenerlo encima y se aleja más despacio aún.
+		var env := k / AudioConfig.PLANE_PEAK_AT if k < AudioConfig.PLANE_PEAK_AT else (1.0 - k) / (1.0 - AudioConfig.PLANE_PEAK_AT)
+		out[i] = out[i] / peak * env * env
+	return _wav(out, AudioConfig.PLANE_GAIN, false)
+
+
 ## Pájaro: `chirps` píos rápidos que suben de tono.
 static func bird(chirps: int) -> AudioStreamWAV:
 	var chirp := _samples(AudioConfig.BIRD_CHIRP_S)
