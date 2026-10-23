@@ -18,6 +18,7 @@ const T = {
   MONUMENTO: 7, ALBERO: 8, ARBOL: 9, CAL: 10, OCRE: 11, GIRALDA: 12,
   CATEDRAL: 13, TORRE_ORO: 14, MAESTRANZA: 15, PLAZA_ESPANA: 16, TORRE_PE: 17,
   ALCAZAR: 18, ARCHIVO: 19, SETAS: 20, TORRE_SEVILLA: 21, PABELLON: 22, BLOQUE: 23,
+  PUENTE_TRIANA: 24, BARANDILLA: 25, CAPILLITA: 26, NARANJO: 27,
 };
 // Volumen: altura en px de mundo (≈ 18 px por planta; debe quedar por debajo de CITY_CAMERA_HEIGHT); patrón de fachada; remate = franja
 // alta de otro color (campanario) que ocupa remate_frac de la altura; aguja = chapitel.
@@ -47,6 +48,13 @@ const TILE_DEFS = [
   { name: 'torre_sevilla', color: [143, 179, 201], border: [109, 143, 166], collides: true, vol: vol(200, '#6d8fa6', '#8fb3c9', '#c8dce8', 'cristal') },
   { name: 'pabellon', color: [232, 232, 232], border: [176, 184, 192], collides: true, vol: vol(35, '#b0b8c0', '#e8e8e8', '#7f9bb0', 'cristal') },
   { name: 'bloque', color: [201, 194, 181], border: [143, 138, 130], collides: true, vol: vol(110, '#8f8a82', '#c9c2b5', '#4f5d6b', 'ventanas') },
+  // Puente de Triana (Isabel II): calzada, barandilla de hierro y la Capillita del Carmen.
+  { name: 'puente_triana', color: [72, 70, 74] },
+  // Barandilla: acera con la reja en medio (el juego la levanta en perspectiva).
+  { name: 'barandilla', color: [150, 142, 132], grid: [170, 162, 152], rail: [61, 72, 80], collides: true },
+  { name: 'capillita', color: [180, 85, 58], border: [239, 230, 208], collides: true, vol: vol(48, '#2f7f8a', '#b4553a', '#efe6d0', 'ladrillo', { remate: '#efe6d0', remate_frac: 0.2, aguja: '#2f8f9a' }) },
+  // Naranjos de las aceras: copa verde con naranjas.
+  { name: 'naranjo', color: [150, 142, 132], tree: [40, 92, 36], collides: true, vol: vol(20, '#2f6b2a', '#6b4a2e', '#e8892a', 'arbol') },
 ];
 // La casa rosada con teja usa el tile 'tejado'.
 TILE_DEFS[T.TEJADO - 1].vol = vol(45, '#b85a3c', '#e7b9a0', '#4a3328', 'ventanas', { zocalo: '#f2eee2' });
@@ -165,7 +173,6 @@ for (let y = 0; y < H; y++) {
 }
 const BRIDGES = [
   { y: 22, name: 'Puente de la Barqueta' },
-  { y: 60, name: 'Puente de Triana' },
   { y: 98, name: 'Puente de San Telmo' },
   { y: 132, name: 'Puente de Los Remedios' },
 ];
@@ -175,9 +182,32 @@ for (const b of BRIDGES) {
     rect(c - 12, y, c + 9, y, T.PUENTE);
   }
 }
+// Puente de Triana (Isabel II, 1852): recto de orilla a orilla, con barandilla de hierro,
+// aceras y dos carriles; debajo, tres arcos de hierro con anillos (los pinta el juego).
+// Filas: barandilla, acera, 4 de calzada, acera, barandilla.
+const TRIANA = { y0: 59, y1: 66 };
+const trianaRows = [];
+for (let y = TRIANA.y0; y <= TRIANA.y1; y++) trianaRows.push(riverX(y));
+TRIANA.x0 = Math.min(...trianaRows) - 12; // empieza en la calle Betis
+TRIANA.x1 = Math.max(...trianaRows) + 9; // y acaba en Reyes Católicos / Paseo de Colón
+TRIANA.rail0 = Math.max(...trianaRows) - 11;
+TRIANA.rail1 = Math.min(...trianaRows) + 8;
+TRIANA.road0 = TRIANA.y0 + 2;
+TRIANA.road1 = TRIANA.y1 - 2;
+rect(TRIANA.x0, TRIANA.road0, TRIANA.x1, TRIANA.road1, T.PUENTE_TRIANA);
+rect(TRIANA.rail0, TRIANA.y0 + 1, TRIANA.rail1, TRIANA.y0 + 1, T.ACERA);
+rect(TRIANA.rail0, TRIANA.y1 - 1, TRIANA.rail1, TRIANA.y1 - 1, T.ACERA);
+rect(TRIANA.rail0, TRIANA.y0, TRIANA.rail1, TRIANA.y0, T.BARANDILLA);
+rect(TRIANA.rail0, TRIANA.y1, TRIANA.rail1, TRIANA.y1, T.BARANDILLA);
+// Arcos sobre el agua: de la orilla de Triana a la del Arenal.
+TRIANA.arch0 = Math.min(...trianaRows) - 6;
+TRIANA.arch1 = Math.max(...trianaRows) + 6;
+// Capillita del Carmen (Aníbal González) en la cabeza del puente, lado Triana, junto a Betis.
+const CAPILLA = { x: TRIANA.rail0 + 1, y: TRIANA.y1 + 1 };
+rect(CAPILLA.x, CAPILLA.y, CAPILLA.x + 1, CAPILLA.y + 1, T.CAPILLITA);
 
 // 8b) Torre del Oro en la orilla del Paseo de Colón y Torre Sevilla en la Cartuja.
-const ORO = { x: riverX(89) + 7, y: 89, r: 2.6 };
+const ORO = { x: riverX(89) + 6, y: 89, r: 2.6 }; // en la orilla, sin pisar el carril del Paseo de Colón
 for (let y = ORO.y - 3; y <= ORO.y + 3; y++) for (let x = ORO.x - 3; x <= ORO.x + 3; x++) {
   if (Math.hypot(x - ORO.x, y - ORO.y) <= ORO.r) set(x, y, T.TORRE_ORO);
 }
@@ -236,12 +266,94 @@ for (let i = 0; i < W * H; i++) {
   }
 }
 
+// 13) Naranjos en las aceras (semilla aparte: no cambia el resto del mapa).
+let treeSeed = 777;
+const trnd = () => {
+  treeSeed = (treeSeed + 0x6d2b79f5) | 0;
+  let t = Math.imul(treeSeed ^ (treeSeed >>> 15), 1 | treeSeed);
+  t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+};
+const N4 = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+const nearTriana = (x, y) => x >= TRIANA.x0 - 3 && x <= TRIANA.x1 + 3 && y >= TRIANA.y0 - 3 && y <= TRIANA.y1 + 3;
+const isCorner = (x, y) => [[1, 1], [1, -1], [-1, 1], [-1, -1]].some(([dx, dy]) =>
+  inside(x + dx, y + dy) && isRoad(get(x + dx, y) ?? 0) && isRoad(get(x, y + dy) ?? 0) && isRoad(get(x + dx, y + dy)));
+for (let y = 1; y < H - 1; y++) for (let x = 1; x < W - 1; x++) {
+  if (get(x, y) !== T.ACERA || nearTriana(x, y) || isCorner(x, y)) continue;
+  if (!N4.some(([dx, dy]) => isRoad(get(x + dx, y + dy)))) continue;
+  const crowded = [[-1, 0], [-2, 0], [0, -1], [0, -2], [-1, -1], [1, -1]].some(([dx, dy]) => get(x + dx, y + dy) === T.NARANJO);
+  if (!crowded && trnd() < 0.18) set(x, y, T.NARANJO);
+}
+
+// 14) Semáforos en esquinas de manzana. `eje`: h = regula a quien va de este a oeste
+// (o al revés), v = de norte a sur. Los coches paran en rojo.
+const lights = [];
+for (let y = 1; y < H - 1; y++) for (let x = 1; x < W - 1; x++) {
+  if (get(x, y) !== T.ACERA || nearTriana(x, y)) continue;
+  for (const [dx, dy] of [[1, 1], [1, -1], [-1, 1], [-1, -1]]) {
+    if (!(isRoad(get(x + dx, y)) && isRoad(get(x, y + dy)) && isRoad(get(x + dx, y + dy)))) continue;
+    if (lights.some((l) => Math.abs(l.x - x) + Math.abs(l.y - y) < 14) || trnd() > 0.3) continue;
+    lights.push({ x: x + 0.5 + dx * 0.35, y: y + 0.5 + dy * 0.35, eje: trnd() < 0.5 ? 'h' : 'v' });
+  }
+}
+// Los del puente de Triana: cruce con Betis y con Reyes Católicos.
+for (const [x, y] of [[TRIANA.rail0, TRIANA.y0 - 0.2], [TRIANA.rail0, TRIANA.y1 + 1.2], [TRIANA.rail1 + 1, TRIANA.y0 - 0.2], [TRIANA.rail1 + 1, TRIANA.y1 + 1.2]]) {
+  lights.push({ x, y, eje: 'h' });
+  lights.push({ x: x + 0.01, y, eje: 'v' });
+}
+
+// 15) Rutas de los coches (circulan por la derecha). Cada ruta es un circuito cerrado
+// por el centro de su carril; se descarta si algún tramo pisa algo que no es calzada.
+const drivable = new Set([T.ASFALTO, T.PUENTE, T.PUENTE_TRIANA]);
+const along = (yFrom, yTo, xAt) => {
+  const pts = [];
+  const step = yTo > yFrom ? 2 : -2;
+  for (let y = yFrom; step > 0 ? y < yTo : y > yTo; y += step) pts.push([xAt(y), y]);
+  pts.push([xAt(yTo), yTo]);
+  return pts;
+};
+const betisS = (y) => riverX(Math.floor(y)) - 15.5;
+const betisN = (y) => riverX(Math.floor(y)) - 12.5;
+const colonS = (y) => riverX(Math.floor(y)) + 10.5;
+const colonN = (y) => riverX(Math.floor(y)) + 13.5;
+const lane = (b, east) => b.y + (east ? 3.5 : 1.5);
+const telmo = BRIDGES[1], remedios = BRIDGES[2];
+const triE = TRIANA.road0 + 3, triW = TRIANA.road0 + 1;
+const rectLoop = (x0, y0, x1, y1, cw) => cw
+  ? [[x0 + 4.5, y0 + 4.5], [x1 + 1.5, y0 + 4.5], [x1 + 1.5, y1 + 1.5], [x0 + 4.5, y1 + 1.5]]
+  : [[x0 + 1.5, y0 + 1.5], [x0 + 1.5, y1 + 4.5], [x1 + 4.5, y1 + 4.5], [x1 + 4.5, y0 + 1.5]];
+const ROUTES = [
+  // Triana -> Paseo de Colón -> San Telmo -> Betis -> Triana (sentido horario).
+  { name: 'triana_san_telmo', coches: 3, pts: [
+    ...along(triE, lane(telmo, false), colonS), ...along(lane(telmo, false), triE, betisN)] },
+  // Triana -> Betis -> Los Remedios -> Colón -> Triana (antihorario).
+  { name: 'triana_remedios', coches: 3, pts: [
+    ...along(triW, lane(remedios, true), betisS), ...along(lane(remedios, true), triW, colonN)] },
+  { name: 'nervion_1', coches: 2, pts: rectLoop(152, 76, 170, 94, true) },
+  { name: 'nervion_2', coches: 2, pts: rectLoop(170, 40, 188, 58, false) },
+];
+const routes = [];
+for (const r of ROUTES) {
+  const closed = [...r.pts, r.pts[0]];
+  let ok = true;
+  for (let i = 0; i + 1 < closed.length && ok; i++) {
+    const [ax, ay] = closed[i], [bx, by] = closed[i + 1];
+    const n = Math.ceil(Math.hypot(bx - ax, by - ay) * 4);
+    for (let k = 0; k <= n; k++) {
+      const x = Math.floor(ax + (bx - ax) * k / n), y = Math.floor(ay + (by - ay) * k / n);
+      if (!drivable.has(get(x, y))) { ok = false; console.warn(`ruta ${r.name} descartada: (${x}, ${y}) no es calzada`); break; }
+    }
+  }
+  if (ok) routes.push(r);
+}
+
 // ---------- Objetos: spawn, salida y rótulos ----------
 const px = (t) => t * TILE;
 let oid = 1;
 const point = (name, type, tx, ty) => ({ id: oid++, name, type, x: px(tx), y: px(ty), width: 0, height: 0, rotation: 0, visible: true, point: true });
 const objects = [
-  point('spawn', 'spawn', riverX(62) - 14.5, 70),
+  // La T3 sale en la cabeza del puente de Triana, lado Paseo de Colón, mirando al norte.
+  point('spawn', 'spawn', colonN(TRIANA.y1 + 1), TRIANA.y1 + 1.5),
   { id: oid++, name: 'salida_a4', type: 'salida', x: px(W - 4), y: px(EXIT_Y), width: px(4), height: px(6), rotation: 0, visible: true },
   point('Triana', 'rotulo', 30, 64),
   point('La Cartuja', 'rotulo', 30, 16),
@@ -258,6 +370,28 @@ const objects = [
   point('Las Setas', 'rotulo', 112, 45),
   point('Torre Sevilla', 'rotulo', 44, 33),
   ...BRIDGES.map((b) => point(b.name, 'rotulo', riverX(b.y), b.y - 1)),
+  point('Puente de Triana', 'rotulo', (TRIANA.arch0 + TRIANA.arch1) / 2, TRIANA.y0 - 1.5),
+  point('Capillita del Carmen', 'rotulo', CAPILLA.x + 1, CAPILLA.y + 3),
+  point('Altozano', 'rotulo', TRIANA.x0 - 4, TRIANA.y0 - 2),
+  // Arcos del puente de Triana: el juego pinta los costados bajo la calzada.
+  { id: oid++, name: 'puente_triana', type: 'puente_arcos', x: px(TRIANA.arch0), y: px(TRIANA.y0), width: px(TRIANA.arch1 - TRIANA.arch0), height: px(TRIANA.y1 - TRIANA.y0 + 1), rotation: 0, visible: true,
+    properties: [
+      { name: 'arcos', type: 'int', value: 3 },
+      // Barandillas: de dónde a dónde (x) y a qué altura del mapa (y), en px.
+      { name: 'reja_x0', type: 'float', value: px(TRIANA.rail0) },
+      { name: 'reja_x1', type: 'float', value: px(TRIANA.rail1 + 1) },
+      { name: 'reja_y0', type: 'float', value: px(TRIANA.y0 + 0.5) },
+      { name: 'reja_y1', type: 'float', value: px(TRIANA.y1 + 0.5) },
+    ] },
+  // Farolas sobre la barandilla, a ambos lados.
+  ...Array.from({ length: Math.floor((TRIANA.rail1 - TRIANA.rail0) / 3) + 1 }, (_, i) => TRIANA.rail0 + 0.5 + i * 3).flatMap((x) => [
+    point('farola', 'farola', x, TRIANA.y0 + 0.5), point('farola', 'farola', x, TRIANA.y1 + 0.5)]),
+  ...lights.map((l) => ({ ...point('semaforo', 'semaforo', l.x, l.y), properties: [{ name: 'eje', type: 'string', value: l.eje }] })),
+  ...routes.map((r) => ({
+    id: oid++, name: r.name, type: 'ruta', x: 0, y: 0, rotation: 0, visible: true,
+    polyline: r.pts.map(([x, y]) => ({ x: px(x), y: px(y) })),
+    properties: [{ name: 'coches', type: 'int', value: r.coches }],
+  })),
 ];
 
 // ---------- Tiled JSON ----------
@@ -293,6 +427,7 @@ TILE_DEFS.forEach((d, i) => {
     if (d.grid && (x % 8 === 0 || y % 8 === 0)) c = d.grid;
     if (d.wave && (y % 6 === 2) && ((x + y) % 8 < 3)) c = d.wave;
     if (d.tree && Math.hypot(x - 7.5, y - 7.5) < 6) c = d.tree;
+    if (d.rail && (y === 7 || y === 8)) c = d.rail;
     put(i * TILE + x, y, c);
   }
 });

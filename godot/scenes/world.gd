@@ -27,6 +27,12 @@ func _ready() -> void:
 	add_child(city)
 	# Sombras sobre el suelo y bajo la furgo.
 	_map_root.add_child(city.shadows)
+	# Vida en la calle: peatones (bajo la furgo), semáforos y farolas (altos) y tráfico.
+	_map_root.add_child(Pedestrians.create(map, _van))
+	var street := StreetProps.create(map)
+	street.z_index = GameConfig.STREET_Z
+	add_child(street)
+	add_child(Traffic.create(map, _van, street))
 	for o: Dictionary in map.objects:
 		if o.type == GameConfig.MAP_LABEL_TYPE:
 			_map_root.add_child(_make_label(o.name, Vector2(o.x, o.y)))
