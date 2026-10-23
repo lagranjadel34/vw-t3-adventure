@@ -102,7 +102,7 @@ func _draw_rail(a: Vector2, b: Vector2, center: Vector2) -> void:
 
 ## Costado del puente desde la calzada hasta el agua: solo se ve si la cámara está de ese lado.
 func _draw_bridge_side(a: Vector2, b: Vector2, normal: Vector2, center: Vector2) -> void:
-	if (center - a).dot(normal) <= GameConfig.CITY_WALL_EDGE_ON:
+	if (center - a).dot(normal) <= GameConfig.CITY_WALL_MIN_FACING:
 		return
 	var d := -GameConfig.BRIDGE_DEPTH
 	var pts := PackedVector2Array([CityView.project(a, 0, center), CityView.project(b, 0, center), CityView.project(b, d, center), CityView.project(a, d, center)])

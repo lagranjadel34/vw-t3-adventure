@@ -352,8 +352,8 @@ const px = (t) => t * TILE;
 let oid = 1;
 const point = (name, type, tx, ty) => ({ id: oid++, name, type, x: px(tx), y: px(ty), width: 0, height: 0, rotation: 0, visible: true, point: true });
 const objects = [
-  // La T3 sale en la cabeza del puente de Triana, lado Paseo de Colón, mirando al norte.
-  point('spawn', 'spawn', colonN(TRIANA.y1 + 1), TRIANA.y1 + 1.5),
+  // La T3 sale al pie del Puente de Triana, en la orilla del Arenal (Paseo de Colón), mirando al norte.
+  point('spawn', 'spawn', riverX(62) + 12, 63),
   { id: oid++, name: 'salida_a4', type: 'salida', x: px(W - 4), y: px(EXIT_Y), width: px(4), height: px(6), rotation: 0, visible: true },
   point('Triana', 'rotulo', 30, 64),
   point('La Cartuja', 'rotulo', 30, 16),

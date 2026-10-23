@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "map": "node scripts/gen-sevilla-map.mjs"
+    "map": "node scripts/gen-sevilla-map.mjs",
+    "map:bosque": "node scripts/gen-bosque-map.mjs"
   },
   "dependencies": {
     "phaser": "^3.90.0"
