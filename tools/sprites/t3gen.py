@@ -12,9 +12,14 @@ from PIL import Image
 
 # --- Cámara / escala ---
 PX_PER_M = 13.0          # 4.57 m de T3 ≈ 59 px (el sprite actual mide 64)
-ELEVATION_DEG = 60.0     # 90 = cenital puro; 60 = "ligeramente isométrica"
+# Cámara del mapa (estilo GTA 1): cenital y con perspectiva, a CAM_HEIGHT_PX sobre el suelo
+# (= CITY_CAMERA_HEIGHT en godot/config/game_config.gd). En el juego sigue al eje
+# delantero de la furgo, CAM_AHEAD_PX por delante de su centro.
+ELEVATION_DEG = 90.0     # 90 = cenital puro; 60 = la vista "ligeramente isométrica" anterior
+CAM_HEIGHT_PX = 300.0    # None = proyección paralela (sin perspectiva)
+CAM_AHEAD_PX = 19.0      # VAN_FRONT_AXLE_RATIO · VAN_LENGTH_PX
 CANVAS = 80
-PIVOT = (40, 46)         # dónde cae el centro de la furgo (suelo) en el lienzo
+PIVOT = (40, 40)         # dónde cae el centro de la furgo (suelo) en el lienzo
 DECAL_BIAS = 0.03
 OUTLINE = (26, 24, 36)
 
@@ -262,12 +267,18 @@ def _edge(ax, ay, bx, by, px, py):
 
 
 def render(polys, heading, elevation_deg=ELEVATION_DEG, scale=PX_PER_M, size=CANVAS,
-           pivot=PIVOT, outline=True, dull=0.0):
-    """heading: radianes, 0 = mirando a la derecha, positivo = antihorario (norte arriba)."""
+           pivot=PIVOT, outline=True, dull=0.0, cam_height_px=CAM_HEIGHT_PX, cam_ahead_px=CAM_AHEAD_PX):
+    """heading: radianes, 0 = mirando a la derecha, positivo = antihorario (norte arriba).
+
+    Con cam_height_px (y elevation_deg = 90) la cámara es un punto sobre el eje delantero:
+    lo alto se aleja de ella como en el mapa, y solo se ven las caras que la miran."""
     e = math.radians(elevation_deg)
     se, ce = math.sin(e), math.cos(e)
     cam = np.array([0.0, -ce, se])
     Rz = rot_matrix((0, 0, 1), heading)
+    persp = cam_height_px is not None and elevation_deg == 90.0
+    if persp:
+        cam_pos = Rz @ np.array([cam_ahead_px / scale, 0.0, cam_height_px / scale])
     rgb = np.zeros((size, size, 3), np.uint8)
     alpha = np.zeros((size, size), bool)
     zbuf = np.full((size, size), np.inf)
@@ -275,12 +286,20 @@ def render(polys, heading, elevation_deg=ELEVATION_DEG, scale=PX_PER_M, size=CAN
     pxc, pyc = xs + 0.5, ys + 0.5
     for p in polys:
         nw = Rz @ p.n
-        if np.dot(nw, cam) <= 1e-6:
-            continue
         vw = p.v @ Rz.T
-        sx = pivot[0] + vw[:, 0] * scale
-        sy = pivot[1] - (vw[:, 1] * se + vw[:, 2] * ce) * scale
-        depth = vw[:, 1] * ce - vw[:, 2] * se
+        if persp:
+            if np.dot(nw, cam_pos - vw.mean(axis=0)) <= 1e-6:
+                continue
+            f = cam_pos[2] / (cam_pos[2] - vw[:, 2])
+            sx = pivot[0] + (cam_pos[0] + (vw[:, 0] - cam_pos[0]) * f) * scale
+            sy = pivot[1] - (cam_pos[1] + (vw[:, 1] - cam_pos[1]) * f) * scale
+            depth = -vw[:, 2]
+        else:
+            if np.dot(nw, cam) <= 1e-6:
+                continue
+            sx = pivot[0] + vw[:, 0] * scale
+            sy = pivot[1] - (vw[:, 1] * se + vw[:, 2] * ce) * scale
+            depth = vw[:, 1] * ce - vw[:, 2] * se
         if p.emissive:
             col = np.array(p.color, float)
         else:

@@ -16,7 +16,7 @@ from t3gen import Poly, box, prism_y, quad_on_side, quad_on_front, octagon, DECA
 
 DIRS = 24
 CANVAS = 64
-PIVOT = (32, 38)
+PIVOT = (32, 32)
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "godot", "assets",
                    "sprites", "coches")
 

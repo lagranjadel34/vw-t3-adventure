@@ -39,11 +39,11 @@ const VAN_SPRITE_WHEEL_FRAMES := 4
 const VAN_SPRITE_STEER_ROWS := 3
 # Volante por encima de esto (en [-1, 1]) muestra las ruedas giradas.
 const VAN_SPRITE_STEER_THRESHOLD := 0.33
-# Celda 80x80 con el centro de la furgo (en el suelo) en (40, 46).
-const VAN_SPRITE_OFFSET := Vector2(0, -6)
-# Escala y cámara con las que se generaron las hojas.
+# Celda 80x80 con el centro de la furgo (en el suelo) en (40, 40).
+const VAN_SPRITE_OFFSET := Vector2.ZERO
+# Escala y cámara con las que se generaron las hojas (cenital con perspectiva, como el mapa).
 const VAN_SPRITE_PX_PER_M := 13.0
-const VAN_SPRITE_CAMERA_DEG := 60.0
+const VAN_SPRITE_CAMERA_DEG := 90.0
 # Avance (px) que hace pasar un frame de la rueda.
 const VAN_WHEEL_FRAME_PX := 3.0
 # Estados de daño de la carrocería (0 bien · 1 desgastado · 2 averiado · 3 crítico).
@@ -218,7 +218,7 @@ const STREET_Z := 1 # postes y arcos, a la altura de los edificios
 const CAR_SPRITES := "res://assets/sprites/coches/coches.png"
 const CAR_SPRITE_DIRECTIONS := 24
 const CAR_MODELS := 4
-const CAR_SPRITE_OFFSET := Vector2(0, -6) # celda 64x64 con el centro del coche en (32, 38)
+const CAR_SPRITE_OFFSET := Vector2.ZERO # celda 64x64 con el centro del coche en (32, 32)
 const CAR_RADIUS := 10.0
 const CAR_SPEED := 48.0 # px/s, bastante menos que la T3 a tope
 const CAR_ACCEL := 40.0
