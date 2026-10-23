@@ -8,6 +8,13 @@ Motor: Godot 4.5 (`godot/`). Cada cambio en `godot/` que llega a master genera u
 
 Lo más nuevo arriba. El número coincide con el que muestra Obtainium (0.1.N = Release `apk-N`).
 
+### 0.1.34 · 2026-10-23
+- Puente de Triana de verdad: recto de orilla a orilla, con aceras, barandillas de hierro, farolas y, por los costados, sus tres arcos de hierro con anillos sobre pilas de piedra. En la cabeza de Triana, la Capillita del Carmen y el Altozano.
+- La T3 sale al pie del puente, en el lado del Paseo de Colón.
+- Tráfico: unos pocos coches (taxis de Sevilla incluidos) circulan por la ribera, cruzan los puentes de Triana, San Telmo y Los Remedios y dan vueltas por Nervión. Frenan si te pones delante.
+- Semáforos en los cruces que cambian de color; los coches paran en rojo.
+- Naranjos en las aceras y algún peatón paseando, que se aparta de un salto si llega la furgo.
+
 ### 0.1.31 · 2026-10-23
 - Ciudad: de vez en cuando pasa un avión por encima (rugido que crece y se aleja); en el campo no suena.
 
