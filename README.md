@@ -8,6 +8,9 @@ Motor: Godot 4.5 (`godot/`). Cada cambio en `godot/` que llega a master genera u
 
 Lo más nuevo arriba. El número coincide con el que muestra Obtainium (0.1.N = Release `apk-N`).
 
+### 0.1.31 · 2026-10-23
+- Ciudad: de vez en cuando pasa un avión por encima (rugido que crece y se aleja); en el campo no suena.
+
 ### 0.1.29 · 2026-10-23
 - Edificios altos con perspectiva estilo GTA 1: la cámara mira desde arriba y los edificios se abren hacia los bordes de la pantalla, así que se ven sus fachadas y la calle por la que vas nunca queda tapada.
 - Alturas de verdad: casas de 3 plantas, pisos en Nervión y la Giralda y la Torre Sevilla destacando sobre todo lo demás.
