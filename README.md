@@ -13,6 +13,12 @@ Lo más nuevo arriba. El número coincide con el que muestra Obtainium (0.1.N = 
 - Alturas de verdad: casas de 3 plantas, pisos en Nervión y la Giralda y la Torre Sevilla destacando sobre todo lo demás.
 - Sombras de los edificios en el suelo.
 
+### 0.1.28 · 2026-10-23
+- Sonido (provisional, generado por el juego): el motor bóxer sube y baja de tono con las revoluciones y cae en cada cambio de marcha.
+- Clac de la palanca: la caja de serie tiene holgura y la marcha cuesta entrar (rasca y entra con golpe seco). En el futuro se podrá arreglar en el taller.
+- Ambiente: tráfico y bocinas en Sevilla, que se van apagando al acercarte a la salida A-4, donde solo quedan el motor y los pájaros.
+- Menú > Configuración > Sonido: volumen (0-10) y silencio; se guarda entre partidas.
+
 ### 0.1.26 · 2026-10-23
 - Sevilla en perspectiva: los edificios tienen fachada y altura, vistos con el mismo ángulo que la T3, y la furgo pasa por delante o por detrás de ellos.
 - Monumentos reconocibles: Giralda, Catedral, Torre del Oro, Reales Alcázares, Archivo de Indias, Las Setas, Torre Sevilla, Maestranza y Plaza de España con sus torres.
