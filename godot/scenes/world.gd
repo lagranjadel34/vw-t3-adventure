@@ -16,6 +16,8 @@ func _ready() -> void:
 		GameConfig.MAP_COLLIDES_PROPERTY,
 	)
 	_map_root.add_child(map.ground)
+	# Edificios en perspectiva, ordenados por Y junto con la furgo (la escena tiene Y-sort).
+	add_child(CityBuilder.build(map))
 	for o: Dictionary in map.objects:
 		if o.type == GameConfig.MAP_LABEL_TYPE:
 			_map_root.add_child(_make_label(o.name, Vector2(o.x, o.y)))
@@ -64,6 +66,7 @@ func _make_label(text: String, pos: Vector2) -> Label:
 	label.add_theme_color_override("font_outline_color", GameConfig.MAP_LABEL_OUTLINE_COLOR)
 	label.add_theme_constant_override("outline_size", GameConfig.MAP_LABEL_OUTLINE_SIZE)
 	label.modulate.a = GameConfig.MAP_LABEL_ALPHA
+	label.z_index = GameConfig.MAP_LABEL_Z
 	label.size = label.get_minimum_size()
 	label.position = pos - label.size / 2
 	return label
