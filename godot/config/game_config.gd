@@ -34,7 +34,7 @@ const VAN_LENGTH_PX := 64.0
 # volante (izq, recto, dcha) × frames de rueda. El sprite no gira: se elige el frame.
 const VAN_SPRITE_PATH := "res://assets/sprites/dehler/d%d%s.png"
 const VAN_SPRITE_LIGHTS_SUFFIX := "_luces"
-const VAN_SPRITE_DIRECTIONS := 16
+const VAN_SPRITE_DIRECTIONS := 24
 const VAN_SPRITE_WHEEL_FRAMES := 4
 const VAN_SPRITE_STEER_ROWS := 3
 # Volante por encima de esto (en [-1, 1]) muestra las ruedas giradas.
@@ -60,10 +60,6 @@ const VAN_SMOKE_RISE := -10.0
 const VAN_SMOKE_SPREAD_DEG := 30.0
 const VAN_SMOKE_SIZE := Vector2(1, 3)
 
-# --- Botones de prueba (arriba a la derecha): luces y daño ---
-const TEST_BUTTON_SIZE := Vector2(30, 22)
-const TEST_BUTTON_MARGIN := 4.0
-const TEST_BUTTON_FONT_SIZE := 8
 
 # --- Peso: según la camperización la T3 pesa más o menos ---
 # Masa en vacío y carga por defecto (camperización media). Con la carga por defecto el
@@ -106,6 +102,32 @@ const METERS_PER_PIXEL := VAN_TOP_SPEED_KMH / KMH_PER_MPS / VAN_MAX_SPEED
 const METERS_PER_KM := 1000.0
 # Kilometraje con el que sale la T3 (una furgo de 1980 ya tiene sus km).
 const ODOMETER_START_KM := 184263.0
+
+# --- Cuentakilómetros de rodillos (arriba a la derecha), portado de src/config/odometer.ts ---
+# Rodillos: enteros + 1 de décimas (colores invertidos, como en el VW original).
+const ODOMETER_INT_DIGITS := 6
+const ODOMETER_TENTHS_DIGITS := 1
+const ODOMETER_CELL := Vector2(5, 9)
+const ODOMETER_WHEEL_GAP := 1.0
+const ODOMETER_PADDING := 2.0
+const ODOMETER_MARGIN := 4.0
+const ODOMETER_LABEL_GAP := 2.0
+# Fracción final del giro en la que el rodillo de la izquierda arrastra (acarreo mecánico).
+const ODOMETER_CARRY_ZONE := 0.15
+# Sombreado de curvatura del cilindro (filas de arriba y de abajo).
+const ODOMETER_SHADE_ROWS := 2
+const ODOMETER_SHADE_ALPHA := 0.45
+const ODOMETER_COLORS := {
+	"frame": Color("6b6150"),
+	"frame_dark": Color("2a2620"),
+	"bezel": Color("0c0c0c"),
+	"wheel": Color("161616"),
+	"digit": Color("e8e2cf"),
+	"tenths_wheel": Color("e8e2cf"),
+	"tenths_digit": Color("b3261e"),
+	"shade": Color("000000"),
+	"label": Color("c9bf9f"),
+}
 
 # --- Mapa de Sevilla (Tiled). Generado con scripts/gen-sevilla-map.mjs ---
 const MAP_JSON := "res://assets/maps/sevilla.json"

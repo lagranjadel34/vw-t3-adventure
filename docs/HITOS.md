@@ -20,7 +20,7 @@ Migración por paridad: Phaser queda como referencia. Hitos con prefijo G.
 
 - [x] G1. Proyecto Godot: T3 conduciendo por Sevilla (modelo bicicleta portado), cámara con zoom, joystick y pedales, APK automático en Releases.
 - [x] G2. Menú de inicio (hoguera, estrellas fugaces) e intro con viñetas, portados de Phaser.
-- [ ] G3. HUD: cuentakilómetros de rodillos.
+- [x] G3. HUD: cuentakilómetros de rodillos (arriba a la derecha, pegado al borde aunque la pantalla sea más ancha).
 - [x] G4. Caja de cambios de 4 marchas (rejilla T3: 1ª abajo-izq, 2ª arriba-izq, 3ª abajo-der, 4ª arriba-der; palanca encima de los pedales): automática por defecto, manual deslizando la palanca o con Q/E.
 - [x] G5. Derrape y agarre: la cola se va en curvas rápidas y con freno de mano (Espacio), peso según camperización, tope 100 km/h.
-- [x] G6. Sprite isométrico de la T3 Dehler (prueba): 16 rumbos, ruedas girando y con volante, faros (L / botón Luz), daño 0-3 (K / botón Daño) y humo según daño. Hojas generadas con `tools/sprites/export_godot.py` desde un modelo 3D low-poly.
+- [x] G6. Sprite isométrico de la T3 Dehler (prueba): 24 rumbos, ruedas girando y con volante, faros (L), daño 0-3 (K) y humo según daño. Hojas generadas con `tools/sprites/export_godot.py` desde un modelo 3D low-poly.

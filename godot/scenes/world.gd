@@ -21,8 +21,6 @@ func _ready() -> void:
 			_map_root.add_child(_make_label(o.name, Vector2(o.x, o.y)))
 
 	_hud.add_gear_lever(_van.gearbox)
-	_hud.add_test_button("Luz", _van.toggle_lights)
-	_hud.add_test_button("Daño", _van.cycle_damage)
 
 	var spawn: Variant = map.find_object(GameConfig.MAP_SPAWN)
 	if spawn:
@@ -33,6 +31,7 @@ func _ready() -> void:
 	_camera.limit_right = int(map.size_px.x)
 	_camera.limit_bottom = int(map.size_px.y)
 	_camera.global_position = _van.front
+	_hud.odometer.set_km(GameConfig.ODOMETER_START_KM + _van.trip_km)
 	_camera.zoom = Vector2.ONE * GameConfig.CAMERA_ZOOM_STOPPED
 	_camera.reset_smoothing()
 
@@ -48,6 +47,7 @@ func _physics_process(_delta: float) -> void:
 func _process(delta: float) -> void:
 	# La cámara sigue al eje delantero, así en pantalla se ve el giro sobre el morro.
 	_camera.global_position = _van.front
+	_hud.odometer.set_km(GameConfig.ODOMETER_START_KM + _van.trip_km)
 
 	# Más velocidad, más visión: la cámara se aleja suavemente.
 	var t := minf(absf(_van.speed) / GameConfig.VAN_MAX_SPEED, 1.0)
