@@ -8,6 +8,10 @@ Motor: Godot 4.5 (`godot/`). Cada cambio en `godot/` que llega a master genera u
 
 Lo más nuevo arriba. El número coincide con el que muestra Obtainium (0.1.N = Release `apk-N`).
 
+### 0.1.36 · 2026-10-23
+- Los peatones ahora tienen el tamaño que les toca al lado de la T3: se ven de pie, con piernas, brazos y pelo.
+- Si atropellas a alguien, se queda tendido en el suelo con un charco de sangre.
+
 ### 0.1.34 · 2026-10-23
 - Puente de Triana de verdad: recto de orilla a orilla, con aceras, barandillas de hierro, farolas y, por los costados, sus tres arcos de hierro con anillos sobre pilas de piedra. En la cabeza de Triana, la Capillita del Carmen y el Altozano.
 - La T3 sale al pie del puente, en el lado del Paseo de Colón.
