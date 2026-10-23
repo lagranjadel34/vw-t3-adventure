@@ -8,6 +8,11 @@ Motor: Godot 4.5 (`godot/`). Cada cambio en `godot/` que llega a master genera u
 
 Lo más nuevo arriba. El número coincide con el que muestra Obtainium (0.1.N = Release `apk-N`).
 
+### 0.1.26 · 2026-10-23
+- Sevilla en perspectiva: los edificios tienen fachada y altura, vistos con el mismo ángulo que la T3, y la furgo pasa por delante o por detrás de ellos.
+- Monumentos reconocibles: Giralda, Catedral, Torre del Oro, Reales Alcázares, Archivo de Indias, Las Setas, Torre Sevilla, Maestranza y Plaza de España con sus torres.
+- Casas de cal con zócalo de albero en el centro y en Triana, y bloques de pisos en Nervión.
+
 ### 0.1.23 · 2026-10-23
 - Topes por marcha 25 / 50 / 75 / 100 km/h: en 4ª va 4 veces más que en 1ª.
 - 1ª con más brío (llega a 25 km/h en 0,4 s) y cambios más suaves (embrague 0,15 s). 0-100 en unos 7,5 s.

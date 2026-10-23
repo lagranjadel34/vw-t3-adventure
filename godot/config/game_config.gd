@@ -144,6 +144,35 @@ const MAP_LABEL_COLOR := Color.WHITE
 const MAP_LABEL_OUTLINE_COLOR := Color.BLACK
 const MAP_LABEL_OUTLINE_SIZE := 2
 const MAP_LABEL_ALPHA := 0.75
+# Por encima de los edificios.
+const MAP_LABEL_Z := 1
+
+# --- Edificios en perspectiva (scripts/city_builder.gd) ---
+# Misma cámara que la T3 (VAN_SPRITE_CAMERA_DEG): el tejado sube en pantalla la propiedad
+# `altura` del tile (px, ya comprimida) y la fachada sur queda a la vista.
+# Ancho (tiles) de cada trozo de fila: trozos pequeños para que la cámara recorte lo que no ve.
+const CITY_CHUNK_TILES := 16
+const CITY_ROOF_EDGE_LIGHTEN := 0.15 # borde norte del tejado, al sol
+const CITY_EAVE_DARKEN := 0.35 # alero: línea oscura entre tejado y fachada
+const CITY_ZOCALO_PX := 2.0
+const CITY_SPIRE_HEIGHT := 16.0
+const CITY_SPIRE_BASE_RATIO := 0.5
+const CITY_TREE_CANOPY_RADIUS := 7.0
+const CITY_TREE_HIGHLIGHT_RADIUS := 3.0
+const CITY_TREE_HIGHLIGHT_OFFSET := Vector2(-2, -2)
+const CITY_TREE_TRUNK_WIDTH := 2.0
+# Almenas sobre el alero (alcázar, Torre del Oro).
+const CITY_MERLON := {"cell": Vector2i(4, 3), "rects": [Rect2i(0, 0, 2, 3)]}
+# Patrones de fachada: celda que se repite y rectángulos pintados con el color `detalle`.
+const CITY_PATTERNS := {
+	"ventanas": {"cell": Vector2i(6, 8), "rects": [Rect2i(2, 2, 2, 3)]},
+	"contrafuertes": {"cell": Vector2i(6, 8), "rects": [Rect2i(0, 0, 1, 8), Rect2i(3, 2, 1, 4)]},
+	"arcos": {"cell": Vector2i(6, 8), "rects": [Rect2i(2, 3, 2, 5), Rect2i(1, 4, 4, 4)]},
+	"ladrillo": {"cell": Vector2i(8, 8), "rects": [Rect2i(3, 1, 2, 1), Rect2i(2, 2, 1, 1), Rect2i(5, 2, 1, 1), Rect2i(1, 3, 1, 2), Rect2i(6, 3, 1, 2), Rect2i(2, 5, 1, 1), Rect2i(5, 5, 1, 1), Rect2i(3, 6, 2, 1)]},
+	"almenas": {"cell": Vector2i(8, 8), "rects": [Rect2i(4, 3, 1, 3)]},
+	"cristal": {"cell": Vector2i(8, 4), "rects": [Rect2i(0, 0, 8, 1), Rect2i(0, 0, 1, 4)]},
+	"rejilla": {"cell": Vector2i(4, 4), "rects": [Rect2i(0, 0, 4, 1), Rect2i(0, 0, 1, 4)]},
+}
 
 # --- Controles táctiles ---
 # Joystick flotante: aparece donde se apoya el pulgar en la mitad izquierda.

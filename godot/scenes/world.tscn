@@ -5,6 +5,7 @@
 [ext_resource type="Script" path="res://ui/hud.gd" id="3_hud"]
 
 [node name="World" type="Node2D"]
+y_sort_enabled = true
 script = ExtResource("1_world")
 
 [node name="Map" type="Node2D" parent="."]

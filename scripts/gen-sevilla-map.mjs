@@ -1,10 +1,13 @@
 // Genera el mapa Tiled de Sevilla (esquemático) y su tileset placeholder.
-// Uso: node scripts/gen-sevilla-map.mjs
-// Salida: public/assets/maps/sevilla.json + tiles-sevilla.png (editables luego en Tiled).
+// Uso: npm run map
+// Salida: godot/assets/maps/sevilla.json + tiles-sevilla.png (editables luego en Tiled).
+// Los tiles de edificio llevan propiedades de volumen (altura, colores, patrón de fachada):
+// el juego los levanta con la misma cámara inclinada que la T3 (godot/scripts/city_builder.gd).
+// La versión Phaser (congelada) conserva su copia en public/assets/maps.
 import { writeFileSync } from 'node:fs';
 import { deflateSync } from 'node:zlib';
 
-const OUT_DIR = 'public/assets/maps';
+const OUT_DIR = 'godot/assets/maps';
 const TILE = 16;
 const W = 200;
 const H = 150;
@@ -12,8 +15,14 @@ const H = 150;
 // ---------- Tiles (gid = índice + 1) ----------
 const T = {
   ASFALTO: 1, ACERA: 2, TEJADO: 3, PARQUE: 4, AGUA: 5, PUENTE: 6,
-  MONUMENTO: 7, ALBERO: 8, ARBOL: 9, CAL: 10, OCRE: 11, TORRE: 12,
+  MONUMENTO: 7, ALBERO: 8, ARBOL: 9, CAL: 10, OCRE: 11, GIRALDA: 12,
+  CATEDRAL: 13, TORRE_ORO: 14, MAESTRANZA: 15, PLAZA_ESPANA: 16, TORRE_PE: 17,
+  ALCAZAR: 18, ARCHIVO: 19, SETAS: 20, TORRE_SEVILLA: 21, PABELLON: 22, BLOQUE: 23,
 };
+// Volumen: altura = px que sube el tejado en pantalla (alturas comprimidas como las calles,
+// si no los edificios taparían la calzada); patrón de fachada; remate = franja alta de otro
+// color (campanario); aguja = chapitel sobre el tejado.
+const vol = (altura, tejado, fachada, detalle, patron, extra = {}) => ({ altura, tejado, fachada, detalle, patron, ...extra });
 const TILE_DEFS = [
   { name: 'asfalto', color: [58, 58, 64] },
   { name: 'acera', color: [150, 142, 132], grid: [170, 162, 152] },
@@ -23,11 +32,25 @@ const TILE_DEFS = [
   { name: 'puente', color: [110, 106, 112], border: [190, 186, 180] },
   { name: 'monumento', color: [214, 192, 136], border: [170, 146, 96], collides: true },
   { name: 'albero', color: [218, 166, 74] },
-  { name: 'arbol', color: [86, 140, 62], tree: [40, 92, 36], collides: true },
-  { name: 'cal', color: [232, 226, 210], border: [190, 180, 160], collides: true },
-  { name: 'ocre', color: [212, 160, 60], border: [170, 120, 40], collides: true },
-  { name: 'torre', color: [196, 150, 90], border: [120, 84, 50], collides: true },
+  { name: 'arbol', color: [86, 140, 62], tree: [40, 92, 36], collides: true, vol: vol(12, '#2e6b2a', '#6b4a2e', '#3f8a38', 'arbol') },
+  // Casas de cal con azotea y zócalo de albero; casas ocres y rosadas con teja.
+  { name: 'cal', color: [232, 226, 210], border: [190, 180, 160], collides: true, vol: vol(18, '#d6d0c2', '#f2eee2', '#4a3f3a', 'ventanas', { zocalo: '#d6a53c' }) },
+  { name: 'ocre', color: [212, 160, 60], border: [170, 120, 40], collides: true, vol: vol(20, '#c6603f', '#e0a83c', '#4a3328', 'ventanas', { zocalo: '#f2eee2' }) },
+  { name: 'giralda', color: [201, 143, 90], border: [120, 84, 50], collides: true, vol: vol(96, '#b77b4a', '#c98f5a', '#8a5a36', 'ladrillo', { remate: '#efe6d0', remate_px: 22, aguja: '#d9b44a' }) },
+  { name: 'catedral', color: [205, 181, 138], border: [154, 129, 96], collides: true, vol: vol(36, '#a8936d', '#cdb58a', '#9a8160', 'contrafuertes') },
+  { name: 'torre_oro', color: [217, 176, 98], border: [170, 130, 60], collides: true, vol: vol(40, '#c9a050', '#d9b062', '#a88440', 'almenas', { remate: '#e9cf8a', remate_px: 12 }) },
+  { name: 'maestranza', color: [244, 239, 228], border: [214, 165, 60], collides: true, vol: vol(12, '#c6603f', '#f4efe4', '#d6a53c', 'arcos') },
+  { name: 'plaza_espana', color: [181, 87, 58], border: [239, 224, 192], collides: true, vol: vol(26, '#9a4630', '#b5573a', '#efe0c0', 'arcos') },
+  { name: 'torre_pe', color: [181, 87, 58], border: [239, 224, 192], collides: true, vol: vol(62, '#9a4630', '#b5573a', '#efe0c0', 'ventanas', { remate: '#efe0c0', remate_px: 14, aguja: '#7aa6b8' }) },
+  { name: 'alcazar', color: [216, 183, 122], border: [170, 140, 90], collides: true, vol: vol(20, '#c9a96a', '#d8b77a', '#a8874a', 'almenas') },
+  { name: 'archivo', color: [201, 143, 90], border: [239, 230, 208], collides: true, vol: vol(24, '#b0a090', '#c98f5a', '#efe6d0', 'ventanas') },
+  { name: 'setas', color: [232, 210, 166], border: [184, 154, 104], collides: true, vol: vol(28, '#e8d2a6', '#e8d2a6', '#b89a68', 'rejilla') },
+  { name: 'torre_sevilla', color: [143, 179, 201], border: [109, 143, 166], collides: true, vol: vol(130, '#6d8fa6', '#8fb3c9', '#c8dce8', 'cristal') },
+  { name: 'pabellon', color: [232, 232, 232], border: [176, 184, 192], collides: true, vol: vol(14, '#b0b8c0', '#e8e8e8', '#7f9bb0', 'cristal') },
+  { name: 'bloque', color: [201, 194, 181], border: [143, 138, 130], collides: true, vol: vol(34, '#8f8a82', '#c9c2b5', '#4f5d6b', 'ventanas') },
 ];
+// La casa rosada con teja usa el tile 'tejado'.
+TILE_DEFS[T.TEJADO - 1].vol = vol(16, '#b85a3c', '#e7b9a0', '#4a3328', 'ventanas', { zocalo: '#f2eee2' });
 const BUILDING = new Set([T.TEJADO, T.CAL, T.OCRE]);
 
 // ---------- RNG con semilla (mapa reproducible) ----------
@@ -64,7 +87,7 @@ for (let y = 6; y < H; y += rint(12, 15)) rect(0, y, 60, y + 3, T.ASFALTO);
 rect(0, 0, 60, 34, T.PARQUE);
 for (let i = 0; i < 6; i++) {
   const x = rint(4, 44), y = rint(4, 26);
-  rect(x, y, x + rint(4, 8), y + rint(3, 5), T.MONUMENTO);
+  rect(x, y, x + rint(4, 8), y + rint(3, 5), T.PABELLON);
 }
 
 // 3) Nervión y ensanche (este y alrededores del casco): avenidas anchas.
@@ -106,16 +129,30 @@ for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
 
 // 6) Catedral y Giralda (con plaza alrededor) y Avenida de la Constitución.
 rect(102, 78, 124, 94, T.ACERA);
-rect(105, 81, 121, 91, T.MONUMENTO);
-rect(119, 79, 122, 82, T.TORRE);
+rect(105, 81, 121, 91, T.CATEDRAL);
+rect(119, 79, 122, 82, T.GIRALDA);
 rect(108, 94, 112, 112, T.ASFALTO);
+
+// 6b) Archivo de Indias (al oeste de la avenida) y Reales Alcázares (murallas con jardín).
+rect(101, 95, 107, 101, T.ACERA);
+rect(102, 96, 106, 100, T.ARCHIVO);
+const ALC = { x0: 114, y0: 96, x1: 130, y1: 103 };
+for (let y = ALC.y0; y <= ALC.y1; y++) for (let x = ALC.x0; x <= ALC.x1; x++) {
+  if (ellipse(x, y) >= 1) continue;
+  const wall = x <= ALC.x0 + 1 || y <= ALC.y0 + 1 || x >= ALC.x1 - 1 || y >= ALC.y1 - 1 || ellipse(x + 2, y + 2) >= 1;
+  set(x, y, wall ? T.ALCAZAR : (x * 7 + y * 3) % 5 === 0 ? T.ARBOL : T.PARQUE);
+}
+
+// 6c) Las Setas en la plaza de la Encarnación.
+rect(103, 32, 121, 44, T.ACERA);
+rect(106, 35, 118, 40, T.SETAS);
 
 // 7) Maestranza: coso de albero junto al río.
 const MAE = { x: 84, y: 76, r: 6 };
 for (let y = MAE.y - MAE.r - 2; y <= MAE.y + MAE.r + 2; y++) for (let x = MAE.x - MAE.r - 2; x <= MAE.x + MAE.r + 2; x++) {
   const d = Math.hypot(x - MAE.x, y - MAE.y);
   if (d <= MAE.r - 2) set(x, y, T.ALBERO);
-  else if (d <= MAE.r + 0.5) set(x, y, T.MONUMENTO);
+  else if (d <= MAE.r + 0.5) set(x, y, T.MAESTRANZA);
 }
 
 // 8) Río, avenidas de ribera (Torneo/Colón y Betis) y puentes.
@@ -140,6 +177,14 @@ for (const b of BRIDGES) {
   }
 }
 
+// 8b) Torre del Oro en la orilla del Paseo de Colón y Torre Sevilla en la Cartuja.
+const ORO = { x: riverX(89) + 7, y: 89, r: 2.6 };
+for (let y = ORO.y - 3; y <= ORO.y + 3; y++) for (let x = ORO.x - 3; x <= ORO.x + 3; x++) {
+  if (Math.hypot(x - ORO.x, y - ORO.y) <= ORO.r) set(x, y, T.TORRE_ORO);
+}
+rect(41, 26, 47, 31, T.ACERA);
+rect(42, 27, 46, 30, T.TORRE_SEVILLA);
+
 // 9) Parque de María Luisa y Plaza de España.
 const PARK = { x0: 92, y0: 112, x1: 150, y1: 146 };
 rect(PARK.x0, PARK.y0, PARK.x1, PARK.y1, T.PARQUE);
@@ -150,9 +195,12 @@ const PE = { x: 150, y: 128, r: 16 };
 for (let y = PE.y - PE.r - 4; y <= PE.y + PE.r + 4; y++) for (let x = PE.x - PE.r - 4; x <= PE.x; x++) {
   const d = Math.hypot(x - PE.x, y - PE.y);
   if (d <= PE.r) set(x, y, T.ALBERO);
-  else if (d <= PE.r + 3) set(x, y, T.MONUMENTO);
+  else if (d <= PE.r + 3) set(x, y, T.PLAZA_ESPANA);
 }
 rect(PE.x - PE.r - 4, PE.y - 2, PE.x - PE.r + 1, PE.y + 1, T.ALBERO); // entrada a la plaza
+// Las dos torres en los extremos del semicírculo.
+rect(PE.x - 3, PE.y - PE.r - 3, PE.x, PE.y - PE.r - 1, T.TORRE_PE);
+rect(PE.x - 3, PE.y + PE.r + 1, PE.x, PE.y + PE.r + 3, T.TORRE_PE);
 
 // 10) Salida hacia el bosque: Autovía A-4 al este.
 const EXIT_Y = 58;
@@ -169,11 +217,13 @@ for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
 for (const [x, y] of toSidewalk) set(x, y, T.ACERA);
 
 // 12) Manzanas: cada una con su color (teja, cal o albero ocre).
+const NERVION_X0 = 150;
 const seen = new Uint8Array(W * H);
 for (let i = 0; i < W * H; i++) {
   if (seen[i] || !BUILDING.has(g[i])) continue;
   const r = rnd();
-  const color = r < 0.5 ? T.CAL : r < 0.8 ? T.TEJADO : T.OCRE;
+  // Nervión: bloques de pisos; el resto, casas de cal, teja u ocre.
+  const color = i % W >= NERVION_X0 ? T.BLOQUE : r < 0.5 ? T.CAL : r < 0.8 ? T.TEJADO : T.OCRE;
   const stack = [i];
   seen[i] = 1;
   while (stack.length) {
@@ -204,10 +254,18 @@ const objects = [
   point('Plaza de España', 'rotulo', 142, 128),
   point('Nervión', 'rotulo', 172, 92),
   point('Salida A-4', 'rotulo', W - 12, EXIT_Y - 2),
+  point('Torre del Oro', 'rotulo', ORO.x, ORO.y + 4),
+  point('Reales Alcázares', 'rotulo', (ALC.x0 + ALC.x1) / 2, ALC.y1 + 2),
+  point('Las Setas', 'rotulo', 112, 45),
+  point('Torre Sevilla', 'rotulo', 44, 33),
   ...BRIDGES.map((b) => point(b.name, 'rotulo', riverX(b.y), b.y - 1)),
 ];
 
 // ---------- Tiled JSON ----------
+const volProps = (v) => !v ? [] : Object.entries(v).map(([name, value]) => (
+  typeof value === 'number' ? { name, type: 'int', value }
+    : value.startsWith('#') ? { name, type: 'color', value: `#ff${value.slice(1)}` }
+    : { name, type: 'string', value }));
 const map = {
   type: 'map', version: '1.10', tiledversion: '1.10.2', orientation: 'orthogonal', renderorder: 'right-down',
   width: W, height: H, tilewidth: TILE, tileheight: TILE, infinite: false,
@@ -220,7 +278,7 @@ const map = {
     firstgid: 1, name: 'placeholder', image: 'tiles-sevilla.png',
     imagewidth: TILE * TILE_DEFS.length, imageheight: TILE, tilewidth: TILE, tileheight: TILE,
     tilecount: TILE_DEFS.length, columns: TILE_DEFS.length, margin: 0, spacing: 0,
-    tiles: TILE_DEFS.map((d, id) => ({ id, type: d.name, properties: [{ name: 'collides', type: 'bool', value: !!d.collides }] })),
+    tiles: TILE_DEFS.map((d, id) => ({ id, type: d.name, properties: [{ name: 'collides', type: 'bool', value: !!d.collides }, ...volProps(d.vol)] })),
   }],
 };
 writeFileSync(`${OUT_DIR}/sevilla.json`, JSON.stringify(map));
