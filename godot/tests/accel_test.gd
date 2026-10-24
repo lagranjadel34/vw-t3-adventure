@@ -3,12 +3,15 @@ extends SceneTree
 ## Imprime cuándo entra cada marcha, su aceleración media (km/h/s) y cuánto tarda en llegar a 100 km/h.
 ## Falla si una marcha no empuja menos que la anterior o si un cambio no sube el tope de velocidad.
 
+const GEAR_MIN_SECS: Array[float] = [0.5, 1.5, 2.5]
+
 var van: Van
 var frame := 0
 var last_gear := 1
 var gear_start_t := 0.0
 var gear_start_kmh := 0.0
 var gear_accels: Array[float] = []
+var gear_secs: Array[float] = []
 
 func _initialize() -> void:
 	var world: Node = load("res://scenes/world.tscn").instantiate()
@@ -33,6 +36,14 @@ func _physics_process(_delta: float) -> bool:
 		for i in range(1, gear_accels.size()):
 			if gear_accels[i] >= gear_accels[i - 1]:
 				push_error("La %dª empuja igual o más que la %dª" % [i + 1, i])
+		# Cada marcha tiene que durar para notarse (1ª, 2ª, 3ª).
+		for i in range(GEAR_MIN_SECS.size()):
+			if gear_secs[i] < GEAR_MIN_SECS[i]:
+				push_error("La %dª dura %.1f s (mínimo %.1f)" % [i + 1, gear_secs[i], GEAR_MIN_SECS[i]])
+		# Al soltar el gas, cuanto más corta la marcha más retiene el motor.
+		for g in range(2, Gearbox.count() + 1):
+			if Gearbox.coast_drag_ratio(g) >= Gearbox.coast_drag_ratio(g - 1):
+				push_error("La %dª retiene igual o más que la %dª" % [g, g - 1])
 		return true
 	if t > 30.0:
 		push_error("No llega a 100 km/h en 30 s (%.0f km/h)" % kmh)
@@ -44,5 +55,6 @@ func _close_gear(t: float, kmh: float) -> void:
 	var accel := (kmh - gear_start_kmh) / maxf(t - gear_start_t, 0.001)
 	print("  %dª: %.0f km/h/s" % [last_gear, accel])
 	gear_accels.append(accel)
+	gear_secs.append(t - gear_start_t)
 	gear_start_t = t
 	gear_start_kmh = kmh

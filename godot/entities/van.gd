@@ -134,11 +134,14 @@ func _physics_process(delta: float) -> void:
 		spd = _toward_zero(spd, GameConfig.VAN_BRAKE_DECELERATION * weight * delta)
 	elif handbrake:
 		spd = _toward_zero(spd, GameConfig.VAN_HANDBRAKE_DECELERATION * weight * delta)
+	elif gearbox.shifting and gas_input:
+		# Embrague pisado: sin empuje y rodando, la furgo pierde algo de velocidad.
+		spd = _toward_zero(spd, GameConfig.GEAR_SHIFT_DRAG * delta)
 	elif gas_input and spd < Gearbox.max_speed(gearbox.gear):
 		drive = gearbox.acceleration(spd)
 		spd = minf(spd + drive * weight * delta, Gearbox.max_speed(gearbox.gear))
 	elif not gas_input:
-		spd = _toward_zero(spd, GameConfig.VAN_DRAG * delta)
+		spd = _toward_zero(spd, GameConfig.VAN_DRAG * Gearbox.coast_drag_ratio(gearbox.gear) * delta)
 	# Pasado de vueltas (tras reducir): el motor retiene hasta el tope de la marcha.
 	if not _reversing and spd > Gearbox.max_speed(gearbox.gear):
 		spd = move_toward(spd, Gearbox.max_speed(gearbox.gear), GameConfig.GEAR_ENGINE_BRAKE * delta)
@@ -193,6 +196,12 @@ func _pivot_on_rear_axle(prev_rotation: float) -> void:
 	# La trasera queda "abajo" del sprite: offset local (0, +r).
 	var rear := Vector2(0, _length() * GameConfig.VAN_REAR_AXLE_RATIO)
 	move_and_collide(rear.rotated(prev_rotation) - rear.rotated(rotation))
+
+
+## Hacia dónde mira el morro.
+var heading: Vector2:
+	get:
+		return _heading()
 
 
 func _heading() -> Vector2:

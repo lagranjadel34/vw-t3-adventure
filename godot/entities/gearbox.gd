@@ -49,6 +49,11 @@ static func max_speed(g: int) -> float:
 	return GameConfig.VAN_MAX_SPEED * GameConfig.GEAR_MAX_SPEED_RATIO[g - 1]
 
 
+## Cuánto retiene el motor al soltar el gas en esta marcha (multiplica VAN_DRAG).
+static func coast_drag_ratio(g: int) -> float:
+	return GameConfig.GEAR_COAST_DRAG_RATIO[g - 1]
+
+
 ## Aceleración que da el motor a esta velocidad en la marcha actual (px/s²).
 func acceleration(spd: float) -> float:
 	if _clutch > 0.0 or spd >= max_speed(gear):

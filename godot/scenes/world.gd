@@ -22,10 +22,13 @@ var _exit: Variant
 # Zonas que llevan a otro mapa: [{rect: Rect2, link: Dictionary}].
 var _exits: Array = []
 var _fade := ColorRect.new()
+# Cabeceo de la cámara al cambiar de marcha (px de mundo), decae solo.
+var _shift_kick := Vector2.ZERO
 
 
 func _ready() -> void:
 	_hud.add_gear_lever(_van.gearbox)
+	_van.gearbox.shifted.connect(_on_shifted)
 	var fade_layer := CanvasLayer.new()
 	fade_layer.layer = GameConfig.MAP_FADE_LAYER
 	_fade.color = GameConfig.MAP_FADE_COLOR
@@ -127,6 +130,13 @@ func _notification(what: int) -> void:
 		get_tree().change_scene_to_file(MENU_SCENE)
 
 
+## Cada cambio da un cabeceo a la cámara y una vibración corta en el móvil.
+func _on_shifted(from_gear: int, to_gear: int) -> void:
+	var dir := -1.0 if to_gear > from_gear else 1.0
+	_shift_kick = _van.heading * dir * GameConfig.GEAR_KICK_PX
+	Input.vibrate_handheld(GameConfig.GEAR_VIBRATE_MS)
+
+
 func _physics_process(_delta: float) -> void:
 	# Joystick = volante; la potencia sale solo de los pedales (pantalla o W/S).
 	_hud.update_pedals(_van.gas_key, _van.brake_key)
@@ -136,6 +146,8 @@ func _physics_process(_delta: float) -> void:
 
 
 func _process(delta: float) -> void:
+	_shift_kick = _shift_kick.lerp(Vector2.ZERO, 1.0 - exp(-GameConfig.GEAR_KICK_DECAY * delta))
+	_camera.offset = _shift_kick
 	# La cámara sigue al eje delantero, así en pantalla se ve el giro sobre el morro.
 	_camera.global_position = _van.front
 	_hud.odometer.set_km(GameConfig.ODOMETER_START_KM + _van.trip_km)
