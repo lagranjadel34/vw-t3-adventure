@@ -1,6 +1,6 @@
-"""T3 de techo alto según las fichas de Ara. Dehler Profi (1983): gris azulado liso, techo alto de fibra
-más claro con claraboya elevada, ventana en el frente inclinado y escotilla, faros redondos,
-parachoques negros y llantas de chapa con tapacubos. Carthago: ocre con techo alto
+"""T3 de techo alto según las fichas de Ara. Dehler Profi (1983, ficha v2): azul con techo alto
+azul, frente y panel del techo celestes, marcos de ventanas y banda baja celestes, escotilla y
+ventana en el techo, faros redondos, parachoques negros y llantas de aleación. Carthago: ocre con techo alto
 blanco redondeado, escotilla central, llantas de aleación, antinieblas amarillos y, en el lado
 derecho, franja granate, rejillas de nevera y logo del tuareg. Importarlo registra el modelo en
 t3gen.BUILDER."""
@@ -27,9 +27,12 @@ C_LOGO = (66, 112, 168)
 C_LOGO_FACE = (226, 210, 178)
 
 # Estilo de cada furgo de techo alto (mismo chasis T3, cambian techo, pintura y llantas)
-DEHLER = dict(body=(86, 103, 113), roof=(148, 161, 167), roof_seam=(100, 117, 125),
-              skylight=(147, 175, 178), roof_windows=True, round_nose=False,
-              wheels="chapa", fog_lights=False, right_decor=False)
+DEHLER = dict(body=(52, 82, 134), roof=(45, 78, 131), roof_seam=(34, 49, 92),
+              skylight=(152, 189, 198), roof_windows=False, round_nose=False,
+              wheels="aleacion", fog_lights=False, right_decor=False,
+              # Celeste: frente del techo y panel central, marcos de ventanas, banda baja
+              roof_slope=(133, 167, 194), roof_panel=(-0.6, 1.35, (133, 167, 194)),
+              window_frame=(152, 189, 198), bands=[(0.36, 0.6, (152, 189, 198))])
 CARTHAGO = dict(body=(158, 106, 58), roof=(236, 236, 236), roof_seam=(196, 196, 196),
                 skylight=None, roof_windows=False, round_nose=True,
                 wheels="aleacion", fog_lights=True, right_decor=True)
@@ -79,7 +82,8 @@ def build_hitop(st, spin=0.0, steer=0.0, lights=False, damage=0):
                  (-2.0, Z_HITOP), (-2.2, Z_HITOP - 0.12), (-2.22, Z_ROOF)]
     else:
         hitop = [(1.86, Z_ROOF), (1.35, Z_HITOP), (-2.05, Z_HITOP), (-2.22, Z_ROOF + 0.12), (-2.22, Z_ROOF)]
-    P += prism_y(hitop, -0.86, 0.86, C_ROOF, side_color=C_ROOF)
+    edges = [st.get("roof_slope", C_ROOF)] + [C_ROOF] * (len(hitop) - 1)
+    P += prism_y(hitop, -0.86, 0.86, C_ROOF, side_color=C_ROOF, edge_colors=edges)
     for s in (1, -1):  # junta techo-carrocería
         P.append(quad_on_side(0.86 * s, -2.2, 1.8, Z_ROOF, Z_ROOF + 0.06, C_ROOF_SEAM, s))
     # Ventana delantera del techo y escotilla elevada en el centro
@@ -91,6 +95,9 @@ def build_hitop(st, spin=0.0, steer=0.0, lights=False, damage=0):
         P.append(on_top(0.95, 1.3, -0.3, 0.3, st["skylight"]))
     P += box(-0.32, 0.32, -0.32, 0.32, Z_HITOP, Z_HITOP + 0.1, C_ROOF)
     P.append(on_top(-0.28, 0.28, -0.28, 0.28, C_HATCH, z=Z_HITOP + 0.101))
+    if "roof_panel" in st:
+        x0, x1, color = st["roof_panel"]
+        P.append(on_top(x0, x1, -0.86, 0.86, color, bias=DECAL_BIAS / 2))
     for s in (1, -1):  # ventanitas laterales del techo
         if st["roof_windows"]:
             P.append(quad_on_side(0.86 * s, -1.6, -0.6, 2.0, 2.18, C_GLASS_HI, s))
@@ -100,6 +107,10 @@ def build_hitop(st, spin=0.0, steer=0.0, lights=False, damage=0):
     P.append(windshield_poly(0.3, 0.5, 1.5, 1.72, C_GLASS_HI, bias=DECAL_BIAS * 2))
     for s in (1, -1):
         y = SIDE * s
+        if "window_frame" in st:  # banda de las ventanas: deja los marcos y pilares claros
+            P.append(quad_on_side(y, -1.3, 1.95, 1.06, 1.8, st["window_frame"], s, bias=DECAL_BIAS / 2))
+        for z0, z1, color in st.get("bands", []):
+            P.append(quad_on_side(HW * s, -HL, HL, z0, z1, color, s, bias=DECAL_BIAS / 2))
         # Lado derecho de la Carthago: puerta y una ventana partida (sin la trasera)
         decor = st["right_decor"] and s == -1
         windows = ((1.0, 1.8), (-0.5, 0.6)) if decor else ((1.15, 1.8), (0.05, 1.0), (-1.2, -0.1))
