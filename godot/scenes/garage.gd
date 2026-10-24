@@ -45,7 +45,7 @@ func _ready() -> void:
 	_preview.position = Vector2(screen.x - MenuConfig.GARAGE_PREVIEW_RIGHT, MenuConfig.GARAGE_PREVIEW_Y)
 	_preview.scale = Vector2.ONE * MenuConfig.GARAGE_PREVIEW_SCALE
 	_preview.hframes = GameConfig.VAN_SPRITE_DIRECTIONS
-	_preview.vframes = GameConfig.VAN_SPRITE_STEER_ROWS * GameConfig.VAN_SPRITE_WHEEL_FRAMES
+	_preview.vframes = GameConfig.VAN_SPRITE_WHEEL_FRAMES
 	_ui.add_child(_preview)
 	var arrow_dx := GameConfig.VAN_LENGTH_PX * MenuConfig.GARAGE_PREVIEW_SCALE / 2
 	_prev = _option_label(MenuConfig.GARAGE_PREV, Vector2(_preview.position.x - arrow_dx, MenuConfig.GARAGE_ARROW_Y))
@@ -78,9 +78,8 @@ func _process(delta: float) -> void:
 		_turn_t -= MenuConfig.GARAGE_TURN_S
 		_frame += 1
 		var wheel := _frame % GameConfig.VAN_SPRITE_WHEEL_FRAMES
-		# Fila del volante recto (1) y el frame de rueda; columna = rumbo.
-		_preview.frame_coords = Vector2i(_frame % GameConfig.VAN_SPRITE_DIRECTIONS,
-			GameConfig.VAN_SPRITE_WHEEL_FRAMES + wheel)
+		# Hoja de escaparate: fila = frame de rueda; columna = rumbo.
+		_preview.frame_coords = Vector2i(_frame % GameConfig.VAN_SPRITE_DIRECTIONS, wheel)
 
 
 func _notification(what: int) -> void:
@@ -159,7 +158,7 @@ func _show_vehicle() -> void:
 			Vector2(0, 0.5))
 		_details.append(line)
 		_ui.add_child(line)
-	_preview.texture = load(v.sprites % [0, ""])
+	_preview.texture = load(v.garage)
 	var chosen: bool = v.id == Settings.vehicle_id
 	_rows[Row.CHOOSE].text = MenuConfig.GARAGE_CHOSEN if chosen else MenuConfig.GARAGE_CHOOSE
 	_rows[Row.CHOOSE].size = _rows[Row.CHOOSE].get_minimum_size()
