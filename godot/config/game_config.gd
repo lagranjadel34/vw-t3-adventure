@@ -9,7 +9,7 @@ const TILE_SIZE := 16
 
 # --- Conducción de la T3 ---
 # Empuje del motor en 1ª a bajas vueltas (px/s²). Cada marcha lo reduce mucho (GEAR_ACCEL_RATIO).
-const VAN_ACCELERATION := 100.0
+const VAN_ACCELERATION := 75.0
 const VAN_MAX_SPEED := 130.0
 # Inercia: sin pedales, la furgo pierde esta velocidad por segundo hasta parar.
 const VAN_DRAG := 30.0
@@ -363,21 +363,30 @@ const PEDAL_COLORS := {
 const GEAR_GATE: Array[Vector2i] = [Vector2i(-1, 1), Vector2i(-1, -1), Vector2i(1, 1), Vector2i(1, -1)]
 # Por marcha: velocidad máxima (fracción de VAN_MAX_SPEED) y fuerza (fracción de VAN_ACCELERATION).
 # Topes por marcha: 1ª = 25, 2ª = 50, 3ª = 75, 4ª = 100 km/h (la 4ª va 4 veces más que la 1ª).
-# Empuje: la 1ª es corta y muy fuerte (~64 km/h/s); cada marcha empuja bastante menos y llega
-# más lejos (2ª ~18, 3ª ~9) y la 4ª es solo velocidad (~4 km/h/s). Con gas a fondo: 0-100 en ~11 s.
+# Empuje: la 1ª es corta y muy fuerte (~40 km/h/s); cada marcha empuja bastante menos y llega
+# más lejos (2ª ~13, 3ª ~8) y la 4ª es solo velocidad (~4,5 km/h/s). Con gas a fondo cada marcha
+# dura lo bastante para notarla (~0,6 / 1,8 / 3 s) y 0-100 sale en ~11 s.
 const GEAR_MAX_SPEED_RATIO: Array[float] = [0.25, 0.5, 0.75, 1.0]
-const GEAR_ACCEL_RATIO: Array[float] = [1.0, 0.38, 0.18, 0.08]
+const GEAR_ACCEL_RATIO: Array[float] = [1.0, 0.6, 0.36, 0.2]
 # Dentro de cada marcha el empuje cae al subir de vueltas: al tope de la marcha queda
 # (1 - GEAR_TORQUE_FALLOFF) del empuje. Así la T3 sale fuerte y va cogiendo velocidad poco a poco.
-const GEAR_TORQUE_FALLOFF := 0.4
+const GEAR_TORQUE_FALLOFF := 0.6
 # Marcha larga a pocas vueltas: por debajo de esta fracción del tope de la marcha anterior,
 # el motor se ahoga y apenas empuja (arrancar en 3ª cuesta).
 const GEAR_LUG_SPEED_RATIO := 0.5
 const GEAR_LUG_ACCEL_RATIO := 0.25
 # Por encima del tope de la marcha (al reducir), el motor retiene hasta ese tope.
 const GEAR_ENGINE_BRAKE := 60.0
-# Embrague pisado durante el cambio: ese tiempo no hay potencia (s).
-const GEAR_SHIFT_TIME := 0.15
+# Embrague pisado durante el cambio: ese tiempo no hay potencia (s) y la furgo pierde
+# velocidad (GEAR_SHIFT_DRAG, px/s²): se nota el bache antes de que tire la marcha nueva.
+const GEAR_SHIFT_TIME := 0.3
+const GEAR_SHIFT_DRAG := 25.0
+# Retención del motor al soltar el gas (multiplica VAN_DRAG): fuerte en 1ª, casi nula en 4ª.
+const GEAR_COAST_DRAG_RATIO: Array[float] = [1.6, 1.1, 0.7, 0.4]
+# Al cambiar, la cámara cabecea hacia atrás (subir) o hacia delante (reducir) y el móvil vibra.
+const GEAR_KICK_PX := 4.0
+const GEAR_KICK_DECAY := 7.0
+const GEAR_VIBRATE_MS := 35
 # Automático: sube al llegar a esta fracción del tope; baja por debajo de esta fracción
 # del tope de la marcha anterior.
 const GEAR_AUTO_UP_RATIO := 0.95
