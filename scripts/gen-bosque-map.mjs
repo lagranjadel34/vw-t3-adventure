@@ -1,8 +1,9 @@
 // Genera el mapa Tiled del bosque (la extensión fuera de Sevilla) y su tileset placeholder.
 // Uso: npm run map:bosque
 // Salida: godot/assets/maps/bosque.json + tiles-bosque.png (editables luego en Tiled).
-// Guion: la A-4 entra por el oeste desde Sevilla, cruza olivares, se vuelve carretera
-// comarcal y luego camino de tierra que se mete en el pinar hasta el claro de acampada.
+// Guion: desde Sevilla se llega por una carretera convencional (dos carriles, arcén y línea
+// central), que entra por el oeste, cruza olivares, serpentea hasta el pinar y acaba en una
+// pista de tierra que se mete hasta el claro de acampada.
 // Los árboles y rocas llevan volumen (godot/scripts/city_view.gd, mismo formato que Sevilla).
 import { writeFileSync } from 'node:fs';
 import { deflateSync } from 'node:zlib';
@@ -52,14 +53,16 @@ const segDist = (x, y, [ax, ay], [bx, by]) => {
 };
 const pathDist = (x, y, pts) => Math.min(...pts.slice(1).map((p, i) => segDist(x, y, pts[i], p)));
 
-// 1) A-4: autovía de 6 tiles que entra por el oeste (misma anchura que en Sevilla), con arcén.
-const A4 = { x1: 46, y0: 20, y1: 25 };
-rect(0, A4.y0 - 1, A4.x1, A4.y1 + 1, T.ARCEN);
-rect(0, A4.y0, A4.x1, A4.y1, T.ASFALTO);
+// 1) Carretera comarcal: asfalto de 4 tiles (dos carriles de 2, como la salida de Sevilla) con
+// 1 tile de arcén a cada lado. Entra recta por el oeste (para que se vea el cambio de la ciudad
+// al campo) y luego serpentea hasta el cruce con la pista.
+const A4 = { y0: 20, y1: 25 }; // franja de la salida/entrada (objetos `vuelta_sevilla` y `entrada_a4`)
 const A4_MID = (A4.y0 + A4.y1 + 1) / 2;
+const COMARCAL = [[0, A4_MID], [20, A4_MID], [32, 25.5], [46, 28], [60, 30], [74, 38], [86, 48], [94, 56]];
+const ROAD_HALF = 2.0; // semianchura del asfalto (tiles)
+const ARCEN_HALF = 3.0;
 
-// 2) Carretera comarcal (asfalto, 4 tiles) y camino de tierra (3 tiles) hasta el claro.
-const COMARCAL = [[A4.x1, A4_MID], [62, 26], [76, 36], [86, 48], [94, 56]];
+// 2) Camino de tierra (3 tiles) desde el cruce hasta el claro.
 const CAMINO = [[94, 56], [106, 60], [114, 70], [126, 78], [138, 82]];
 const CLARO = { x: 140, y: 82, r: 8 };
 const LAGUNA = { x: 146, y: 64, rx: 7, ry: 5 };
@@ -67,8 +70,8 @@ for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
   const c = x + 0.5, r = y + 0.5;
   if (Math.hypot(c - CLARO.x, r - CLARO.y) <= CLARO.r) set(x, y, T.CLARO);
   else if (pathDist(c, r, CAMINO) <= 1.6) set(x, y, T.TIERRA);
-  else if (pathDist(c, r, COMARCAL) <= 2.1) set(x, y, T.ASFALTO);
-  else if (pathDist(c, r, COMARCAL) <= 3.1 && x > A4.x1) set(x, y, T.ARCEN);
+  else if (pathDist(c, r, COMARCAL) <= ROAD_HALF) set(x, y, T.ASFALTO);
+  else if (pathDist(c, r, COMARCAL) <= ARCEN_HALF) set(x, y, T.ARCEN);
   if (((c - LAGUNA.x) / LAGUNA.rx) ** 2 + ((r - LAGUNA.y) / LAGUNA.ry) ** 2 <= 1) set(x, y, T.AGUA);
 }
 
@@ -105,12 +108,22 @@ const px = (t) => t * TILE;
 let oid = 1;
 const point = (name, type, tx, ty) => ({ id: oid++, name, type, x: px(tx), y: px(ty), width: 0, height: 0, rotation: 0, visible: true, point: true });
 const area = (name, type, tx, ty, tw, th) => ({ id: oid++, name, type, x: px(tx), y: px(ty), width: px(tw), height: px(th), rotation: 0, visible: true });
+// Marcas viales: polilíneas (puntos en tiles) que el juego dibuja sobre el asfalto.
+const polyline = (name, pts, estilo) => ({
+  id: oid++, name, type: 'linea', x: 0, y: 0, width: 0, height: 0, rotation: 0, visible: true,
+  polyline: pts.map(([tx, ty]) => ({ x: px(tx), y: px(ty) })),
+  properties: [{ name: 'estilo', type: 'string', value: estilo }],
+});
 const objects = [
+  polyline('eje_carretera', COMARCAL, 'discontinua'),
+  // Solo línea central: en las curvas el asfalto sigue la rejilla de tiles y una raya de borde
+  // se saldría de él; el arcén ya marca el borde.
   // La furgo llega desde Sevilla aquí, mirando al este; volviendo al borde oeste regresa a la ciudad.
   point('entrada_a4', 'spawn', 8, A4_MID),
   area('vuelta_sevilla', 'salida', 0, A4.y0, 2, A4.y1 - A4.y0 + 1),
   area('spot_acampada', 'spot', CLARO.x - 4, CLARO.y - 4, 8, 8),
-  point('A-4 (a Sevilla)', 'rotulo', 10, A4.y0 - 3),
+  point('Carretera comarcal (a Sevilla)', 'rotulo', 14, A4.y0 - 3),
+  point('Pista forestal', 'rotulo', CAMINO[0][0] + 4, CAMINO[0][1] - 4),
   point('Olivares', 'rotulo', 30, 40),
   point('Pinar', 'rotulo', 110, 40),
   point('Laguna', 'rotulo', LAGUNA.x, LAGUNA.y - LAGUNA.ry - 2),

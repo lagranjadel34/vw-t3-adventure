@@ -19,7 +19,7 @@ const T = {
   CATEDRAL: 13, TORRE_ORO: 14, MAESTRANZA: 15, PLAZA_ESPANA: 16, TORRE_PE: 17,
   ALCAZAR: 18, ARCHIVO: 19, SETAS: 20, TORRE_SEVILLA: 21, PABELLON: 22, BLOQUE: 23,
   PUENTE_TRIANA: 24, BARANDILLA: 25, CAPILLITA: 26, NARANJO: 27,
-  NAVE: 28, TALLER_SUELO: 29, ENTRADA: 30,
+  NAVE: 28, TALLER_SUELO: 29, ENTRADA: 30, ARCEN: 31,
 };
 // Volumen: altura en px de mundo (≈ 18 px por planta; debe quedar por debajo de CITY_CAMERA_HEIGHT); patrón de fachada; remate = franja
 // alta de otro color (campanario) que ocupa remate_frac de la altura; aguja = chapitel.
@@ -61,6 +61,8 @@ const TILE_DEFS = [
   { name: 'taller_suelo', color: [70, 72, 76], grid: [84, 86, 90] },
   // Entrada del taller: franjas amarillas y negras en el suelo.
   { name: 'entrada', color: [40, 40, 44], hatch: [226, 186, 40] },
+  // Arcén de la carretera comarcal que sale de la ciudad.
+  { name: 'arcen', color: [150, 142, 132] },
 ];
 // La casa rosada con teja usa el tile 'tejado'.
 TILE_DEFS[T.TEJADO - 1].vol = vol(45, '#b85a3c', '#e7b9a0', '#4a3328', 'ventanas', { zocalo: '#f2eee2' });
@@ -237,9 +239,18 @@ rect(PE.x - PE.r - 4, PE.y - 2, PE.x - PE.r + 1, PE.y + 1, T.ALBERO); // entrada
 rect(PE.x - 3, PE.y - PE.r - 3, PE.x, PE.y - PE.r - 1, T.TORRE_PE);
 rect(PE.x - 3, PE.y + PE.r + 1, PE.x, PE.y + PE.r + 3, T.TORRE_PE);
 
-// 10) Salida hacia el bosque: Autovía A-4 al este.
+// 10) Salida hacia el bosque: la ciudad acaba en CITY_END y sigue una carretera convencional
+// (dos carriles de 2 tiles, arcén y línea central discontinua) entre campo y algún árbol.
 const EXIT_Y = 58;
-rect(CASCO.cx + CASCO.rx, EXIT_Y, W - 1, EXIT_Y + 5, T.ASFALTO);
+const CITY_END = 194;
+const ROAD = { y0: EXIT_Y + 1, y1: EXIT_Y + 4 }; // asfalto; arcén una fila más fuera
+rect(CITY_END, 0, W - 1, H - 1, T.PARQUE);
+for (let y = 0; y < H; y++) for (let x = CITY_END; x < W; x++) {
+  if ((x * 7 + y * 13) % 9 === 0 && Math.abs(y - (ROAD.y0 + ROAD.y1) / 2) > 4) set(x, y, T.ARBOL);
+}
+rect(CITY_END, ROAD.y0 - 1, W - 1, ROAD.y1 + 1, T.ARCEN);
+rect(CITY_END, ROAD.y0, W - 1, ROAD.y1, T.ASFALTO);
+rect(CASCO.cx + CASCO.rx, EXIT_Y, CITY_END - 1, EXIT_Y + 5, T.ASFALTO);
 
 // 11) Aceras: todo edificio que toca asfalto pasa a ser acera.
 const isRoad = (t) => t === T.ASFALTO;
@@ -366,10 +377,20 @@ rect(KAR.door0, KAR.y0 + 3, KAR.door1, KAR.y0 + 6, T.TALLER_SUELO); // portón a
 const px = (t) => t * TILE;
 let oid = 1;
 const point = (name, type, tx, ty) => ({ id: oid++, name, type, x: px(tx), y: px(ty), width: 0, height: 0, rotation: 0, visible: true, point: true });
+// Marcas viales: polilíneas (puntos en tiles) que el juego dibuja sobre el asfalto.
+const polyline = (name, pts, estilo) => ({
+  id: oid++, name, type: 'linea', x: 0, y: 0, width: 0, height: 0, rotation: 0, visible: true,
+  polyline: pts.map(([tx, ty]) => ({ x: px(tx), y: px(ty) })),
+  properties: [{ name: 'estilo', type: 'string', value: estilo }],
+});
+const roadMid = (ROAD.y0 + ROAD.y1 + 1) / 2;
 const objects = [
+  polyline('eje_carretera', [[CITY_END, roadMid], [W, roadMid]], 'discontinua'),
+  polyline('borde_norte', [[CITY_END, ROAD.y0 + 0.25], [W, ROAD.y0 + 0.25]], 'continua'),
+  polyline('borde_sur', [[CITY_END, ROAD.y1 + 0.75], [W, ROAD.y1 + 0.75]], 'continua'),
   // La T3 sale al pie del Puente de Triana, en la orilla del Arenal (Paseo de Colón), mirando al norte.
   point('spawn', 'spawn', riverX(62) + 12, 63),
-  { id: oid++, name: 'salida_a4', type: 'salida', x: px(W - 4), y: px(EXIT_Y), width: px(4), height: px(6), rotation: 0, visible: true },
+  { id: oid++, name: 'salida_a4', type: 'salida', x: px(W - 4), y: px(EXIT_Y), width: px(4), height: px(6), rotation: 0, visible: true },  // el id del objeto sigue siendo salida_a4 (lo usa el juego); la carretera ya no es autovía
   // Dentro del portón: al entrar, el taller. Al salir, la furgo vuelve al carril mirando a la A-4.
   { id: oid++, name: 'taller_karvans', type: 'taller', x: px(KAR.door0), y: px(KAR.y0 + 4), width: px(KAR.door1 - KAR.door0 + 1), height: px(3), rotation: 0, visible: true },
   point('taller_karvans_salida', 'taller_salida', (KAR.door0 + KAR.door1 + 1) / 2, KAR.y0),
@@ -383,7 +404,7 @@ const objects = [
   point('Parque de María Luisa', 'rotulo', 112, 120),
   point('Plaza de España', 'rotulo', 142, 128),
   point('Nervión', 'rotulo', 172, 92),
-  point('Salida A-4', 'rotulo', W - 12, EXIT_Y - 2),
+  point('Carretera comarcal (al bosque)', 'rotulo', W - 12, EXIT_Y - 2),
   point('Torre del Oro', 'rotulo', ORO.x, ORO.y + 4),
   point('Reales Alcázares', 'rotulo', (ALC.x0 + ALC.x1) / 2, ALC.y1 + 2),
   point('Las Setas', 'rotulo', 112, 45),

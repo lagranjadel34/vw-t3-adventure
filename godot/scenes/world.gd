@@ -78,6 +78,7 @@ func _load_map(id: StringName) -> void:
 		GameConfig.MAP_COLLIDES_PROPERTY,
 	)
 	_map_root.add_child(_map.ground)
+	_map_root.add_child(RoadMarkings.create(_map))
 	# Edificios y árboles con perspectiva de cámara cenital (estilo GTA 1).
 	_city = CityView.create(_map)
 	_city.z_index = GameConfig.CITY_Z

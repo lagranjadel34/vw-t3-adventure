@@ -192,6 +192,14 @@ const MAP_LABEL_COLOR := Color.WHITE
 const MAP_LABEL_OUTLINE_COLOR := Color.BLACK
 const MAP_LABEL_OUTLINE_SIZE := 2
 const MAP_LABEL_ALPHA := 0.75
+
+# --- Marcas viales (scripts/road_markings.gd): objetos `linea` de Tiled ---
+const MAP_LINE_TYPE := "linea"
+const ROAD_LINE_COLOR := Color(0.92, 0.9, 0.82)
+const ROAD_CENTER_WIDTH := 2.0
+const ROAD_EDGE_WIDTH := 1.0
+# Largo de raya y de hueco en el eje discontinuo (px).
+const ROAD_DASH_PX := 10.0
 # Por encima de los edificios.
 const MAP_LABEL_Z := 2
 
