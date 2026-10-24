@@ -8,15 +8,20 @@ const GAME_HEIGHT := 180
 const TILE_SIZE := 16
 
 # --- Conducción de la T3 ---
+# Velocidad en pantalla: la furgo mide 64 px y a 100 km/h solo hacía 2 furgos por segundo (una T3
+# real hace ~6), así que las tres primeras marchas parecían ir arrastrándose. Esta escala multiplica
+# velocidades y aceleraciones sin tocar los km/h (METERS_PER_PIXEL se deriva de VAN_MAX_SPEED).
+# 1.0 = la de antes; ~3.0 = escala real de la T3.
+const VAN_SPEED_SCALE := 2.0
 # Empuje del motor en 1ª a bajas vueltas (px/s²). Cada marcha lo reduce mucho (GEAR_ACCEL_RATIO).
-const VAN_ACCELERATION := 75.0
-const VAN_MAX_SPEED := 130.0
+const VAN_ACCELERATION := 75.0 * VAN_SPEED_SCALE
+const VAN_MAX_SPEED := 130.0 * VAN_SPEED_SCALE
 # Inercia: sin pedales, la furgo pierde esta velocidad por segundo hasta parar.
-const VAN_DRAG := 30.0
+const VAN_DRAG := 30.0 * VAN_SPEED_SCALE
 # Freno y marcha atrás. Por debajo de VAN_STOP_SPEED se considera parada.
-const VAN_BRAKE_DECELERATION := 150.0
-const VAN_REVERSE_ACCELERATION := 120.0
-const VAN_MAX_REVERSE_SPEED := 30.0
+const VAN_BRAKE_DECELERATION := 150.0 * VAN_SPEED_SCALE
+const VAN_REVERSE_ACCELERATION := 120.0 * VAN_SPEED_SCALE
+const VAN_MAX_REVERSE_SPEED := 30.0 * VAN_SPEED_SCALE
 const VAN_STOP_SPEED := 2.0
 # Dirección tipo coche: giran las ruedas delanteras y la trasera sigue la trazada.
 # Ejes como fracción del alto del sprite medida desde el centro (batalla T3 ≈ 54% del largo).
@@ -69,7 +74,7 @@ const VAN_LOAD_PRESETS_KG := {"furgon": 0.0, "camper": 300.0, "westfalia": 450.0
 
 # --- Agarre y derrape (motor y tracción traseros: se va de atrás) ---
 # Aceleración lateral (v · giro, px/s²) que aguantan las ruedas antes de derrapar.
-const VAN_GRIP_LIMIT := 140.0
+const VAN_GRIP_LIMIT := 140.0 * VAN_SPEED_SCALE * VAN_SPEED_SCALE # v · giro: crece con la escala al cuadrado
 # Agarre lateral durante el derrape: la velocidad de lado se pierde a este ritmo (1/s).
 const VAN_DRIFT_GRIP := 3.0
 # Con gas en pleno derrape las ruedas traseras patinan: agarre multiplicado por esto.
@@ -78,13 +83,13 @@ const VAN_DRIFT_GAS_GRIP_RATIO := 0.6
 # suelta antes en curva (sobreviraje de potencia). Límite de agarre restado con empuje máximo.
 const VAN_REAR_DRIVE_GRIP_LOSS := 0.6
 # Motor trasero: el peso de atrás empuja la cola hacia fuera (rad/s por px/s de deslizamiento).
-const VAN_DRIFT_TAIL_YAW := 0.012
+const VAN_DRIFT_TAIL_YAW := 0.012 / VAN_SPEED_SCALE
 const VAN_DRIFT_MAX_TAIL_YAW := 1.5
 # El derrape acaba cuando la velocidad de lado baja de esto (px/s).
-const VAN_DRIFT_END_SLIP := 6.0
+const VAN_DRIFT_END_SLIP := 6.0 * VAN_SPEED_SCALE
 # Freno de mano (Espacio): bloquea las traseras, casi sin agarre lateral.
 const VAN_HANDBRAKE_GRIP := 1.2
-const VAN_HANDBRAKE_DECELERATION := 110.0
+const VAN_HANDBRAKE_DECELERATION := 110.0 * VAN_SPEED_SCALE
 
 # --- Cámara: se aleja con la velocidad para ver más mapa (STOPPED parada -> MIN a tope) ---
 const CAMERA_ZOOM_STOPPED := 0.75
@@ -219,7 +224,7 @@ const CAR_SPRITE_DIRECTIONS := 24
 const CAR_MODELS := 4
 const CAR_SPRITE_OFFSET := Vector2.ZERO # celda 64x64 con el centro del coche en (32, 32)
 const CAR_RADIUS := 10.0
-const CAR_SPEED := 48.0 # px/s, bastante menos que la T3 a tope
+const CAR_SPEED := 48.0 * VAN_SPEED_SCALE # px/s, bastante menos que la T3 a tope
 const CAR_ACCEL := 40.0
 const CAR_BRAKE := 120.0
 # Mira esto por delante para girar suave en las esquinas (px de ruta).
@@ -293,7 +298,7 @@ const PED_SHADOW_COLOR := Color(0, 0, 0, 0.3)
 # Atropellos: dentro de la caja de la furgo (medio ancho, medio largo) y por encima de
 # esta velocidad, el peatón queda tendido en el suelo con su charco de sangre.
 const PED_HIT_HALF := Vector2(13, 34)
-const PED_HIT_SPEED := 15.0
+const PED_HIT_SPEED := 15.0 * VAN_SPEED_SCALE
 const PED_MAX_BODIES := 12
 # Tendido visto desde arriba, a lo largo de x desde el centro del cuerpo.
 const PED_BODY_TORSO := Rect2(-4, -3, 7, 6)
@@ -376,11 +381,11 @@ const GEAR_TORQUE_FALLOFF := 0.6
 const GEAR_LUG_SPEED_RATIO := 0.5
 const GEAR_LUG_ACCEL_RATIO := 0.25
 # Por encima del tope de la marcha (al reducir), el motor retiene hasta ese tope.
-const GEAR_ENGINE_BRAKE := 60.0
+const GEAR_ENGINE_BRAKE := 60.0 * VAN_SPEED_SCALE
 # Embrague pisado durante el cambio: ese tiempo no hay potencia (s) y la furgo pierde
 # velocidad (GEAR_SHIFT_DRAG, px/s²): se nota el bache antes de que tire la marcha nueva.
 const GEAR_SHIFT_TIME := 0.3
-const GEAR_SHIFT_DRAG := 25.0
+const GEAR_SHIFT_DRAG := 25.0 * VAN_SPEED_SCALE
 # Retención del motor al soltar el gas (multiplica VAN_DRAG): fuerte en 1ª, casi nula en 4ª.
 const GEAR_COAST_DRAG_RATIO: Array[float] = [1.6, 1.1, 0.7, 0.4]
 # Al cambiar, la cámara cabecea hacia atrás (subir) o hacia delante (reducir) y el móvil vibra.

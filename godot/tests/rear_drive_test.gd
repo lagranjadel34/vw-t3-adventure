@@ -15,7 +15,7 @@ func _initialize() -> void:
 
 func _physics_process(_delta: float) -> bool:
 	frame += 1
-	# Recta hasta ~70 px/s en 2ª y luego volante a tope 1 s.
+	# Recta hasta ~55 km/h (70 px/s a escala 1) en 2ª y luego volante a tope 1 s.
 	var phase := frame % 300
 	if phase == 1:
 		van.rotation = 0.0
@@ -23,7 +23,7 @@ func _physics_process(_delta: float) -> bool:
 		van.gearbox.set_automatic(true)
 	var turning := phase > 200
 	van.steer_input = 1.0 if turning else 0.0
-	van.gas_input = (not turning and van.speed < 72.0) or (turning and with_gas)
+	van.gas_input = (not turning and van.speed < 72.0 * GameConfig.VAN_SPEED_SCALE) or (turning and with_gas)
 	if turning and van.drifting:
 		drifted[with_gas] = true
 	if phase == 299:
