@@ -8,6 +8,10 @@ Motor: Godot 4.5 (`godot/`). Cada cambio en `godot/` que llega a master genera u
 
 Lo más nuevo arriba. El número coincide con el que muestra Obtainium (0.1.N = Release `apk-N`).
 
+### 0.1.39 · 2026-10-24
+- Caja de cambios en escalera: la 1ª es corta y empuja muchísimo (0 a 25 km/h de golpe), la 2ª empuja bastante menos pero llega a 50, la 3ª aún menos y llega a 75, y la 4ª es solo velocidad: tarda en subir hasta los 100 km/h.
+- A fondo, de 0 a 100 km/h en unos 11 segundos.
+
 ### 0.1.37 · 2026-10-23
 - La T3 y los coches del tráfico, redibujados con la cámara nueva del mapa: vistos desde arriba, con la misma perspectiva que los edificios.
 
