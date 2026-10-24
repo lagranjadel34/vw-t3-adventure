@@ -2,8 +2,10 @@ class_name MenuConfig
 ## Pantalla de título (portada de src/scenes/MenuScene.ts). Medidas en píxeles internos (320x180).
 
 const BACKGROUND := "res://assets/backgrounds/campamento_nocturno_v1.jpg"
-const OPTIONS: Array[String] = ["Empezar", "Elegir camperizador", "Configuración"]
+const OPTIONS: Array[String] = ["Empezar", "Elegir camperizador", "Configuración", "Créditos", "Salir"]
 const START_OPTION := 0
+const CREDITS_OPTION := 3
+const QUIT_OPTION := 4
 
 const MENU_X := 14.0
 const TITLE := "VW T3 ADVENTURE"
@@ -16,7 +18,7 @@ const PRESS_BOTTOM_OFFSET := 30.0 # desde abajo
 const PRESS_FONT_SIZE := 12
 const PRESS_OUTLINE := 3
 const PRESS_BLINK_S := 0.6
-const OPTIONS_Y := 96.0
+const OPTIONS_Y := 64.0 # una fila por TAP_MIN_HEIGHT
 const OPTION_FONT_SIZE := 14
 const OPTION_OUTLINE := 3
 const OPTION_COLOR := Color.WHITE
@@ -90,3 +92,19 @@ const GARAGE_PREVIEW_RIGHT := 70.0 # centro de la furgo, desde el borde derecho
 const GARAGE_PREVIEW_Y := 92.0
 const GARAGE_PREVIEW_SCALE := 1.5
 const GARAGE_TURN_S := 0.15 # tiempo por rumbo al girar en el escaparate
+# --- Créditos (opción 4 del menú) ---
+const CREDITS_TITLE := "CRÉDITOS"
+const CREDITS_Y := 50.0
+const CREDITS_LINE_H := 14.0
+const CREDITS_FONT_SIZE := 10
+const CREDITS_OUTLINE := 2
+# Pares [papel, nombre]; el papel va en CFG_SECTION_COLOR y el nombre en blanco.
+const CREDITS_LINES: Array = [
+	["Idea, guion y arte", "Ara"],
+	["Programación", "Ara con Claude (Anthropic)"],
+	["Motor", "Godot Engine (MIT)"],
+	["Letras", "Fredoka y Poppins (SIL OFL)"],
+	["Furgoneta", "VW T3 · 1979-1992"],
+]
+const CREDITS_NAME_X := 120.0
+const CREDITS_BACK_Y := 150.0

@@ -1,6 +1,8 @@
 extends Node2D
 ## Escena de juego: mapa (Sevilla o el bosque, se pasa por la A-4), la T3, cámara y HUD.
 
+const MENU_SCENE := "res://scenes/menu.tscn"
+
 @onready var _van: Van = $Van
 @onready var _camera: Camera2D = $Camera
 @onready var _hud: Hud = $Hud
@@ -117,6 +119,12 @@ func _travel(link: Dictionary) -> void:
 func _snap_camera() -> void:
 	_camera.global_position = _van.front
 	_camera.reset_smoothing()
+
+
+func _notification(what: int) -> void:
+	# Botón "atrás" de Android: vuelve al menú.
+	if what == NOTIFICATION_WM_GO_BACK_REQUEST:
+		get_tree().change_scene_to_file(MENU_SCENE)
 
 
 func _physics_process(_delta: float) -> void:
