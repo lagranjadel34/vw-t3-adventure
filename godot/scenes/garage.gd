@@ -1,6 +1,6 @@
 extends Node2D
-## Elegir camperizador: escaparate de las furgonetas de VehicleConfig, girando sobre sí
-## mismas con las ruedas rodando. La elegida se guarda en Settings y es la que conduces.
+## Elegir camperizador: escaparate de las furgonetas de VehicleConfig con su dibujo de 3/4 (de la
+## ficha). La elegida se guarda en Settings y es la que conduces.
 
 const MENU_SCENE := "res://scenes/menu.tscn"
 enum Row { CHOOSE, BACK }
@@ -13,8 +13,6 @@ var _details: Array[Label] = []
 var _prev: Label
 var _next: Label
 var _preview := Sprite2D.new()
-var _turn_t := 0.0
-var _frame := 0
 var _icon: Control
 var _sheet: Control
 var _beep := AudioStreamPlayer.new()
@@ -43,13 +41,9 @@ func _ready() -> void:
 	_ui.add_child(_name)
 
 	_preview.position = Vector2(screen.x - MenuConfig.GARAGE_PREVIEW_RIGHT, MenuConfig.GARAGE_PREVIEW_Y)
-	_preview.scale = Vector2.ONE * MenuConfig.GARAGE_PREVIEW_SCALE
-	_preview.hframes = GameConfig.VAN_SPRITE_DIRECTIONS
-	_preview.vframes = GameConfig.VAN_SPRITE_WHEEL_FRAMES
 	_ui.add_child(_preview)
-	var arrow_dx := GameConfig.VAN_LENGTH_PX * MenuConfig.GARAGE_PREVIEW_SCALE / 2
-	_prev = _option_label(MenuConfig.GARAGE_PREV, Vector2(_preview.position.x - arrow_dx, MenuConfig.GARAGE_ARROW_Y))
-	_next = _option_label(MenuConfig.GARAGE_NEXT, Vector2(_preview.position.x + arrow_dx, MenuConfig.GARAGE_ARROW_Y))
+	_prev = _option_label(MenuConfig.GARAGE_PREV, Vector2(_preview.position.x - MenuConfig.GARAGE_ARROW_DX, MenuConfig.GARAGE_ARROW_Y))
+	_next = _option_label(MenuConfig.GARAGE_NEXT, Vector2(_preview.position.x + MenuConfig.GARAGE_ARROW_DX, MenuConfig.GARAGE_ARROW_Y))
 	var several := VehicleConfig.VEHICLES.size() > 1
 	_prev.visible = several
 	_next.visible = several
@@ -70,16 +64,6 @@ func _ready() -> void:
 	_beep.stream = Synth.clack(0.0)
 	add_child(_beep)
 	_show_vehicle()
-
-
-func _process(delta: float) -> void:
-	_turn_t += delta
-	if _turn_t >= MenuConfig.GARAGE_TURN_S:
-		_turn_t -= MenuConfig.GARAGE_TURN_S
-		_frame += 1
-		var wheel := _frame % GameConfig.VAN_SPRITE_WHEEL_FRAMES
-		# Hoja de escaparate: fila = frame de rueda; columna = rumbo.
-		_preview.frame_coords = Vector2i(_frame % GameConfig.VAN_SPRITE_DIRECTIONS, wheel)
 
 
 func _notification(what: int) -> void:
