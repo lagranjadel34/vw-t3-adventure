@@ -3,6 +3,7 @@ extends Node2D
 ## La elegida se guarda en Settings y es la que conduces.
 
 const MENU_SCENE := "res://scenes/menu.tscn"
+const GAME_SCENE := "res://scenes/world.tscn"
 enum Row { CHOOSE, BACK }
 
 var _index := 0
@@ -127,8 +128,7 @@ func _activate(row: int) -> void:
 	match row:
 		Row.CHOOSE:
 			Settings.set_vehicle(VehicleConfig.VEHICLES[_index].id)
-			_beep.play()
-			_show_vehicle()
+			get_tree().change_scene_to_file(GAME_SCENE)
 		Row.BACK:
 			_back()
 
@@ -201,6 +201,8 @@ func _open_sheet() -> void:
 	_sheet.size = screen
 	_ui.add_child(_sheet)
 	var card := ColorRect.new()
+	# Sin esto, la tarjeta se come los toques y solo cerraba el velo.
+	card.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	card.color = MenuConfig.SHEET_CARD_COLOR
 	card.size = Vector2(minf(screen.x, GameConfig.GAME_WIDTH) - m * 2, screen.y - m * 2)
 	card.position = Vector2((screen.x - card.size.x) / 2, m)
