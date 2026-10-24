@@ -1,6 +1,6 @@
 extends Node2D
-## Elegir camperizador: escaparate de las furgonetas de VehicleConfig con su dibujo de 3/4 (de la
-## ficha). La elegida se guarda en Settings y es la que conduces.
+## Elegir camperizador: escaparate de las furgonetas de VehicleConfig, girando sobre sí mismas.
+## La elegida se guarda en Settings y es la que conduces.
 
 const MENU_SCENE := "res://scenes/menu.tscn"
 enum Row { CHOOSE, BACK }
@@ -13,6 +13,8 @@ var _details: Array[Label] = []
 var _prev: Label
 var _next: Label
 var _preview := Sprite2D.new()
+var _turn_t := 0.0
+var _frame := 0
 var _icon: Control
 var _sheet: Control
 var _beep := AudioStreamPlayer.new()
@@ -41,6 +43,8 @@ func _ready() -> void:
 	_ui.add_child(_name)
 
 	_preview.position = Vector2(screen.x - MenuConfig.GARAGE_PREVIEW_RIGHT, MenuConfig.GARAGE_PREVIEW_Y)
+	_preview.hframes = MenuConfig.GARAGE_GIRO_COLS
+	_preview.vframes = MenuConfig.GARAGE_GIRO_ROWS
 	_ui.add_child(_preview)
 	_prev = _option_label(MenuConfig.GARAGE_PREV, Vector2(_preview.position.x - MenuConfig.GARAGE_ARROW_DX, MenuConfig.GARAGE_ARROW_Y))
 	_next = _option_label(MenuConfig.GARAGE_NEXT, Vector2(_preview.position.x + MenuConfig.GARAGE_ARROW_DX, MenuConfig.GARAGE_ARROW_Y))
@@ -64,6 +68,14 @@ func _ready() -> void:
 	_beep.stream = Synth.clack(0.0)
 	add_child(_beep)
 	_show_vehicle()
+
+
+func _process(delta: float) -> void:
+	_turn_t += delta
+	if _turn_t >= MenuConfig.GARAGE_TURN_S:
+		_turn_t -= MenuConfig.GARAGE_TURN_S
+		_frame = (_frame + 1) % (MenuConfig.GARAGE_GIRO_COLS * MenuConfig.GARAGE_GIRO_ROWS)
+		_preview.frame = _frame
 
 
 func _notification(what: int) -> void:
@@ -142,7 +154,7 @@ func _show_vehicle() -> void:
 			Vector2(0, 0.5))
 		_details.append(line)
 		_ui.add_child(line)
-	_preview.texture = load(v.garage)
+	_preview.texture = load(v.giro)
 	var chosen: bool = v.id == Settings.vehicle_id
 	_rows[Row.CHOOSE].text = MenuConfig.GARAGE_CHOSEN if chosen else MenuConfig.GARAGE_CHOOSE
 	_rows[Row.CHOOSE].size = _rows[Row.CHOOSE].get_minimum_size()

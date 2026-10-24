@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bbth8a44fcp6j"
-path="res://.godot/imported/dehler_tres_cuartos.png-cff53603b5329036300df4eb42fa316c.ctex"
+uid="uid://dbj3xhucg7hed"
+path="res://.godot/imported/giro.png-33dad8f1c28b37ddf405492050a3fb85.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/vehicles/dehler_tres_cuartos.png"
-dest_files=["res://.godot/imported/dehler_tres_cuartos.png-cff53603b5329036300df4eb42fa316c.ctex"]
+source_file="res://assets/sprites/dehler/giro.png"
+dest_files=["res://.godot/imported/giro.png-33dad8f1c28b37ddf405492050a3fb85.ctex"]
 
 [params]
 
