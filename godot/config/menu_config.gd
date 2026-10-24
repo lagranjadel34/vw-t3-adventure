@@ -100,7 +100,7 @@ const CREDITS_FONT_SIZE := 10
 const CREDITS_OUTLINE := 2
 # Pares [papel, nombre]; el papel va en CFG_SECTION_COLOR y el nombre en blanco.
 const CREDITS_LINES: Array = [
-	["Idea, guion y arte", "Ara"],
+	["Idea, guion y arte", "La Granja del 34"],
 	["Programación", "Ara con Claude (Anthropic)"],
 	["Motor", "Godot Engine (MIT)"],
 	["Letras", "Fredoka y Poppins (SIL OFL)"],
