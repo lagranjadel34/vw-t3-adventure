@@ -13,7 +13,7 @@ const VEHICLES: Array[Dictionary] = [
 		"motor": "1.9 gasolina, 90 CV",
 		"sprites": "res://assets/sprites/dehler/d%d%s.png",
 		"giro": "res://assets/sprites/dehler/giro.png",
-		"laterales": ["res://assets/vehicles/dehler_lateral.png"],
+		"laterales": ["res://assets/vehicles/dehler_lateral.png", "res://assets/vehicles/dehler_derecha.png"],
 		"carga": "camper",
 		"techo": "Fibra, con escotilla",
 		"medidas_m": {"largo": 4.57, "ancho": 1.84, "alto": 2.34, "batalla": 2.46},
