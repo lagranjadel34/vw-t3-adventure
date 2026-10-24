@@ -18,6 +18,7 @@ var _turn_t := 0.0
 var _frame := 0
 var _icon: Control
 var _sheet: Control
+var _sheet_close: Label
 var _beep := AudioStreamPlayer.new()
 
 @onready var _ui: CanvasLayer = $UI
@@ -90,8 +91,11 @@ func _notification(what: int) -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if _sheet:
+		# Solo el botón Cerrar (o una tecla) cierra la ficha; el resto de toques no hace nada.
 		var key: bool = event is InputEventKey and event.pressed and not event.echo
-		if key or (event is InputEventScreenTouch and event.pressed):
+		var tap: bool = event is InputEventScreenTouch and event.pressed \
+			and _sheet_close.get_global_rect().grow(MenuConfig.TAP_PADDING_X).has_point(event.position)
+		if key or tap:
 			_close_sheet()
 		return
 	if event is InputEventKey and event.pressed and not event.echo:
@@ -227,15 +231,17 @@ func _open_sheet() -> void:
 			0, Vector2(MenuConfig.SHEET_ROWS_X, y), Vector2(0, 0.5)))
 		card.add_child(UiKit.label(rows[i][1], UiKit.fredoka(true), MenuConfig.SHEET_FONT_SIZE, MenuConfig.SHEET_TEXT_COLOR,
 			0, Vector2(MenuConfig.SHEET_VALUES_X, y), Vector2(0, 0.5)))
-	card.add_child(UiKit.label(MenuConfig.SHEET_CLOSE, UiKit.fredoka(true), MenuConfig.OPTION_FONT_SIZE,
+	_sheet_close = UiKit.label(MenuConfig.SHEET_CLOSE, UiKit.fredoka(true), MenuConfig.OPTION_FONT_SIZE,
 		MenuConfig.OPTION_SELECTED_COLOR, MenuConfig.OPTION_OUTLINE,
-		Vector2(card.size.x / 2, card.size.y - MenuConfig.SHEET_CLOSE_BOTTOM + m), Vector2(0.5, 0.5)))
+		Vector2(card.size.x / 2, card.size.y - MenuConfig.SHEET_CLOSE_BOTTOM + m), Vector2(0.5, 0.5))
+	card.add_child(_sheet_close)
 	_beep.play()
 
 
 func _close_sheet() -> void:
 	_sheet.queue_free()
 	_sheet = null
+	_sheet_close = null
 
 
 func _back() -> void:
