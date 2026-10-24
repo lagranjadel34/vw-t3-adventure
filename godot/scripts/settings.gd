@@ -1,12 +1,15 @@
 extends Node
 ## Ajustes del jugador (autoload `Settings`), guardados en AudioConfig.SETTINGS_FILE.
-## Por ahora solo Sonido: volumen general en pasos y silencio.
+## Sonido (volumen general en pasos y silencio) y furgoneta elegida.
 
 const SECTION_SOUND := "sonido"
+const SECTION_VAN := "furgoneta"
 
 ## Volumen general de 0 a AudioConfig.VOLUME_STEPS.
 var volume := AudioConfig.VOLUME_DEFAULT
 var muted := false
+## Furgoneta elegida (id de VehicleConfig.VEHICLES).
+var vehicle_id := VehicleConfig.DEFAULT_ID
 
 
 func _ready() -> void:
@@ -14,6 +17,7 @@ func _ready() -> void:
 	if cfg.load(AudioConfig.SETTINGS_FILE) == OK:
 		volume = clampi(cfg.get_value(SECTION_SOUND, "volumen", volume), 0, AudioConfig.VOLUME_STEPS)
 		muted = cfg.get_value(SECTION_SOUND, "silencio", muted)
+		vehicle_id = VehicleConfig.find(cfg.get_value(SECTION_VAN, "id", vehicle_id)).id
 	apply()
 
 
@@ -29,6 +33,15 @@ func set_muted(value: bool) -> void:
 	save()
 
 
+func set_vehicle(id: String) -> void:
+	vehicle_id = VehicleConfig.find(id).id
+	save()
+
+
+func vehicle() -> Dictionary:
+	return VehicleConfig.find(vehicle_id)
+
+
 func apply() -> void:
 	var master := AudioServer.get_bus_index("Master")
 	AudioServer.set_bus_volume_db(master, linear_to_db(float(volume) / AudioConfig.VOLUME_STEPS))
@@ -39,4 +52,5 @@ func save() -> void:
 	var cfg := ConfigFile.new()
 	cfg.set_value(SECTION_SOUND, "volumen", volume)
 	cfg.set_value(SECTION_SOUND, "silencio", muted)
+	cfg.set_value(SECTION_VAN, "id", vehicle_id)
 	cfg.save(AudioConfig.SETTINGS_FILE)
