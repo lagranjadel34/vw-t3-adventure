@@ -8,6 +8,12 @@ Motor: Godot 4.5 (`godot/`). Cada cambio en `godot/` que llega a master genera u
 
 Lo más nuevo arriba. El número coincide con el que muestra Obtainium (0.1.N = Release `apk-N`).
 
+### 0.1.67 · 2026-10-24
+- Cada marcha se nota: la 1ª tira fuerte y dura poco, la 2ª y la 3ª duran más y empujan menos, y la 4ª es solo velocidad.
+- Al cambiar hay un bache: el embrague corta el empuje y la furgo pierde algo de velocidad antes de que entre la nueva. La cámara cabecea y el móvil vibra un momento.
+- Al soltar el gas, el motor retiene mucho en 1ª y casi nada en 4ª.
+- A fondo, de 0 a 100 km/h en unos 11 segundos.
+
 ### 0.1.61 · 2026-10-24
 - La Dehler Profi pasa a ser azul, como en la ficha nueva: frente y panel del techo celestes, marcos de las ventanas y banda baja celestes, y llantas de aleación. Su ficha técnica enseña los dos lados.
 - Elegir camperizador: la furgo gira en 3D en el escaparate, montada con las vistas de su ficha.
