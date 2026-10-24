@@ -8,6 +8,10 @@ Motor: Godot 4.5 (`godot/`). Cada cambio en `godot/` que llega a master genera u
 
 Lo más nuevo arriba. El número coincide con el que muestra Obtainium (0.1.N = Release `apk-N`).
 
+### 0.1.61 · 2026-10-24
+- La Dehler Profi pasa a ser azul, como en la ficha nueva: frente y panel del techo celestes, marcos de las ventanas y banda baja celestes, y llantas de aleación. Su ficha técnica enseña los dos lados.
+- Elegir camperizador: la furgo gira en 3D en el escaparate, montada con las vistas de su ficha.
+
 ### 0.1.57 · 2026-10-24
 - Elegir camperizador: el escaparate enseña cada furgo con su dibujo de 3/4.
 - Ficha técnica con el motor de cada una: Dehler 1.9 gasolina de 90 CV y Carthago 1.6 diésel de 78 CV.
