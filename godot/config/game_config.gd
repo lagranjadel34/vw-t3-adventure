@@ -8,8 +8,8 @@ const GAME_HEIGHT := 180
 const TILE_SIZE := 16
 
 # --- Conducción de la T3 ---
-# Empuje del motor en 1ª a bajas vueltas (px/s²). Cada marcha lo reduce (GEAR_ACCEL_RATIO).
-const VAN_ACCELERATION := 90.0
+# Empuje del motor en 1ª a bajas vueltas (px/s²). Cada marcha lo reduce mucho (GEAR_ACCEL_RATIO).
+const VAN_ACCELERATION := 100.0
 const VAN_MAX_SPEED := 130.0
 # Inercia: sin pedales, la furgo pierde esta velocidad por segundo hasta parar.
 const VAN_DRAG := 30.0
@@ -364,11 +364,13 @@ const PEDAL_COLORS := {
 const GEAR_GATE: Array[Vector2i] = [Vector2i(-1, 1), Vector2i(-1, -1), Vector2i(1, 1), Vector2i(1, -1)]
 # Por marcha: velocidad máxima (fracción de VAN_MAX_SPEED) y fuerza (fracción de VAN_ACCELERATION).
 # Topes por marcha: 1ª = 25, 2ª = 50, 3ª = 75, 4ª = 100 km/h (la 4ª va 4 veces más que la 1ª).
+# Empuje: la 1ª es corta y muy fuerte (~64 km/h/s); cada marcha empuja bastante menos y llega
+# más lejos (2ª ~18, 3ª ~9) y la 4ª es solo velocidad (~4 km/h/s). Con gas a fondo: 0-100 en ~11 s.
 const GEAR_MAX_SPEED_RATIO: Array[float] = [0.25, 0.5, 0.75, 1.0]
-const GEAR_ACCEL_RATIO: Array[float] = [1.0, 0.42, 0.26, 0.15]
+const GEAR_ACCEL_RATIO: Array[float] = [1.0, 0.38, 0.18, 0.08]
 # Dentro de cada marcha el empuje cae al subir de vueltas: al tope de la marcha queda
 # (1 - GEAR_TORQUE_FALLOFF) del empuje. Así la T3 sale fuerte y va cogiendo velocidad poco a poco.
-const GEAR_TORQUE_FALLOFF := 0.35
+const GEAR_TORQUE_FALLOFF := 0.4
 # Marcha larga a pocas vueltas: por debajo de esta fracción del tope de la marcha anterior,
 # el motor se ahoga y apenas empuja (arrancar en 3ª cuesta).
 const GEAR_LUG_SPEED_RATIO := 0.5
