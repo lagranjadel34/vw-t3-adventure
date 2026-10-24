@@ -8,6 +8,10 @@ Motor: Godot 4.5 (`godot/`). Cada cambio en `godot/` que llega a master genera u
 
 Lo más nuevo arriba. El número coincide con el que muestra Obtainium (0.1.N = Release `apk-N`).
 
+### 0.1.73 · 2026-10-24
+- Ya no se va al bosque por autovía: de Sevilla sale una carretera convencional de dos carriles, con arcén y línea central discontinua, que cruza el campo hasta el bosque.
+- En el bosque la carretera entra recta desde la ciudad y luego serpentea entre olivares y pinos hasta el cruce con la pista forestal que lleva al spot.
+
 ### 0.1.72 · 2026-10-24
 - La Dehler y la Carthago, vistas desde arriba tal como en sus fichas (techo, claraboya, colores y franjas): ahora se reconocen al conducir.
 - Taller Karvans: nave en el polígono junto a la A-4, en Nervión. Un carril sale de la autovía hasta el portón; entra con la furgo y se abre el menú del taller (de momento provisional, con "Salir del taller").
