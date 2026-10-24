@@ -4,7 +4,6 @@ extends Node2D
 const INTRO_SCENE := "res://scenes/intro.tscn"
 const OPTIONS_SCENE := "res://scenes/options.tscn"
 const GARAGE_SCENE := "res://scenes/garage.tscn"
-const CREDITS_SCENE := "res://scenes/credits.tscn"
 
 var _press_text: Label
 var _options: Array[Label] = []
@@ -159,7 +158,5 @@ func _confirm() -> void:
 		get_tree().change_scene_to_file(OPTIONS_SCENE)
 	elif _selected == MenuConfig.GARAGE_OPTION:
 		get_tree().change_scene_to_file(GARAGE_SCENE)
-	elif _selected == MenuConfig.CREDITS_OPTION:
-		get_tree().change_scene_to_file(CREDITS_SCENE)
 	elif _selected == MenuConfig.QUIT_OPTION:
 		get_tree().quit()

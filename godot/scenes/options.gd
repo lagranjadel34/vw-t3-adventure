@@ -2,7 +2,8 @@ extends Node2D
 ## Configuración > Sonido: volumen general (- / +) y silencio. Se guarda al cambiar.
 
 const MENU_SCENE := "res://scenes/menu.tscn"
-enum Row { VOLUME, MUTE, BACK }
+const CREDITS_SCENE := "res://scenes/credits.tscn"
+enum Row { VOLUME, MUTE, CREDITS, BACK }
 
 var _rows: Array[Label] = []
 var _selected := Row.VOLUME
@@ -34,7 +35,7 @@ func _ready() -> void:
 	_ui.add_child(UiKit.label(MenuConfig.CFG_SECTION, UiKit.fredoka(true), MenuConfig.OPTION_FONT_SIZE, MenuConfig.CFG_SECTION_COLOR,
 		MenuConfig.OPTION_OUTLINE, Vector2(MenuConfig.MENU_X, MenuConfig.CFG_SECTION_Y), Vector2(0, 0.5)))
 
-	for text in [MenuConfig.CFG_VOLUME, MenuConfig.CFG_MUTE, MenuConfig.CFG_BACK]:
+	for text in [MenuConfig.CFG_VOLUME, MenuConfig.CFG_MUTE, MenuConfig.CFG_CREDITS, MenuConfig.CFG_BACK]:
 		var row := _option_label(text, Vector2(MenuConfig.MENU_X, _row_y(_rows.size())))
 		_rows.append(row)
 		_ui.add_child(row)
@@ -103,6 +104,8 @@ func _activate(row: int) -> void:
 			Settings.set_muted(not Settings.muted)
 			_refresh()
 			_beep.play()
+		Row.CREDITS:
+			get_tree().change_scene_to_file(CREDITS_SCENE)
 		Row.BACK:
 			_back()
 

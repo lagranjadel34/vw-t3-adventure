@@ -1,7 +1,7 @@
 extends Node2D
-## Créditos: quién hace el juego y con qué. Toque, Intro, Esc o "atrás" vuelven al menú.
+## Créditos: quién hace el juego y con qué. Se abre desde Configuración; Toque, Intro, Esc o "atrás" vuelven a ella.
 
-const MENU_SCENE := "res://scenes/menu.tscn"
+const OPTIONS_SCENE := "res://scenes/options.tscn"
 
 @onready var _ui: CanvasLayer = $UI
 
@@ -51,4 +51,4 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _back() -> void:
-	get_tree().change_scene_to_file(MENU_SCENE)
+	get_tree().change_scene_to_file(OPTIONS_SCENE)

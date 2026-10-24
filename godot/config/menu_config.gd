@@ -2,10 +2,9 @@ class_name MenuConfig
 ## Pantalla de título (portada de src/scenes/MenuScene.ts). Medidas en píxeles internos (320x180).
 
 const BACKGROUND := "res://assets/backgrounds/campamento_nocturno_v1.jpg"
-const OPTIONS: Array[String] = ["Empezar", "Elegir camperizador", "Configuración", "Créditos", "Salir"]
+const OPTIONS: Array[String] = ["Empezar", "Elegir camperizador", "Configuración", "Salir"]
 const START_OPTION := 0
-const CREDITS_OPTION := 3
-const QUIT_OPTION := 4
+const QUIT_OPTION := 3
 
 const MENU_X := 14.0
 const TITLE := "VW T3 ADVENTURE"
@@ -18,7 +17,7 @@ const PRESS_BOTTOM_OFFSET := 30.0 # desde abajo
 const PRESS_FONT_SIZE := 12
 const PRESS_OUTLINE := 3
 const PRESS_BLINK_S := 0.6
-const OPTIONS_Y := 64.0 # una fila por TAP_MIN_HEIGHT
+const OPTIONS_Y := 96.0
 const OPTION_FONT_SIZE := 14
 const OPTION_OUTLINE := 3
 const OPTION_COLOR := Color.WHITE
@@ -60,6 +59,7 @@ const CFG_SECTION_COLOR := Color("c9bf9f")
 const CFG_ROWS_Y := 78.0 # una fila por TAP_MIN_HEIGHT
 const CFG_VOLUME := "Volumen"
 const CFG_MUTE := "Silencio"
+const CFG_CREDITS := "Créditos"
 const CFG_BACK := "Volver"
 const CFG_YES := "Sí"
 const CFG_NO := "No"
@@ -92,7 +92,7 @@ const GARAGE_PREVIEW_RIGHT := 70.0 # centro de la furgo, desde el borde derecho
 const GARAGE_PREVIEW_Y := 92.0
 const GARAGE_PREVIEW_SCALE := 1.5
 const GARAGE_TURN_S := 0.15 # tiempo por rumbo al girar en el escaparate
-# --- Créditos (opción 4 del menú) ---
+# --- Créditos (desde Configuración) ---
 const CREDITS_TITLE := "CRÉDITOS"
 const CREDITS_Y := 50.0
 const CREDITS_LINE_H := 14.0
