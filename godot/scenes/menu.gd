@@ -3,6 +3,7 @@ extends Node2D
 
 const INTRO_SCENE := "res://scenes/intro.tscn"
 const OPTIONS_SCENE := "res://scenes/options.tscn"
+const GARAGE_SCENE := "res://scenes/garage.tscn"
 
 var _press_text: Label
 var _options: Array[Label] = []
@@ -149,4 +150,5 @@ func _confirm() -> void:
 		get_tree().change_scene_to_file(INTRO_SCENE)
 	elif _selected == MenuConfig.SETTINGS_OPTION:
 		get_tree().change_scene_to_file(OPTIONS_SCENE)
-	# 'Elegir camperizador': pendiente de implementar.
+	elif _selected == MenuConfig.GARAGE_OPTION:
+		get_tree().change_scene_to_file(GARAGE_SCENE)

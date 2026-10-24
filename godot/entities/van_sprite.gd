@@ -12,10 +12,11 @@ var _smoke_level := -1
 
 func _ready() -> void:
 	_van = get_parent()
+	var sheet_path: String = VehicleConfig.chosen(self).sprites
 	for damage in GameConfig.VAN_DAMAGE_LEVELS:
 		for lights: bool in [false, true]:
 			var suffix := GameConfig.VAN_SPRITE_LIGHTS_SUFFIX if lights else ""
-			_textures[[damage, lights]] = load(GameConfig.VAN_SPRITE_PATH % [damage, suffix])
+			_textures[[damage, lights]] = load(sheet_path % [damage, suffix])
 	hframes = GameConfig.VAN_SPRITE_DIRECTIONS
 	vframes = GameConfig.VAN_SPRITE_STEER_ROWS * GameConfig.VAN_SPRITE_WHEEL_FRAMES
 	offset = GameConfig.VAN_SPRITE_OFFSET

@@ -37,6 +37,7 @@ var _slip := 0.0
 
 func _ready() -> void:
 	(_shape.shape as CircleShape2D).radius = GameConfig.VAN_BODY_RADIUS
+	load_kg = VehicleConfig.load_kg(VehicleConfig.chosen(self))
 
 
 ## Distancia recorrida en esta partida (km). Fuente única para cuentakilómetros, averías, etc.

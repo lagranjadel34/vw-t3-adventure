@@ -32,7 +32,6 @@ const VAN_LENGTH_PX := 64.0
 # --- Sprite isométrico de la T3 Dehler (hojas generadas con tools/sprites/export_godot.py) ---
 # Una hoja por estado: d<daño>.png y d<daño>_luces.png. Columnas = rumbos; filas =
 # volante (izq, recto, dcha) × frames de rueda. El sprite no gira: se elige el frame.
-const VAN_SPRITE_PATH := "res://assets/sprites/dehler/d%d%s.png"
 const VAN_SPRITE_LIGHTS_SUFFIX := "_luces"
 const VAN_SPRITE_DIRECTIONS := 24
 const VAN_SPRITE_WHEEL_FRAMES := 4

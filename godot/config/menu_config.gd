@@ -71,3 +71,22 @@ const CFG_BAR_GAP := 1.0
 const CFG_BAR_ON := Color("ffd24d")
 const CFG_BAR_OFF := Color(1, 1, 1, 0.25)
 const CFG_DIM := Color(0, 0, 0, 0.55) # velo sobre el fondo
+
+# --- Elegir camperizador (opción 2 del menú) ---
+const GARAGE_OPTION := 1
+const GARAGE_TITLE := "CAMPERIZADOR"
+const GARAGE_NAME_Y := 50.0
+const GARAGE_NAME_FONT_SIZE := 12
+const GARAGE_DETAIL_Y := 66.0
+const GARAGE_DETAIL_LINE := 10.0
+const GARAGE_DETAIL_FONT_SIZE := 9
+const GARAGE_ROWS_Y := 130.0 # una fila por TAP_MIN_HEIGHT
+const GARAGE_CHOOSE := "Elegir"
+const GARAGE_CHOSEN := "Elegida"
+const GARAGE_PREV := "<"
+const GARAGE_NEXT := ">"
+const GARAGE_ARROW_Y := 96.0
+const GARAGE_PREVIEW_RIGHT := 70.0 # centro de la furgo, desde el borde derecho
+const GARAGE_PREVIEW_Y := 92.0
+const GARAGE_PREVIEW_SCALE := 1.5
+const GARAGE_TURN_S := 0.15 # tiempo por rumbo al girar en el escaparate
