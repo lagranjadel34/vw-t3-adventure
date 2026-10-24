@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://yomrqtv6mg3c"
-path="res://.godot/imported/garage.png-94c0b817b0bbf82acaa60693ac381654.ctex"
+uid="uid://bbth8a44fcp6j"
+path="res://.godot/imported/dehler_tres_cuartos.png-cff53603b5329036300df4eb42fa316c.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/sprites/carthago/garage.png"
-dest_files=["res://.godot/imported/garage.png-94c0b817b0bbf82acaa60693ac381654.ctex"]
+source_file="res://assets/vehicles/dehler_tres_cuartos.png"
+dest_files=["res://.godot/imported/dehler_tres_cuartos.png-cff53603b5329036300df4eb42fa316c.ctex"]
 
 [params]
 
