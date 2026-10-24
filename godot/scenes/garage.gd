@@ -15,6 +15,8 @@ var _next: Label
 var _preview := Sprite2D.new()
 var _turn_t := 0.0
 var _frame := 0
+var _icon: Control
+var _sheet: Control
 var _beep := AudioStreamPlayer.new()
 
 @onready var _ui: CanvasLayer = $UI
@@ -54,6 +56,9 @@ func _ready() -> void:
 	_ui.add_child(_prev)
 	_ui.add_child(_next)
 
+	_icon = _make_icon(_icon_center())
+	_ui.add_child(_icon)
+
 	for text in [MenuConfig.GARAGE_CHOOSE, MenuConfig.CFG_BACK]:
 		var row := _option_label(text, Vector2(MenuConfig.MENU_X, _row_y(_rows.size())))
 		_rows.append(row)
@@ -81,10 +86,18 @@ func _process(delta: float) -> void:
 func _notification(what: int) -> void:
 	# Botón "atrás" de Android.
 	if what == NOTIFICATION_WM_GO_BACK_REQUEST:
-		_back()
+		if _sheet:
+			_close_sheet()
+		else:
+			_back()
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if _sheet:
+		var key: bool = event is InputEventKey and event.pressed and not event.echo
+		if key or (event is InputEventScreenTouch and event.pressed):
+			_close_sheet()
+		return
 	if event is InputEventKey and event.pressed and not event.echo:
 		match event.physical_keycode:
 			KEY_UP, KEY_W:
@@ -97,10 +110,14 @@ func _unhandled_input(event: InputEvent) -> void:
 				_cycle(1)
 			KEY_ENTER, KEY_KP_ENTER, KEY_SPACE:
 				_activate(_selected)
+			KEY_F, KEY_I:
+				_open_sheet()
 			KEY_ESCAPE, KEY_BACKSPACE:
 				_back()
 	elif event is InputEventScreenTouch and event.pressed:
-		if _prev.visible and _hit_rect(_prev).has_point(event.position):
+		if _icon_rect().has_point(event.position):
+			_open_sheet()
+		elif _prev.visible and _hit_rect(_prev).has_point(event.position):
 			_cycle(-1)
 		elif _next.visible and _hit_rect(_next).has_point(event.position):
 			_cycle(1)
@@ -147,6 +164,72 @@ func _show_vehicle() -> void:
 	_rows[Row.CHOOSE].text = MenuConfig.GARAGE_CHOSEN if chosen else MenuConfig.GARAGE_CHOOSE
 	_rows[Row.CHOOSE].size = _rows[Row.CHOOSE].get_minimum_size()
 	_refresh()
+
+
+## Icono de ficha: cuadrado con "i" y el texto "Ficha" debajo; `center` = centro del cuadrado.
+func _make_icon(center: Vector2) -> Control:
+	var root := Control.new()
+	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var size := Vector2.ONE * MenuConfig.SHEET_ICON_SIZE
+	var box := ColorRect.new()
+	box.color = MenuConfig.SHEET_ICON_COLOR
+	box.size = size
+	box.position = center - size / 2
+	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.add_child(box)
+	root.add_child(UiKit.label(MenuConfig.SHEET_ICON_TEXT, UiKit.fredoka(true), MenuConfig.GARAGE_NAME_FONT_SIZE,
+		MenuConfig.SHEET_TEXT_COLOR, 0, center, Vector2(0.5, 0.5)))
+	root.add_child(UiKit.label(MenuConfig.SHEET_ICON_LABEL, UiKit.fredoka(false), MenuConfig.GARAGE_DETAIL_FONT_SIZE,
+		Color.WHITE, MenuConfig.OPTION_OUTLINE, center + Vector2(0, MenuConfig.SHEET_ICON_SIZE), Vector2(0.5, 0.5)))
+	return root
+
+
+func _icon_center() -> Vector2:
+	var screen := get_viewport().get_visible_rect().size
+	return Vector2(screen.x - MenuConfig.SHEET_ICON_POS.x, MenuConfig.SHEET_ICON_POS.y)
+
+
+func _icon_rect() -> Rect2:
+	var center := _icon_center()
+	var side := float(GameConfig.TAP_MIN_HEIGHT)
+	return Rect2(center - Vector2(side, side) / 2, Vector2(side, side * 1.5))
+
+
+func _open_sheet() -> void:
+	var v: Dictionary = VehicleConfig.VEHICLES[_index]
+	var screen := get_viewport().get_visible_rect().size
+	var m := MenuConfig.SHEET_CARD_MARGIN
+	_sheet = ColorRect.new()
+	(_sheet as ColorRect).color = MenuConfig.CFG_DIM
+	_sheet.size = screen
+	_ui.add_child(_sheet)
+	var card := ColorRect.new()
+	card.color = MenuConfig.SHEET_CARD_COLOR
+	card.size = Vector2(minf(screen.x, GameConfig.GAME_WIDTH) - m * 2, screen.y - m * 2)
+	card.position = Vector2((screen.x - card.size.x) / 2, m)
+	_sheet.add_child(card)
+	card.add_child(UiKit.label(v.nombre, UiKit.fredoka(true), MenuConfig.SHEET_TITLE_FONT_SIZE,
+		MenuConfig.SHEET_TEXT_COLOR, 0, Vector2(card.size.x / 2, MenuConfig.SHEET_TITLE_Y - m), Vector2(0.5, 0.5)))
+	var image := TextureRect.new()
+	image.texture = load(v.lateral)
+	image.position = MenuConfig.SHEET_IMAGE_POS - Vector2(0, m)
+	card.add_child(image)
+	var rows := VehicleConfig.sheet_rows(v)
+	for i in rows.size():
+		var y := MenuConfig.SHEET_ROWS_Y - m + i * MenuConfig.SHEET_ROW_H
+		card.add_child(UiKit.label(rows[i][0], UiKit.fredoka(false), MenuConfig.SHEET_FONT_SIZE, MenuConfig.SHEET_LABEL_COLOR,
+			0, Vector2(MenuConfig.SHEET_ROWS_X, y), Vector2(0, 0.5)))
+		card.add_child(UiKit.label(rows[i][1], UiKit.fredoka(true), MenuConfig.SHEET_FONT_SIZE, MenuConfig.SHEET_TEXT_COLOR,
+			0, Vector2(MenuConfig.SHEET_VALUES_X, y), Vector2(0, 0.5)))
+	card.add_child(UiKit.label(MenuConfig.SHEET_CLOSE, UiKit.fredoka(true), MenuConfig.OPTION_FONT_SIZE,
+		MenuConfig.OPTION_SELECTED_COLOR, MenuConfig.OPTION_OUTLINE,
+		Vector2(card.size.x / 2, card.size.y - MenuConfig.SHEET_CLOSE_BOTTOM + m), Vector2(0.5, 0.5)))
+	_beep.play()
+
+
+func _close_sheet() -> void:
+	_sheet.queue_free()
+	_sheet = null
 
 
 func _back() -> void:

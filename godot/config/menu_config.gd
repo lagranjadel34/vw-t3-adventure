@@ -108,3 +108,24 @@ const CREDITS_LINES: Array = [
 ]
 const CREDITS_NAME_X := 120.0
 const CREDITS_BACK_Y := 150.0
+
+# Icono y panel de la ficha técnica (dentro de Elegir camperizador)
+const SHEET_ICON_SIZE := 14.0
+const SHEET_ICON_POS := Vector2(18, 22) # centro del icono, desde la esquina superior derecha
+const SHEET_ICON_COLOR := Color("ffd24d")
+const SHEET_ICON_TEXT := "i"
+const SHEET_ICON_LABEL := "Ficha"
+const SHEET_CARD_MARGIN := 8.0
+const SHEET_CARD_COLOR := Color("d9e3e5") # fondo de las fichas de Ara
+const SHEET_TEXT_COLOR := Color("1d2430")
+const SHEET_LABEL_COLOR := Color("5a6672")
+const SHEET_TITLE_FONT_SIZE := 12
+const SHEET_TITLE_Y := 18.0
+const SHEET_IMAGE_POS := Vector2(14, 34)
+const SHEET_ROWS_X := 160.0
+const SHEET_VALUES_X := 222.0
+const SHEET_ROWS_Y := 36.0
+const SHEET_ROW_H := 11.0
+const SHEET_FONT_SIZE := 8
+const SHEET_CLOSE := "Cerrar"
+const SHEET_CLOSE_BOTTOM := 18.0 # desde abajo
