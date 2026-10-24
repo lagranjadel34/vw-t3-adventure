@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cd1uqo3waaxw2"
-path="res://.godot/imported/carthago_tres_cuartos.png-7fc179d91831de4bf5a95b819fd30730.ctex"
+uid="uid://nkeynuaqlm1m"
+path="res://.godot/imported/giro.png-8fe8aa2c97c53f23e54eaf27bc63c23d.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/vehicles/carthago_tres_cuartos.png"
-dest_files=["res://.godot/imported/carthago_tres_cuartos.png-7fc179d91831de4bf5a95b819fd30730.ctex"]
+source_file="res://assets/sprites/carthago/giro.png"
+dest_files=["res://.godot/imported/giro.png-8fe8aa2c97c53f23e54eaf27bc63c23d.ctex"]
 
 [params]
 
