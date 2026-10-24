@@ -8,6 +8,10 @@ Motor: Godot 4.5 (`godot/`). Cada cambio en `godot/` que llega a master genera u
 
 Lo más nuevo arriba. El número coincide con el que muestra Obtainium (0.1.N = Release `apk-N`).
 
+### 0.1.72 · 2026-10-24
+- La Dehler y la Carthago, vistas desde arriba tal como en sus fichas (techo, claraboya, colores y franjas): ahora se reconocen al conducir.
+- Taller Karvans: nave en el polígono junto a la A-4, en Nervión. Un carril sale de la autovía hasta el portón; entra con la furgo y se abre el menú del taller (de momento provisional, con "Salir del taller").
+
 ### 0.1.71 · 2026-10-24
 - La T3 se mueve el doble de rápido por la pantalla (los km/h son los mismos): antes, a 100 km/h, solo avanzaba 2 furgonetas por segundo y las primeras marchas parecían arrastrarse. Los coches del tráfico van igual de rápido que antes respecto a ti.
 - Esto se puede subir más (a la escala real de una T3) si se queda corto.
