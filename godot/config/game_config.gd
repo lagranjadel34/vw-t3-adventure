@@ -162,6 +162,28 @@ const MAPS := {
 const MAP_FADE_S := 0.35
 const MAP_FADE_COLOR := Color.BLACK
 const MAP_FADE_LAYER := 10
+
+# --- Talleres: zona del mapa (objeto de tipo `taller`) dentro del portón ---
+# Al entrar la furgo se para el juego y sale el menú del taller; al salir, la furgo aparece
+# en el objeto <nombre>_salida mirando hacia fuera (WORKSHOP_EXIT_ROT_DEG).
+const MAP_WORKSHOP_TYPE := "taller"
+const MAP_WORKSHOP_EXIT_SUFFIX := "_salida"
+const WORKSHOP_EXIT_ROT_DEG := 0.0
+const WORKSHOP_NAMES := {"taller_karvans": "Taller Karvans"}
+# Menú del taller (provisional, hasta hacer el de verdad).
+const WORKSHOP_LAYER := 20
+const WORKSHOP_DIM := Color(0, 0, 0, 0.75)
+const WORKSHOP_TITLE_SIZE := 18
+const WORKSHOP_TEXT_SIZE := 9
+const WORKSHOP_BUTTON_SIZE := 12
+const WORKSHOP_OUTLINE := 3
+const WORKSHOP_TITLE_Y := 40.0
+const WORKSHOP_TEXT_Y := 78.0
+const WORKSHOP_BUTTON_Y := 130.0
+const WORKSHOP_ACCENT := Color("d8742a")
+const WORKSHOP_TEXT := "Próximamente:\nreparaciones, piezas y camperización."
+const WORKSHOP_BUTTON := "Salir del taller"
+
 const MAP_LABEL_TYPE := "rotulo"
 const MAP_COLLIDES_PROPERTY := "collides"
 # Rótulos de barrios y monumentos sobre el mapa.
@@ -209,6 +231,7 @@ const CITY_PATTERNS := {
 	"almenas": {"cell": Vector2i(8, 8), "rects": [Rect2i(4, 3, 1, 3)]},
 	"cristal": {"cell": Vector2i(8, 4), "rects": [Rect2i(0, 0, 8, 1), Rect2i(0, 0, 1, 4)]},
 	"rejilla": {"cell": Vector2i(4, 4), "rects": [Rect2i(0, 0, 4, 1), Rect2i(0, 0, 1, 4)]},
+	"chapa": {"cell": Vector2i(4, 8), "rects": [Rect2i(0, 0, 1, 8)]},
 }
 
 # --- Vida en la calle: tráfico, semáforos, farolas y peatones (objetos del mapa) ---

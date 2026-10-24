@@ -21,6 +21,9 @@ var _traffic: Traffic
 var _exit: Variant
 # Zonas que llevan a otro mapa: [{rect: Rect2, link: Dictionary}].
 var _exits: Array = []
+# Talleres del mapa: [{name, rect: Rect2, exit: Vector2}].
+var _workshops: Array = []
+var _workshop_menu: WorkshopMenu
 var _fade := ColorRect.new()
 # Cabeceo de la cámara al cambiar de marcha (px de mundo), decae solo.
 var _shift_kick := Vector2.ZERO
@@ -99,10 +102,40 @@ func _load_map(id: StringName) -> void:
 		if o:
 			_exits.append({"rect": Rect2(o.x, o.y, o.width, o.height), "link": _map_def.exits[exit_name]})
 
+	_workshops.clear()
+	for o: Dictionary in _map.objects:
+		if o.type == GameConfig.MAP_WORKSHOP_TYPE:
+			var out: Variant = _map.find_object(o.name + GameConfig.MAP_WORKSHOP_EXIT_SUFFIX)
+			_workshops.append({"name": o.name, "rect": Rect2(o.x, o.y, o.width, o.height), "exit": Vector2(out.x, out.y) if out else Vector2(o.x, o.y)})
+
 	_camera.limit_left = 0
 	_camera.limit_top = 0
 	_camera.limit_right = int(_map.size_px.x)
 	_camera.limit_bottom = int(_map.size_px.y)
+
+
+## La furgo entra por el portón: juego en pausa y menú del taller.
+func _check_workshops() -> void:
+	if _workshop_menu:
+		return
+	for w: Dictionary in _workshops:
+		if (w.rect as Rect2).has_point(_van.global_position):
+			_van.velocity = Vector2.ZERO
+			get_tree().paused = true
+			_workshop_menu = WorkshopMenu.create(GameConfig.WORKSHOP_NAMES.get(w.name, w.name))
+			_workshop_menu.closed.connect(_leave_workshop.bind(w))
+			add_child(_workshop_menu)
+			return
+
+
+## Al salir del taller la furgo espera en el carril, parada y mirando a la calle.
+func _leave_workshop(w: Dictionary) -> void:
+	get_tree().paused = false
+	_workshop_menu = null
+	_van.global_position = w.exit
+	_van.rotation = deg_to_rad(GameConfig.WORKSHOP_EXIT_ROT_DEG)
+	_van.velocity = Vector2.ZERO
+	_snap_camera()
 
 
 ## Al entrar en una salida, la furgo aparece en el otro mapa con la misma velocidad.
@@ -138,6 +171,7 @@ func _on_shifted(from_gear: int, to_gear: int) -> void:
 
 
 func _physics_process(_delta: float) -> void:
+	_check_workshops()
 	# Joystick = volante; la potencia sale solo de los pedales (pantalla o W/S).
 	_hud.update_pedals(_van.gas_key, _van.brake_key)
 	_van.steer_input = _hud.steer

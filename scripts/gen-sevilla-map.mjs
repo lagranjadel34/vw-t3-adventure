@@ -19,6 +19,7 @@ const T = {
   CATEDRAL: 13, TORRE_ORO: 14, MAESTRANZA: 15, PLAZA_ESPANA: 16, TORRE_PE: 17,
   ALCAZAR: 18, ARCHIVO: 19, SETAS: 20, TORRE_SEVILLA: 21, PABELLON: 22, BLOQUE: 23,
   PUENTE_TRIANA: 24, BARANDILLA: 25, CAPILLITA: 26, NARANJO: 27,
+  NAVE: 28, TALLER_SUELO: 29, ENTRADA: 30,
 };
 // Volumen: altura en px de mundo (≈ 18 px por planta; debe quedar por debajo de CITY_CAMERA_HEIGHT); patrón de fachada; remate = franja
 // alta de otro color (campanario) que ocupa remate_frac de la altura; aguja = chapitel.
@@ -55,6 +56,11 @@ const TILE_DEFS = [
   { name: 'capillita', color: [180, 85, 58], border: [239, 230, 208], collides: true, vol: vol(48, '#2f7f8a', '#b4553a', '#efe6d0', 'ladrillo', { remate: '#efe6d0', remate_frac: 0.2, aguja: '#2f8f9a' }) },
   // Naranjos de las aceras: copa verde con naranjas.
   { name: 'naranjo', color: [150, 142, 132], tree: [40, 92, 36], collides: true, vol: vol(20, '#2f6b2a', '#6b4a2e', '#e8892a', 'arbol') },
+  // Taller Karvans: nave de chapa en el polígono junto a la A-4, con portón abierto.
+  { name: 'nave', color: [200, 204, 208], border: [125, 134, 140], collides: true, vol: vol(40, '#9aa3a8', '#c8ccd0', '#7d868c', 'chapa', { remate: '#d8742a', remate_frac: 0.25 }) },
+  { name: 'taller_suelo', color: [70, 72, 76], grid: [84, 86, 90] },
+  // Entrada del taller: franjas amarillas y negras en el suelo.
+  { name: 'entrada', color: [40, 40, 44], hatch: [226, 186, 40] },
 ];
 // La casa rosada con teja usa el tile 'tejado'.
 TILE_DEFS[T.TEJADO - 1].vol = vol(45, '#b85a3c', '#e7b9a0', '#4a3328', 'ventanas', { zocalo: '#f2eee2' });
@@ -347,6 +353,15 @@ for (const r of ROUTES) {
   if (ok) routes.push(r);
 }
 
+// 13) Taller Karvans, en la manzana del polígono al sur de la A-4 (entre avenidas de Nervión).
+// Un carril sale de la A-4 hacia el portón; la furgo entra en la nave y se abre el taller.
+const KAR = { x0: 176, y0: 64, x1: 187, y1: 75, door0: 180, door1: 183 };
+rect(KAR.x0, KAR.y0, KAR.x1, KAR.y1, T.ACERA);
+rect(KAR.x0 + 1, KAR.y0 + 3, KAR.x1 - 1, KAR.y1 - 1, T.NAVE);
+rect(KAR.door0, KAR.y0, KAR.door1, KAR.y0 + 1, T.ASFALTO); // carril desde la A-4
+rect(KAR.door0, KAR.y0 + 2, KAR.door1, KAR.y0 + 2, T.ENTRADA);
+rect(KAR.door0, KAR.y0 + 3, KAR.door1, KAR.y0 + 6, T.TALLER_SUELO); // portón abierto
+
 // ---------- Objetos: spawn, salida y rótulos ----------
 const px = (t) => t * TILE;
 let oid = 1;
@@ -355,6 +370,10 @@ const objects = [
   // La T3 sale al pie del Puente de Triana, en la orilla del Arenal (Paseo de Colón), mirando al norte.
   point('spawn', 'spawn', riverX(62) + 12, 63),
   { id: oid++, name: 'salida_a4', type: 'salida', x: px(W - 4), y: px(EXIT_Y), width: px(4), height: px(6), rotation: 0, visible: true },
+  // Dentro del portón: al entrar, el taller. Al salir, la furgo vuelve al carril mirando a la A-4.
+  { id: oid++, name: 'taller_karvans', type: 'taller', x: px(KAR.door0), y: px(KAR.y0 + 4), width: px(KAR.door1 - KAR.door0 + 1), height: px(3), rotation: 0, visible: true },
+  point('taller_karvans_salida', 'taller_salida', (KAR.door0 + KAR.door1 + 1) / 2, KAR.y0),
+  point('Taller Karvans', 'rotulo', (KAR.x0 + KAR.x1 + 1) / 2, KAR.y1 - 2),
   point('Triana', 'rotulo', 30, 64),
   point('La Cartuja', 'rotulo', 30, 16),
   point('Guadalquivir', 'rotulo', riverX(40), 40),
@@ -428,6 +447,7 @@ TILE_DEFS.forEach((d, i) => {
     if (d.wave && (y % 6 === 2) && ((x + y) % 8 < 3)) c = d.wave;
     if (d.tree && Math.hypot(x - 7.5, y - 7.5) < 6) c = d.tree;
     if (d.rail && (y === 7 || y === 8)) c = d.rail;
+    if (d.hatch && (x + y) % 8 < 4) c = d.hatch;
     put(i * TILE + x, y, c);
   }
 });
