@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://nkeynuaqlm1m"
-path="res://.godot/imported/giro.png-8fe8aa2c97c53f23e54eaf27bc63c23d.ctex"
+uid="uid://ce6xiv730maiu"
+path="res://.godot/imported/garage.png-94c0b817b0bbf82acaa60693ac381654.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/sprites/carthago/giro.png"
-dest_files=["res://.godot/imported/giro.png-8fe8aa2c97c53f23e54eaf27bc63c23d.ctex"]
+source_file="res://assets/sprites/carthago/garage.png"
+dest_files=["res://.godot/imported/garage.png-94c0b817b0bbf82acaa60693ac381654.ctex"]
 
 [params]
 

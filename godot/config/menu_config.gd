@@ -91,10 +91,10 @@ const GARAGE_ARROW_Y := 96.0
 const GARAGE_PREVIEW_RIGHT := 96.0 # centro de la furgo, desde el borde derecho
 const GARAGE_PREVIEW_Y := 92.0
 const GARAGE_TURN_S := 0.12 # tiempo por rumbo al girar en el escaparate
-# Giro del escaparate: hoja de tools/sprites/export_turntable.py (8 x 3 rumbos).
-const GARAGE_GIRO_COLS := 8
-const GARAGE_GIRO_ROWS := 3
-const GARAGE_ARROW_DX := 84.0 # flechas a cada lado de la furgo
+# Giro del escaparate: hoja de tools/sprites/export_garage.py (24 rumbos x 4 ruedas).
+const GARAGE_GIRO_COLS := 24
+const GARAGE_GIRO_ROWS := 4 # filas de rueda; el escaparate usa la primera
+const GARAGE_ARROW_DX := 64.0 # flechas a cada lado de la furgo
 # --- Créditos (desde Configuración) ---
 const CREDITS_TITLE := "CRÉDITOS"
 const CREDITS_Y := 50.0
