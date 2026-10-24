@@ -74,7 +74,7 @@ func _process(delta: float) -> void:
 	_turn_t += delta
 	if _turn_t >= MenuConfig.GARAGE_TURN_S:
 		_turn_t -= MenuConfig.GARAGE_TURN_S
-		_frame = (_frame + 1) % (MenuConfig.GARAGE_GIRO_COLS * MenuConfig.GARAGE_GIRO_ROWS)
+		_frame = (_frame + 1) % MenuConfig.GARAGE_GIRO_COLS
 		_preview.frame = _frame
 
 
@@ -196,6 +196,8 @@ func _open_sheet() -> void:
 	var m := MenuConfig.SHEET_CARD_MARGIN
 	_sheet = ColorRect.new()
 	(_sheet as ColorRect).color = MenuConfig.CFG_DIM
+	# Sin esto, el velo se come los toques y la ficha no se cierra con el dedo.
+	_sheet.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_sheet.size = screen
 	_ui.add_child(_sheet)
 	var card := ColorRect.new()
