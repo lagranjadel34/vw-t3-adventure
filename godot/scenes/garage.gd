@@ -193,10 +193,17 @@ func _open_sheet() -> void:
 	_sheet.add_child(card)
 	card.add_child(UiKit.label(v.nombre, UiKit.fredoka(true), MenuConfig.SHEET_TITLE_FONT_SIZE,
 		MenuConfig.SHEET_TEXT_COLOR, 0, Vector2(card.size.x / 2, MenuConfig.SHEET_TITLE_Y - m), Vector2(0.5, 0.5)))
-	var image := TextureRect.new()
-	image.texture = load(v.lateral)
-	image.position = MenuConfig.SHEET_IMAGE_POS - Vector2(0, m)
-	card.add_child(image)
+	var views: Array = v.laterales
+	var view_scale := 1.0 if views.size() == 1 else MenuConfig.SHEET_IMAGE_PAIR_SCALE
+	var pos := MenuConfig.SHEET_IMAGE_POS - Vector2(0, m)
+	for path: String in views:
+		var image := Sprite2D.new()
+		image.texture = load(path)
+		image.centered = false
+		image.scale = Vector2.ONE * view_scale
+		image.position = pos
+		card.add_child(image)
+		pos.y += image.texture.get_height() * view_scale + MenuConfig.SHEET_IMAGE_GAP
 	var rows := VehicleConfig.sheet_rows(v)
 	for i in rows.size():
 		var y := MenuConfig.SHEET_ROWS_Y - m + i * MenuConfig.SHEET_ROW_H

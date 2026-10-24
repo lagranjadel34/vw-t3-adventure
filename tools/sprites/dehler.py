@@ -1,7 +1,8 @@
 """T3 de techo alto según las fichas de Ara. Dehler Profi (1983): gris azulado liso, techo alto de fibra
 más claro con claraboya elevada, ventana en el frente inclinado y escotilla, faros redondos,
 parachoques negros y llantas de chapa con tapacubos. Carthago: ocre con techo alto
-blanco redondeado, escotilla central, llantas de aleación y antinieblas amarillos. Importarlo registra el modelo en
+blanco redondeado, escotilla central, llantas de aleación, antinieblas amarillos y, en el lado
+derecho, franja granate, rejillas de nevera y logo del tuareg. Importarlo registra el modelo en
 t3gen.BUILDER."""
 import math
 
@@ -19,14 +20,19 @@ C_HUBCAP_DARK = (120, 128, 130)
 C_HATCH = (76, 75, 80)
 C_PLATE = (226, 230, 232)
 C_FOG = (220, 190, 30)
+C_STRIPE = (96, 26, 38)
+C_STRIPE_DARK = (40, 28, 30)
+C_VENT = (196, 188, 168)
+C_LOGO = (66, 112, 168)
+C_LOGO_FACE = (226, 210, 178)
 
 # Estilo de cada furgo de techo alto (mismo chasis T3, cambian techo, pintura y llantas)
 DEHLER = dict(body=(86, 103, 113), roof=(148, 161, 167), roof_seam=(100, 117, 125),
               skylight=(147, 175, 178), roof_windows=True, round_nose=False,
-              wheels="chapa", fog_lights=False)
+              wheels="chapa", fog_lights=False, right_decor=False)
 CARTHAGO = dict(body=(158, 106, 58), roof=(236, 236, 236), roof_seam=(196, 196, 196),
                 skylight=None, roof_windows=False, round_nose=True,
-                wheels="aleacion", fog_lights=True)
+                wheels="aleacion", fog_lights=True, right_decor=True)
 
 Z_MOLDING = 0.56    # moldura negra baja
 Z_HITOP = 2.34      # altura total con techo alto
@@ -94,9 +100,21 @@ def build_hitop(st, spin=0.0, steer=0.0, lights=False, damage=0):
     P.append(windshield_poly(0.3, 0.5, 1.5, 1.72, C_GLASS_HI, bias=DECAL_BIAS * 2))
     for s in (1, -1):
         y = SIDE * s
-        for x0, x1 in ((1.15, 1.8), (0.05, 1.0), (-1.2, -0.1)):
+        # Lado derecho de la Carthago: puerta y una ventana partida (sin la trasera)
+        decor = st["right_decor"] and s == -1
+        windows = ((1.0, 1.8), (-0.5, 0.6)) if decor else ((1.15, 1.8), (0.05, 1.0), (-1.2, -0.1))
+        for x0, x1 in windows:
             P.append(quad_on_side(y, x0, x1, 1.14, 1.74, C_GLASS, s))
-        P.append(quad_on_side(y, 0.5, 0.55, 1.14, 1.74, C_BODY, s, bias=DECAL_BIAS * 2))  # parteluz
+        mullion = 0.03 if decor else 0.5
+        P.append(quad_on_side(y, mullion, mullion + 0.05, 1.14, 1.74, C_BODY, s, bias=DECAL_BIAS * 2))  # parteluz
+        if decor:
+            # Franja granate con filete oscuro, rejillas de nevera y el logo del tuareg
+            P.append(quad_on_side(HW * s, -HL, 1.7, 0.86, 0.98, C_STRIPE, s, bias=DECAL_BIAS * 2))
+            P.append(quad_on_side(HW * s, -HL, 1.4, 1.01, 1.04, C_STRIPE_DARK, s, bias=DECAL_BIAS * 2))
+            P.append(quad_on_side(HW * s, -0.1, 0.6, 0.84, 1.0, C_VENT, s, bias=DECAL_BIAS * 3))
+            P.append(quad_on_side(HW * s, 0.05, 0.6, 0.4, 0.56, C_VENT, s, bias=DECAL_BIAS * 3))
+            P.append(quad_on_side(y, -1.46, -0.86, 1.2, 1.7, C_LOGO, s, bias=DECAL_BIAS * 2))
+            P.append(quad_on_side(y, -1.22, -1.06, 1.5, 1.62, C_LOGO_FACE, s, bias=DECAL_BIAS * 3))
         for z in (1.2, 1.32, 1.44, 1.56):
             P.append(quad_on_side(y, -2.1, -1.6, z, z + 0.06, T.C_BLACK, s))
         P.append(quad_on_side(HW * s, -HL, HL, Z_MOLDING - 0.04, Z_MOLDING + 0.04, C_TRIM, s))

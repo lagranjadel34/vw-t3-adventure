@@ -2,7 +2,7 @@ class_name VehicleConfig
 ## Furgonetas elegibles en "Elegir camperizador". La primera es la de por defecto.
 ## Cada una trae sus hojas de sprite (mismo formato: ver tools/sprites/export_godot.py)
 ## y su camperización (clave de GameConfig.VAN_LOAD_PRESETS_KG, que da la carga en kg).
-## Ficha técnica: vista lateral recortada de la ficha dibujada por Ara y datos.
+## Ficha técnica: vistas laterales recortadas de la ficha dibujada por Ara y datos.
 
 const VEHICLES: Array[Dictionary] = [
 	{
@@ -13,7 +13,7 @@ const VEHICLES: Array[Dictionary] = [
 		"motor": "1.9 gasolina, 90 CV",
 		"sprites": "res://assets/sprites/dehler/d%d%s.png",
 		"garage": "res://assets/vehicles/dehler_tres_cuartos.png",
-		"lateral": "res://assets/vehicles/dehler_lateral.png",
+		"laterales": ["res://assets/vehicles/dehler_lateral.png"],
 		"carga": "camper",
 		"techo": "Fibra, con escotilla",
 		"medidas_m": {"largo": 4.57, "ancho": 1.84, "alto": 2.34, "batalla": 2.46},
@@ -26,7 +26,7 @@ const VEHICLES: Array[Dictionary] = [
 		"motor": "1.6 diésel, 78 CV",
 		"sprites": "res://assets/sprites/carthago/d%d%s.png",
 		"garage": "res://assets/vehicles/carthago_tres_cuartos.png",
-		"lateral": "res://assets/vehicles/carthago_lateral.png",
+		"laterales": ["res://assets/vehicles/carthago_lateral.png", "res://assets/vehicles/carthago_derecha.png"],
 		"carga": "camper",
 		"techo": "Blanco, redondeado",
 		"medidas_m": {"largo": 4.57, "ancho": 1.84, "alto": 2.34, "batalla": 2.46},
