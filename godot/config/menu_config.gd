@@ -90,7 +90,7 @@ const GARAGE_NEXT := ">"
 const GARAGE_ARROW_Y := 96.0
 const GARAGE_PREVIEW_RIGHT := 70.0 # centro de la furgo, desde el borde derecho
 const GARAGE_PREVIEW_Y := 92.0
-const GARAGE_PREVIEW_SCALE := 1.5
+const GARAGE_PREVIEW_SCALE := 1.5 # hojas de tools/sprites/export_garage.py (vista de frente)
 const GARAGE_TURN_S := 0.15 # tiempo por rumbo al girar en el escaparate
 # --- Créditos (desde Configuración) ---
 const CREDITS_TITLE := "CRÉDITOS"
