@@ -8,6 +8,11 @@ Motor: Godot 4.5 (`godot/`). Cada cambio en `godot/` que llega a master genera u
 
 Lo más nuevo arriba. El número coincide con el que muestra Obtainium (0.1.N = Release `apk-N`).
 
+### 0.1.47 · 2026-10-24
+- Menú "Elegir camperizador": eliges la furgo antes de empezar. Hay dos: la VW T3 Dehler Profi (1983), que sale por defecto, y la Carthago (1982), con su ficha técnica.
+- Configuración tiene Créditos. El menú de título queda en Empezar, Elegir camperizador, Configuración y Salir.
+- El botón atrás de Android ya no cierra la app desde cualquier pantalla: en el juego vuelve al menú y en el menú sale.
+
 ### 0.1.39 · 2026-10-24
 - Caja de cambios en escalera: la 1ª es corta y empuja muchísimo (0 a 25 km/h de golpe), la 2ª empuja bastante menos pero llega a 50, la 3ª aún menos y llega a 75, y la 4ª es solo velocidad: tarda en subir hasta los 100 km/h.
 - A fondo, de 0 a 100 km/h en unos 11 segundos.
