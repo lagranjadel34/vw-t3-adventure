@@ -8,6 +8,10 @@ Motor: Godot 4.5 (`godot/`). Cada cambio en `godot/` que llega a master genera u
 
 Lo más nuevo arriba. El número coincide con el que muestra Obtainium (0.1.N = Release `apk-N`).
 
+### 0.1.71 · 2026-10-24
+- La T3 se mueve el doble de rápido por la pantalla (los km/h son los mismos): antes, a 100 km/h, solo avanzaba 2 furgonetas por segundo y las primeras marchas parecían arrastrarse. Los coches del tráfico van igual de rápido que antes respecto a ti.
+- Esto se puede subir más (a la escala real de una T3) si se queda corto.
+
 ### 0.1.67 · 2026-10-24
 - Cada marcha se nota: la 1ª tira fuerte y dura poco, la 2ª y la 3ª duran más y empujan menos, y la 4ª es solo velocidad.
 - Al cambiar hay un bache: el embrague corta el empuje y la furgo pierde algo de velocidad antes de que entre la nueva. La cámara cabecea y el móvil vibra un momento.
