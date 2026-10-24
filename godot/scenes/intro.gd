@@ -2,6 +2,7 @@ extends Node2D
 ## Intro con viñetas: pan/zoom de imagen, texto a máquina, humo, bocinas y neblina (portada de IntroScene.ts).
 
 const PLAY_SCENE := "res://scenes/world.tscn"
+const MENU_SCENE := "res://scenes/menu.tscn"
 
 var _panel_index := 0
 var _typing := false
@@ -67,6 +68,12 @@ func _ready() -> void:
 	_horn_timer.timeout.connect(_spawn_horn)
 
 	_show_panel()
+
+
+func _notification(what: int) -> void:
+	# Botón "atrás" de Android: vuelve al menú.
+	if what == NOTIFICATION_WM_GO_BACK_REQUEST:
+		get_tree().change_scene_to_file(MENU_SCENE)
 
 
 func _unhandled_input(event: InputEvent) -> void:

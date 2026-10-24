@@ -14,6 +14,7 @@ config/name="VW T3 Adventure"
 run/main_scene="res://scenes/menu.tscn"
 config/features=PackedStringArray("4.5", "GL Compatibility")
 config/icon="res://assets/icon/icon_512.png"
+config/quit_on_go_back=false
 
 [autoload]
 
