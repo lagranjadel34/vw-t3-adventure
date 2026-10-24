@@ -8,6 +8,11 @@ Motor: Godot 4.5 (`godot/`). Cada cambio en `godot/` que llega a master genera u
 
 Lo más nuevo arriba. El número coincide con el que muestra Obtainium (0.1.N = Release `apk-N`).
 
+### 0.1.57 · 2026-10-24
+- Elegir camperizador: el escaparate enseña cada furgo con su dibujo de 3/4.
+- Ficha técnica con el motor de cada una: Dehler 1.9 gasolina de 90 CV y Carthago 1.6 diésel de 78 CV.
+- La ficha de la Carthago enseña sus dos lados. En el derecho se ven la franja granate, las rejillas de la nevera y el tuareg.
+
 ### 0.1.47 · 2026-10-24
 - Menú "Elegir camperizador": eliges la furgo antes de empezar. Hay dos: la VW T3 Dehler Profi (1983), que sale por defecto, y la Carthago (1982), con su ficha técnica.
 - Configuración tiene Créditos. El menú de título queda en Empezar, Elegir camperizador, Configuración y Salir.
