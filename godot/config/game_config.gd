@@ -148,14 +148,21 @@ const MAPS := {
 		"ambient_exit": "salida_a4",
 		"campo": null,
 		# La T3 sale en el objeto `spawn` (al pie del Puente de Triana, orilla del Arenal).
-		"exits": {"salida_a4": {"to": &"bosque", "at": "entrada_a4", "offset_tiles": Vector2.ZERO, "rot_deg": 90.0}},
+		# Dos puertas a la circunvalación del bosque: se entra por una y se vuelve por la otra.
+		"exits": {
+			"salida_a4": {"to": &"bosque", "at": "entrada_a4", "offset_tiles": Vector2.ZERO, "rot_deg": 90.0},
+			"salida_sur": {"to": &"bosque", "at": "entrada_sur", "offset_tiles": Vector2.ZERO, "rot_deg": 90.0},
+		},
 	},
 	&"bosque": {
 		"json": "res://assets/maps/bosque.json",
 		"tileset": "res://assets/maps/tiles-bosque.png",
 		"ambient_exit": "",
 		"campo": 1.0,
-		"exits": {"vuelta_sevilla": {"to": &"sevilla", "at": "salida_a4", "offset_tiles": Vector2(-8, 0), "rot_deg": -90.0}},
+		"exits": {
+			"vuelta_sevilla": {"to": &"sevilla", "at": "salida_a4", "offset_tiles": Vector2(-8, 0), "rot_deg": -90.0},
+			"vuelta_sevilla_sur": {"to": &"sevilla", "at": "salida_sur", "offset_tiles": Vector2(-8, 0), "rot_deg": -90.0},
+		},
 	},
 }
 # Fundido a negro al cambiar de mapa.

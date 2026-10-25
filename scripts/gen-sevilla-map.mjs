@@ -241,15 +241,24 @@ rect(PE.x - 3, PE.y + PE.r + 1, PE.x, PE.y + PE.r + 3, T.TORRE_PE);
 
 // 10) Salida hacia el bosque: la ciudad acaba en CITY_END y sigue una carretera convencional
 // (dos carriles de 2 tiles, arcén y línea central discontinua) entre campo y algún árbol.
+// Hay dos salidas: la norte (Nervión, A-4 de antes) y la sur (avenida junto a María Luisa); el
+// bosque las une con una circunvalación, así que se entra por una y se vuelve por la otra.
 const EXIT_Y = 58;
+const EXIT2_Y = 112;
 const CITY_END = 194;
-const ROAD = { y0: EXIT_Y + 1, y1: EXIT_Y + 4 }; // asfalto; arcén una fila más fuera
+const roadRows = (exitY) => ({ y0: exitY + 1, y1: exitY + 4 }); // asfalto; arcén una fila más fuera
+const ROAD = roadRows(EXIT_Y);
+const ROAD2 = roadRows(EXIT2_Y);
 rect(CITY_END, 0, W - 1, H - 1, T.PARQUE);
 for (let y = 0; y < H; y++) for (let x = CITY_END; x < W; x++) {
-  if ((x * 7 + y * 13) % 9 === 0 && Math.abs(y - (ROAD.y0 + ROAD.y1) / 2) > 4) set(x, y, T.ARBOL);
+  const far = [ROAD, ROAD2].every((r) => Math.abs(y - (r.y0 + r.y1) / 2) > 4);
+  if ((x * 7 + y * 13) % 9 === 0 && far) set(x, y, T.ARBOL);
 }
-rect(CITY_END, ROAD.y0 - 1, W - 1, ROAD.y1 + 1, T.ARCEN);
-rect(CITY_END, ROAD.y0, W - 1, ROAD.y1, T.ASFALTO);
+for (const [exitY, road] of [[EXIT_Y, ROAD], [EXIT2_Y, ROAD2]]) {
+  rect(CITY_END, road.y0 - 1, W - 1, road.y1 + 1, T.ARCEN);
+  rect(CITY_END, road.y0, W - 1, road.y1, T.ASFALTO);
+  rect(CITY_END - 6, exitY, CITY_END - 1, exitY + 5, T.ASFALTO);
+}
 rect(CASCO.cx + CASCO.rx, EXIT_Y, CITY_END - 1, EXIT_Y + 5, T.ASFALTO);
 
 // 11) Aceras: todo edificio que toca asfalto pasa a ser acera.
@@ -446,14 +455,21 @@ const polyline = (name, pts, estilo) => ({
   polyline: pts.map(([tx, ty]) => ({ x: px(tx), y: px(ty) })),
   properties: [{ name: 'estilo', type: 'string', value: estilo }],
 });
-const roadMid = (ROAD.y0 + ROAD.y1 + 1) / 2;
+const roadLines = (suffix, road) => {
+  const mid = (road.y0 + road.y1 + 1) / 2;
+  return [
+    polyline('eje_carretera' + suffix, [[CITY_END, mid], [W, mid]], 'discontinua'),
+    polyline('borde_norte' + suffix, [[CITY_END, road.y0 + 0.25], [W, road.y0 + 0.25]], 'continua'),
+    polyline('borde_sur' + suffix, [[CITY_END, road.y1 + 0.75], [W, road.y1 + 0.75]], 'continua'),
+  ];
+};
 const objects = [
-  polyline('eje_carretera', [[CITY_END, roadMid], [W, roadMid]], 'discontinua'),
-  polyline('borde_norte', [[CITY_END, ROAD.y0 + 0.25], [W, ROAD.y0 + 0.25]], 'continua'),
-  polyline('borde_sur', [[CITY_END, ROAD.y1 + 0.75], [W, ROAD.y1 + 0.75]], 'continua'),
+  ...roadLines('', ROAD),
+  ...roadLines('_sur', ROAD2),
   // La T3 sale al pie del Puente de Triana, en la orilla del Arenal (Paseo de Colón), mirando al norte.
   point('spawn', 'spawn', riverX(62) + 12, 63),
   { id: oid++, name: 'salida_a4', type: 'salida', x: px(W - 4), y: px(EXIT_Y), width: px(4), height: px(6), rotation: 0, visible: true },  // el id del objeto sigue siendo salida_a4 (lo usa el juego); la carretera ya no es autovía
+  { id: oid++, name: 'salida_sur', type: 'salida', x: px(W - 4), y: px(EXIT2_Y), width: px(4), height: px(6), rotation: 0, visible: true },
   // Dentro del portón: al entrar, el taller. Al salir, la furgo vuelve al carril mirando a la A-4.
   { id: oid++, name: 'taller_karvans', type: 'taller', x: px(KAR.door0), y: px(KAR.y0 + 4), width: px(KAR.door1 - KAR.door0 + 1), height: px(3), rotation: 0, visible: true },
   point('taller_karvans_salida', 'taller_salida', (KAR.door0 + KAR.door1 + 1) / 2, KAR.y0),
@@ -467,7 +483,8 @@ const objects = [
   point('Parque de María Luisa', 'rotulo', 112, 120),
   point('Plaza de España', 'rotulo', 142, 128),
   point('Nervión', 'rotulo', 172, 92),
-  point('Carretera comarcal (al bosque)', 'rotulo', W - 12, EXIT_Y - 2),
+  point('Carretera comarcal (al bosque, norte)', 'rotulo', W - 12, EXIT_Y - 2),
+  point('Carretera comarcal (al bosque, sur)', 'rotulo', W - 12, EXIT2_Y - 2),
   point('Torre del Oro', 'rotulo', ORO.x, ORO.y + 4),
   point('Reales Alcázares', 'rotulo', (ALC.x0 + ALC.x1) / 2, ALC.y1 + 2),
   point('Las Setas', 'rotulo', 112, 45),
