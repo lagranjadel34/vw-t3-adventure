@@ -8,6 +8,12 @@ Motor: Godot 4.5 (`godot/`). Cada cambio en `godot/` que llega a master genera u
 
 Lo más nuevo arriba. El número coincide con el que muestra Obtainium (0.1.N = Release `apk-N`).
 
+### 0.1.75 · 2026-10-25
+- La T3 se ve con más detalle y gira suave, sin saltos entre posiciones, y lleva su sombra.
+- Pasos de cebra con semáforo y línea de detención en los cruces por donde pasa el tráfico (y en alguno más).
+- Los coches paran antes del paso cuando su semáforo está en rojo y esperan a quien esté cruzando.
+- Los peatones cruzan por los pasos cuando les toca; si no, esperan en el bordillo.
+
 ### 0.1.73 · 2026-10-24
 - Ya no se va al bosque por autovía: de Sevilla sale una carretera convencional de dos carriles, con arcén y línea central discontinua, que cruza el campo hasta el bosque.
 - En el bosque la carretera entra recta desde la ciudad y luego serpentea entre olivares y pinos hasta el cruce con la pista forestal que lleva al spot.
