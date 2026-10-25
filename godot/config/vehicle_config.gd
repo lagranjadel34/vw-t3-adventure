@@ -1,6 +1,6 @@
 class_name VehicleConfig
 ## Furgonetas elegibles en "Elegir camperizador". La primera es la de por defecto.
-## Cada una trae sus hojas de sprite (mismo formato: ver tools/sprites/export_godot.py)
+## Cada una trae su vista superior en HD por estado (ver tools/sprites/top_hd.py)
 ## y su camperización (clave de GameConfig.VAN_LOAD_PRESETS_KG, que da la carga en kg).
 ## Ficha técnica: vistas laterales recortadas de la ficha dibujada por Ara y datos.
 
@@ -11,7 +11,7 @@ const VEHICLES: Array[Dictionary] = [
 		"anio": 1983,
 		"detalle": ["Motor 1.9 gasolina · 90 CV", "Techo alto de fibra", "Caja de 4 marchas"],
 		"motor": "1.9 gasolina, 90 CV",
-		"sprites": "res://assets/sprites/dehler/d%d%s.png",
+		"sprites": "res://assets/sprites/dehler/top_d%d%s.png",
 		"giro": "res://assets/sprites/dehler/garage.png",
 		"laterales": ["res://assets/vehicles/dehler_lateral.png", "res://assets/vehicles/dehler_derecha.png"],
 		"carga": "camper",
@@ -24,7 +24,7 @@ const VEHICLES: Array[Dictionary] = [
 		"anio": 1982,
 		"detalle": ["Motor 1.6 diésel · 78 CV", "Techo alto blanco", "Llantas de aleación"],
 		"motor": "1.6 diésel, 78 CV",
-		"sprites": "res://assets/sprites/carthago/d%d%s.png",
+		"sprites": "res://assets/sprites/carthago/top_d%d%s.png",
 		"giro": "res://assets/sprites/carthago/garage.png",
 		"laterales": ["res://assets/vehicles/carthago_lateral.png", "res://assets/vehicles/carthago_derecha.png"],
 		"carga": "camper",

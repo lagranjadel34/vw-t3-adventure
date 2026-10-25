@@ -2,9 +2,13 @@ class_name StreetProps
 extends Node2D
 ## Detalles de la calle con la misma perspectiva que los edificios (CityView.project):
 ## semáforos que cambian de color, farolas y los arcos de hierro del puente de Triana.
+## Guarda también los pasos de peatones, que consultan coches y peatones.
 
 ## Semáforos: [{pos: Vector2, eje: "h" | "v"}]. Los coches los consultan.
 var lights: Array[Dictionary] = []
+## Pasos de peatones: [{rect: Rect2, eje, dir: Vector2 (sentido de los coches que llegan),
+## busy: bool (hay alguien cruzando; lo actualiza Pedestrians)}].
+var crossings: Array[Dictionary] = []
 var _lamps: PackedVector2Array = []
 var _bridges: Array[Rect2] = []
 ## Barandillas: pares de puntos (de, a) a nivel de calle.
@@ -18,6 +22,8 @@ static func create(map: TiledMap) -> StreetProps:
 	props.name = "StreetProps"
 	for o: Dictionary in map.objects_of_type(GameConfig.MAP_LIGHT_TYPE):
 		props.lights.append({"pos": Vector2(o.x, o.y), "eje": TiledMap.object_property(o, "eje", "h")})
+	for o: Dictionary in map.objects_of_type(GameConfig.MAP_CROSSING_TYPE):
+		props.crossings.append(crossing_of(o))
 	for o: Dictionary in map.objects_of_type(GameConfig.MAP_LAMP_TYPE):
 		props._lamps.append(Vector2(o.x, o.y))
 	for o: Dictionary in map.objects_of_type(GameConfig.MAP_BRIDGE_ARCHES_TYPE):
@@ -32,15 +38,36 @@ static func create(map: TiledMap) -> StreetProps:
 	return props
 
 
+static func crossing_of(o: Dictionary) -> Dictionary:
+	return {
+		"rect": Rect2(o.x, o.y, o.width, o.height),
+		"eje": TiledMap.object_property(o, "eje", "h"),
+		"dir": Vector2(TiledMap.object_property(o, "dir_x", 1), TiledMap.object_property(o, "dir_y", 0)),
+		"busy": false,
+	}
+
+
 ## Color de un semáforo de ese eje ahora: "green", "amber" o "red".
 func light_state(eje: String) -> String:
-	var phase := GameConfig.LIGHT_GREEN_S + GameConfig.LIGHT_AMBER_S
-	var t := fmod(_clock + (phase if eje == "v" else 0.0), phase * 2)
+	var t := _cycle(eje)
 	if t < GameConfig.LIGHT_GREEN_S:
 		return "green"
-	if t < phase:
+	if t < GameConfig.LIGHT_GREEN_S + GameConfig.LIGHT_AMBER_S:
 		return "amber"
 	return "red"
+
+
+## ¿Puede un peatón empezar a cruzar una calle de ese eje? Solo al principio del rojo de
+## los coches, para que le dé tiempo a llegar antes de que vuelvan a pasar.
+func may_cross(eje: String) -> bool:
+	var red_for := _cycle(eje) - GameConfig.LIGHT_GREEN_S - GameConfig.LIGHT_AMBER_S
+	return red_for >= 0.0 and red_for < GameConfig.PED_CROSS_WINDOW_S
+
+
+## Segundos desde que se puso verde ese eje (los dos ejes van desfasados medio ciclo).
+func _cycle(eje: String) -> float:
+	var phase := GameConfig.LIGHT_GREEN_S + GameConfig.LIGHT_AMBER_S
+	return fmod(_clock + (phase if eje == "v" else 0.0), phase * 2)
 
 
 func _process(delta: float) -> void:

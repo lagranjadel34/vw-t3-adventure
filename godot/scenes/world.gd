@@ -86,10 +86,10 @@ func _load_map(id: StringName) -> void:
 	# Sombras sobre el suelo y bajo la furgo.
 	_map_root.add_child(_city.shadows)
 	# Vida en la calle: peatones (bajo la furgo), semáforos y farolas (altos) y tráfico.
-	_map_root.add_child(Pedestrians.create(_map, _van))
 	_street = StreetProps.create(_map)
 	_street.z_index = GameConfig.STREET_Z
 	add_child(_street)
+	_map_root.add_child(Pedestrians.create(_map, _van, _street))
 	_traffic = Traffic.create(_map, _van, _street)
 	add_child(_traffic)
 	for o: Dictionary in _map.objects:

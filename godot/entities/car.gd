@@ -1,7 +1,8 @@
 class_name Car
 extends AnimatableBody2D
 ## Coche del tráfico: recorre su ruta (circuito cerrado por el centro del carril) y frena
-## si tiene algo delante (la T3, otro coche) o un semáforo en rojo de su eje.
+## si tiene algo delante (la T3, otro coche), un paso de peatones con su semáforo en rojo
+## o alguien cruzando.
 ## No gira el cuerpo: el sprite elige el frame según el rumbo, como la T3.
 
 var route: PackedVector2Array
@@ -88,14 +89,37 @@ func _blocked() -> bool:
 			return true
 	if street == null:
 		return false
-	var eje := "h" if absf(heading.x) > absf(heading.y) else "v"
-	if street.light_state(eje) == "green":
-		return false
-	for l in street.lights:
-		if l.eje != eje:
-			continue
-		var d: Vector2 = l.pos - global_position
-		var ahead := d.dot(heading)
-		if ahead > GameConfig.LIGHT_STOP_AHEAD.x and ahead < GameConfig.LIGHT_STOP_AHEAD.y and absf(d.cross(heading)) < GameConfig.LIGHT_STOP_SIDE:
+	for c in street.crossings:
+		if _stops_at(c):
 			return true
 	return false
+
+
+## ¿Tiene que parar antes de este paso? Mide, a lo largo de la calle (no del rumbo, que
+## baila en las curvas de la ruta), lo que le falta al morro para llegar a la línea.
+func _stops_at(c: Dictionary) -> bool:
+	var toward := heading.dot(c.dir)
+	if absf(toward) < GameConfig.CROSSING_INCOMING_DOT:
+		return false
+	var axis: Vector2 = c.dir if toward > 0.0 else -c.dir
+	var r: Rect2 = c.rect
+	var d := r.get_center() - global_position
+	if absf(d.cross(axis)) > absf(r.size.dot(axis.orthogonal())) / 2.0:
+		return false
+	var depth := absf(r.size.dot(axis)) / 2.0
+	var gap := d.dot(axis) - depth - GameConfig.CROSSING_FRONT
+	# Alguien cruzando delante: se espera aunque el semáforo esté en verde.
+	if c.busy and gap > -depth * 2.0 - GameConfig.CROSSING_FRONT and gap < GameConfig.CAR_STOP_DISTANCE:
+		return true
+	# El semáforo es de quien llega al cruce, no de quien sale de él.
+	if toward < 0.0:
+		return false
+	var stop_d := speed * speed / (2.0 * GameConfig.CAR_BRAKE)
+	if gap < -GameConfig.CROSSING_STOP_MARGIN or gap > stop_d + GameConfig.CROSSING_STOP_MARGIN:
+		return false
+	match street.light_state(c.eje):
+		"green":
+			return false
+		"amber":
+			return gap > stop_d * GameConfig.CROSSING_AMBER_COMMIT
+	return true

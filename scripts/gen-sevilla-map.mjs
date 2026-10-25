@@ -302,23 +302,6 @@ for (let y = 1; y < H - 1; y++) for (let x = 1; x < W - 1; x++) {
   if (!crowded && trnd() < 0.18) set(x, y, T.NARANJO);
 }
 
-// 14) Semáforos en esquinas de manzana. `eje`: h = regula a quien va de este a oeste
-// (o al revés), v = de norte a sur. Los coches paran en rojo.
-const lights = [];
-for (let y = 1; y < H - 1; y++) for (let x = 1; x < W - 1; x++) {
-  if (get(x, y) !== T.ACERA || nearTriana(x, y)) continue;
-  for (const [dx, dy] of [[1, 1], [1, -1], [-1, 1], [-1, -1]]) {
-    if (!(isRoad(get(x + dx, y)) && isRoad(get(x, y + dy)) && isRoad(get(x + dx, y + dy)))) continue;
-    if (lights.some((l) => Math.abs(l.x - x) + Math.abs(l.y - y) < 14) || trnd() > 0.3) continue;
-    lights.push({ x: x + 0.5 + dx * 0.35, y: y + 0.5 + dy * 0.35, eje: trnd() < 0.5 ? 'h' : 'v' });
-  }
-}
-// Los del puente de Triana: cruce con Betis y con Reyes Católicos.
-for (const [x, y] of [[TRIANA.rail0, TRIANA.y0 - 0.2], [TRIANA.rail0, TRIANA.y1 + 1.2], [TRIANA.rail1 + 1, TRIANA.y0 - 0.2], [TRIANA.rail1 + 1, TRIANA.y1 + 1.2]]) {
-  lights.push({ x, y, eje: 'h' });
-  lights.push({ x: x + 0.01, y, eje: 'v' });
-}
-
 // 15) Rutas de los coches (circulan por la derecha). Cada ruta es un circuito cerrado
 // por el centro de su carril; se descarta si algún tramo pisa algo que no es calzada.
 const drivable = new Set([T.ASFALTO, T.PUENTE, T.PUENTE_TRIANA]);
@@ -372,6 +355,86 @@ rect(KAR.x0 + 1, KAR.y0 + 3, KAR.x1 - 1, KAR.y1 - 1, T.NAVE);
 rect(KAR.door0, KAR.y0, KAR.door1, KAR.y0 + 1, T.ASFALTO); // carril desde la A-4
 rect(KAR.door0, KAR.y0 + 2, KAR.door1, KAR.y0 + 2, T.ENTRADA);
 rect(KAR.door0, KAR.y0 + 3, KAR.door1, KAR.y0 + 6, T.TALLER_SUELO); // portón abierto
+
+// 16) Pasos de peatones con semáforo a la entrada de algunos cruces. Un paso cruza una calle
+// de acera a acera en la última columna (o fila) antes del cruce. `eje`: h = la calle va de
+// este a oeste y el semáforo para a esos coches (v = de norte a sur). `dir_x`/`dir_y`: sentido
+// de los coches que llegan al cruce por ese paso (circulan por la derecha); el semáforo
+// queda en su acera, antes del paso.
+const WALK = new Set([T.ACERA, T.ALBERO, T.PARQUE]);
+const crossings = [];
+const lights = [];
+const MIN_ROAD = 2;
+const MAX_ROAD = 8;
+const CROSSING_SPACING = 18; // tiles entre cruces con paso fuera de las rutas
+const ROUTE_SPACING = 8; // en las calles con tráfico, casi todos los cruces
+const ARM_MIN = 3; // tiles de calle con acera antes del cruce (no en manzanas cortas)
+// Tiles por los que pasa el tráfico: ahí los pasos son seguros (el coche atiende al semáforo).
+const routeTiles = new Set();
+for (const r of routes) r.pts.forEach(([x0, y0], i) => {
+  const [x1, y1] = r.pts[(i + 1) % r.pts.length];
+  for (let k = 0; k <= 16; k++) routeTiles.add(`${Math.floor(x0 + (x1 - x0) * k / 16)},${Math.floor(y0 + (y1 - y0) * k / 16)}`);
+});
+// Tramo de calzada perpendicular a (ax, ay) que pasa por (x, y), con acera a los dos lados.
+const span = (x, y, ax, ay) => {
+  const [px_, py_] = [ay, ax]; // a lo ancho de la calle
+  if (!isRoad(get(x, y))) return null;
+  let a = 0;
+  while (inside(x - px_ * (a + 1), y - py_ * (a + 1)) && isRoad(get(x - px_ * (a + 1), y - py_ * (a + 1)))) a++;
+  let b = 0;
+  while (inside(x + px_ * (b + 1), y + py_ * (b + 1)) && isRoad(get(x + px_ * (b + 1), y + py_ * (b + 1)))) b++;
+  const len = a + b + 1;
+  const s0 = [x - px_ * a, y - py_ * a];
+  const end0 = get(s0[0] - px_, s0[1] - py_);
+  const end1 = get(x + px_ * (b + 1), y + py_ * (b + 1));
+  return { s0, len, walled: WALK.has(end0) && WALK.has(end1) };
+};
+// Candidatos: cada brazo de cada cruce, agrupados por cruce (hub).
+const hubs = [];
+for (const [ax, ay, eje] of [[1, 0, 'h'], [0, 1, 'v']]) {
+  for (let y = 2; y < H - 2; y++) for (let x = 2; x < CITY_END - 2; x++) {
+    const sp = span(x, y, ax, ay);
+    // Solo el primer tile del tramo (s0) para no repetir el mismo paso.
+    if (!sp || sp.s0[0] !== x || sp.s0[1] !== y || !sp.walled || sp.len < MIN_ROAD || sp.len > MAX_ROAD) continue;
+    for (const side of [1, -1]) {
+      // ¿El siguiente tramo hacia el cruce ya no tiene acera (la calle se abre)?
+      const nx = x + ax * side;
+      const ny = y + ay * side;
+      const next = span(nx, ny, ax, ay);
+      if (!next || next.walled) continue;
+      let arm = 1;
+      while (arm < ARM_MIN) {
+        const back = span(x - ax * side * arm, y - ay * side * arm, ax, ay);
+        if (!back || !back.walled || back.len !== sp.len) break;
+        arm++;
+      }
+      if (arm < ARM_MIN) continue;
+      // Llegan al cruce en sentido `side`; por la derecha: si van a +x, carril de abajo.
+      const c = { x, y, w: ax ? 1 : sp.len, h: ax ? sp.len : 1, len: sp.len, eje, dir_x: ax * side, dir_y: ay * side };
+      c.route = Array.from({ length: c.w * c.h }, (_, i) => `${x + (i % c.w)},${y + Math.floor(i / c.w)}`).some((k) => routeTiles.has(k));
+      const hub = [nx + ay * sp.len / 2, ny + ax * sp.len / 2];
+      let h = hubs.find((o) => Math.abs(o.x - hub[0]) + Math.abs(o.y - hub[1]) < MAX_ROAD + 2);
+      if (!h) hubs.push(h = { x: hub[0], y: hub[1], arms: [] });
+      h.arms.push(c);
+    }
+  }
+}
+// Primero los cruces con tráfico; luego, alguno suelto por el resto de la ciudad.
+const chosen = [];
+const far = (h, d) => !chosen.some((o) => Math.abs(o.x - h.x) + Math.abs(o.y - h.y) < d);
+for (const h of hubs) if (h.arms.some((c) => c.route) && far(h, ROUTE_SPACING)) chosen.push(h);
+for (const h of hubs) if (!chosen.includes(h) && far(h, CROSSING_SPACING) && trnd() < 0.25) chosen.push(h);
+for (const h of chosen) for (const c of h.arms) {
+  // Un solo paso por calle a cada lado de un cruce estrecho.
+  if (crossings.some((o) => o.eje === c.eje && Math.abs(o.x - c.x) + Math.abs(o.y - c.y) <= 3)) continue;
+  crossings.push(c);
+  const right = [-c.dir_y, c.dir_x]; // a la derecha de quien llega
+  const back = [-c.dir_x, -c.dir_y];
+  const half = c.len / 2 + 0.35;
+  const cx = c.x + c.w / 2;
+  const cy = c.y + c.h / 2;
+  lights.push({ x: cx + right[0] * half + back[0] * 0.6, y: cy + right[1] * half + back[1] * 0.6, eje: c.eje });
+}
 
 // ---------- Objetos: spawn, salida y rótulos ----------
 const px = (t) => t * TILE;
@@ -427,6 +490,14 @@ const objects = [
   ...Array.from({ length: Math.floor((TRIANA.rail1 - TRIANA.rail0) / 3) + 1 }, (_, i) => TRIANA.rail0 + 0.5 + i * 3).flatMap((x) => [
     point('farola', 'farola', x, TRIANA.y0 + 0.5), point('farola', 'farola', x, TRIANA.y1 + 0.5)]),
   ...lights.map((l) => ({ ...point('semaforo', 'semaforo', l.x, l.y), properties: [{ name: 'eje', type: 'string', value: l.eje }] })),
+  ...crossings.map((c) => ({
+    id: oid++, name: 'paso', type: 'paso', x: px(c.x), y: px(c.y), width: px(c.w), height: px(c.h), rotation: 0, visible: true,
+    properties: [
+      { name: 'eje', type: 'string', value: c.eje },
+      { name: 'dir_x', type: 'int', value: c.dir_x },
+      { name: 'dir_y', type: 'int', value: c.dir_y },
+    ],
+  })),
   ...routes.map((r) => ({
     id: oid++, name: r.name, type: 'ruta', x: 0, y: 0, rotation: 0, visible: true,
     polyline: r.pts.map(([x, y]) => ({ x: px(x), y: px(y) })),

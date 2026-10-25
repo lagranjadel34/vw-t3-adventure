@@ -1,50 +1,50 @@
 class_name VanSprite
 extends Sprite2D
-## Sprite isométrico de la T3: no gira con la furgo, elige el frame de la hoja según
-## el rumbo, el volante y lo que han rodado las ruedas. Echa humo por el escape.
+## Sprite de la T3: la vista superior en alta resolución gira con la furgo (filtro lineal y
+## mipmaps, sin escalones). Lleva su sombra en el suelo y echa humo por el escape.
 
 var _van: Van
 var _textures := {}
-var _wheel_px := 0.0
+var _shadow := Sprite2D.new()
 var _smoke: CPUParticles2D
 var _smoke_level := -1
 
 
 func _ready() -> void:
 	_van = get_parent()
-	var sheet_path: String = VehicleConfig.chosen(self).sprites
+	var path: String = VehicleConfig.chosen(self).sprites
 	for damage in GameConfig.VAN_DAMAGE_LEVELS:
 		for lights: bool in [false, true]:
 			var suffix := GameConfig.VAN_SPRITE_LIGHTS_SUFFIX if lights else ""
-			_textures[[damage, lights]] = load(sheet_path % [damage, suffix])
-	hframes = GameConfig.VAN_SPRITE_DIRECTIONS
-	vframes = GameConfig.VAN_SPRITE_STEER_ROWS * GameConfig.VAN_SPRITE_WHEEL_FRAMES
-	offset = GameConfig.VAN_SPRITE_OFFSET
+			_textures[[damage, lights]] = _with_mipmaps(load(path % [damage, suffix]))
+	texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+	scale = Vector2.ONE / GameConfig.VAN_TOP_HD_SCALE
+	_shadow.texture_filter = texture_filter
+	_shadow.scale = scale
+	_shadow.modulate = GameConfig.VAN_SHADOW_COLOR
 	_smoke = _make_smoke()
-	# Detrás de la carrocería.
+	# Sombra y humo, detrás de la carrocería.
+	_van.add_child.call_deferred(_shadow)
+	_van.move_child.call_deferred(_shadow, 0)
 	_van.add_child.call_deferred(_smoke)
 	_van.move_child.call_deferred(_smoke, 0)
 
 
-func _process(delta: float) -> void:
-	global_rotation = 0.0
+static func _with_mipmaps(tex: Texture2D) -> Texture2D:
+	var img := tex.get_image()
+	img.decompress()
+	img.generate_mipmaps()
+	return ImageTexture.create_from_image(img)
+
+
+func _process(_delta: float) -> void:
 	texture = _textures[[_van.damage_level, _van.lights_on]]
-
-	# Rumbo en pantalla (0 = derecha, horario) -> columna.
-	var heading := wrapf(_van.rotation - PI / 2, 0.0, TAU)
-	var step := TAU / GameConfig.VAN_SPRITE_DIRECTIONS
-	var column := int(round(heading / step)) % GameConfig.VAN_SPRITE_DIRECTIONS
-
-	var steer_row := 1
-	if _van.steer < -GameConfig.VAN_SPRITE_STEER_THRESHOLD:
-		steer_row = 0
-	elif _van.steer > GameConfig.VAN_SPRITE_STEER_THRESHOLD:
-		steer_row = 2
-	_wheel_px += _van.speed * delta
-	var wheel := posmod(int(_wheel_px / GameConfig.VAN_WHEEL_FRAME_PX), GameConfig.VAN_SPRITE_WHEEL_FRAMES)
-	frame = (steer_row * GameConfig.VAN_SPRITE_WHEEL_FRAMES + wheel) * GameConfig.VAN_SPRITE_DIRECTIONS + column
-
-	_update_smoke(heading)
+	# Morro de la textura a la derecha; el de la furgo, hacia -y local.
+	rotation = -PI / 2
+	_shadow.texture = texture
+	_shadow.global_rotation = global_rotation
+	_shadow.global_position = global_position + GameConfig.VAN_SHADOW_OFFSET
+	_update_smoke(wrapf(_van.rotation - PI / 2, 0.0, TAU))
 
 
 func _update_smoke(heading: float) -> void:
