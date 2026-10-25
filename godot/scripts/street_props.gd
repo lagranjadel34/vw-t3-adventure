@@ -96,7 +96,7 @@ func _draw() -> void:
 		if not view.has_point(p):
 			continue
 		var top := CityView.project(p, GameConfig.LAMP_HEIGHT, center)
-		draw_line(p, top, GameConfig.LAMP_POLE)
+		draw_line(p, top, GameConfig.LAMP_POLE, GameConfig.LINE_WIDTH)
 		draw_circle(top, GameConfig.LAMP_RADIUS, GameConfig.LAMP_GLASS)
 		draw_rect(Rect2(top - Vector2(GameConfig.LAMP_RADIUS, GameConfig.LAMP_RADIUS + 1), Vector2(GameConfig.LAMP_RADIUS * 2, 1)), GameConfig.LAMP_POLE)
 
@@ -106,7 +106,7 @@ func _draw() -> void:
 		if not view.has_point(p):
 			continue
 		var top := CityView.project(p, GameConfig.LIGHT_POLE_HEIGHT, center)
-		draw_line(p, top, c.pole)
+		draw_line(p, top, c.pole, GameConfig.LINE_WIDTH)
 		var box := Rect2(top - GameConfig.LIGHT_BOX / 2, GameConfig.LIGHT_BOX)
 		draw_rect(box, c.box)
 		var state := light_state(l.eje)
@@ -123,7 +123,7 @@ func _draw_rail(a: Vector2, b: Vector2, center: Vector2) -> void:
 	var n := int(a.distance_to(b) / GameConfig.BRIDGE_RAIL_POST_SPACING)
 	for i in n + 1:
 		var p := a.lerp(b, float(i) / n)
-		draw_line(p, CityView.project(p, h, center), color)
+		draw_line(p, CityView.project(p, h, center), color, GameConfig.LINE_WIDTH)
 	draw_line(CityView.project(a, h, center), CityView.project(b, h, center), color, 2.0)
 
 

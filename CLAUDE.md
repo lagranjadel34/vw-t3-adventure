@@ -10,7 +10,7 @@ Estado: ver docs/HITOS.md
 La versión Phaser 3 + TypeScript (`src/`, `public/`) queda congelada como referencia: solo se toca si hace falta.
 
 ## Reglas técnicas
-- Resolución interna 320x180, `pixelArt: true`, escala FIT. Tiles 16x16.
+- Resolución lógica 320x180 (Godot: stretch `canvas_items`, se dibuja a la resolución de la pantalla: tiles pixelados con filtro nearest, T3 y polígonos nítidos; líneas con `GameConfig.LINE_WIDTH`). Tiles 16x16.
 - Cámara top-down. Controles: WASD/flechas y, en táctil, joystick flotante (mitad izquierda) = volante y pedales en pantalla (abajo derecha) = acelerar/frenar; sin acelerador no hay potencia; palanca de cambios encima de los pedales (deslizar = subir/bajar, toque = auto/manual; teclado Q/E/M). Zonas de toque >= `TAP_MIN_HEIGHT` (`src/config/touch.ts`).
 - Godot: assets en `godot/assets/`, escenas en `godot/scenes/`, entidades en `godot/entities/`, UI en `godot/ui/`.
 - Constantes (tamaños, velocidades) en `godot/config/game_config.gd`. Sin números mágicos.

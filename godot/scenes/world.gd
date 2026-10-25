@@ -213,6 +213,7 @@ func _countryside() -> float:
 func _make_label(text: String, pos: Vector2) -> Label:
 	var label := Label.new()
 	label.text = text
+	label.add_theme_font_override("font", UiKit.fredoka())
 	label.add_theme_font_size_override("font_size", GameConfig.MAP_LABEL_FONT_SIZE)
 	label.add_theme_color_override("font_color", GameConfig.MAP_LABEL_COLOR)
 	label.add_theme_color_override("font_outline_color", GameConfig.MAP_LABEL_OUTLINE_COLOR)

@@ -6,6 +6,10 @@ class_name GameConfig
 const GAME_WIDTH := 320
 const GAME_HEIGHT := 180
 const TILE_SIZE := 16
+# El juego se dibuja a la resolución de la pantalla (stretch canvas_items): la lógica sigue en
+# 320x180 y los tiles se amplían pixelados, pero la T3 y los polígonos salen nítidos. Las
+# líneas llevan grosor en px de juego (sin él serían de 1 px de pantalla, un pelo).
+const LINE_WIDTH := 1.0
 
 # --- Conducción de la T3 ---
 # Velocidad en pantalla: la furgo mide 64 px y a 100 km/h solo hacía 2 furgos por segundo (una T3
