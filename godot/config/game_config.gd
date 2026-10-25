@@ -107,6 +107,32 @@ const METERS_PER_KM := 1000.0
 # Kilometraje con el que sale la T3 (una furgo de 1980 ya tiene sus km).
 const ODOMETER_START_KM := 184263.0
 
+# --- Rosa de los vientos (arriba a la izquierda) ---
+# Norte arriba, como el mapa. El punto es la furgo: su sitio dentro de la rosa es su sitio
+# en el mapa (el rectángulo del mapa encaja dentro del círculo).
+const COMPASS_RADIUS := 22.0
+const COMPASS_MARGIN := 4.0
+const COMPASS_POINT_LONG := 0.66 # puntas N/S/E/O, en fracción del radio
+const COMPASS_POINT_SHORT := 0.42 # diagonales
+const COMPASS_POINT_WIDTH := 0.16
+const COMPASS_MAP_FIT := 0.7 # fracción del radio que ocupa la esquina del mapa
+const COMPASS_LETTER_SIZE := 7
+const COMPASS_LETTER_RADIUS := 0.84 # letras en el borde, a continuación de cada punta
+const COMPASS_DOT_RADIUS := 2.2
+const COMPASS_BLINK_HZ := 1.5
+const COMPASS_LETTERS := {"N": Vector2.UP, "E": Vector2.RIGHT, "S": Vector2.DOWN, "O": Vector2.LEFT}
+const COMPASS_COLORS := {
+	"disc": Color(0.05, 0.05, 0.06, 0.95),
+	"rim": Color("c9bf9f"),
+	"point": Color("e8e2cf"),
+	"point_dark": Color("8a8370"),
+	"north": Color("d63a2f"),
+	"letter": Color("e8e2cf"),
+	"map": Color(1, 1, 1, 0.18),
+	"dot": Color("ffd23a"),
+	"dot_edge": Color("15171a"),
+}
+
 # --- Cuentakilómetros de rodillos (arriba a la derecha), portado de src/config/odometer.ts ---
 # Rodillos: enteros + 1 de décimas (colores invertidos, como en el VW original).
 const ODOMETER_INT_DIGITS := 6
