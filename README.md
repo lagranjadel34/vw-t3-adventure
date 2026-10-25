@@ -8,6 +8,9 @@ Motor: Godot 4.5 (`godot/`). Cada cambio en `godot/` que llega a master genera u
 
 Lo más nuevo arriba. El número coincide con el que muestra Obtainium (0.1.N = Release `apk-N`).
 
+### 0.1.77 · 2026-10-25
+- El juego se ve en alta resolución: la T3 con todo el detalle de su dibujo, y los edificios y textos con bordes finos. El suelo sigue pixelado.
+
 ### 0.1.75 · 2026-10-25
 - La T3 se ve con más detalle y gira suave, sin saltos entre posiciones, y lleva su sombra.
 - Pasos de cebra con semáforo y línea de detención en los cruces por donde pasa el tráfico (y en alguno más).
