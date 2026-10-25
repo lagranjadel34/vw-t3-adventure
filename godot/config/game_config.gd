@@ -496,3 +496,12 @@ const LEVER_COLORS := {
 	"mode_auto": Color("6fbf4a"),
 	"mode_manual": Color("ffd24d"),
 }
+
+# --- Spot de acampada: puzzle de calzos (entities/camp_leveling.gd) ---
+# Piezas apilables (cm), cuántas hay de cada tamaño y desnivel del terreno por rueda
+# (fl delantera izq., fr delantera der., rl trasera izq., rr trasera der.; cm sobre el suelo base).
+const CAMP_PIECES_CM: Array[int] = [4, 7, 10, 13]
+const CAMP_PIECES_PER_SIZE := 2
+const CAMP_GROUND_CM := {&"fl": 0.0, &"fr": 6.0, &"rl": -3.0, &"rr": 3.0}
+# Nivelada: las cuatro ruedas a menos de esta diferencia (cm).
+const CAMP_LEVEL_TOL_CM := 1.0
