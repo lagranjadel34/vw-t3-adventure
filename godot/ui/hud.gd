@@ -8,6 +8,7 @@ var gas: Pedal
 var brake: Pedal
 var lever: GearLever
 var odometer: Odometer
+var compass: Compass
 
 # Dedos apoyados ahora mismo: índice -> posición en pantalla.
 var _touches := {}
@@ -23,6 +24,8 @@ func _ready() -> void:
 	add_child(brake)
 	odometer = Odometer.new()
 	add_child(odometer)
+	compass = Compass.new()
+	add_child(compass)
 
 
 ## La palanca necesita la caja de cambios de la furgo (la pone la escena).

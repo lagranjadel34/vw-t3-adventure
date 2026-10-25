@@ -186,6 +186,8 @@ func _process(delta: float) -> void:
 	# La cámara sigue al eje delantero, así en pantalla se ve el giro sobre el morro.
 	_camera.global_position = _van.front
 	_hud.odometer.set_km(GameConfig.ODOMETER_START_KM + _van.trip_km)
+	_hud.compass.aspect = _map.size_px.x / _map.size_px.y
+	_hud.compass.set_van(_van.global_position / _map.size_px)
 
 	# Más velocidad, más visión: la cámara se aleja suavemente.
 	var t := minf(absf(_van.speed) / GameConfig.VAN_MAX_SPEED, 1.0)
