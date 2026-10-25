@@ -74,7 +74,7 @@ func _draw() -> void:
 			&"spire":
 				_draw_spire(p, center)
 			&"edge":
-				draw_line(project(p.a, p.h, center), project(p.b, p.h, center), (p.props.tejado as Color).darkened(GameConfig.CITY_EAVE_DARKEN))
+				draw_line(project(p.a, p.h, center), project(p.b, p.h, center), (p.props.tejado as Color).darkened(GameConfig.CITY_EAVE_DARKEN), GameConfig.LINE_WIDTH)
 
 
 ## Punto del mundo a altura z, tal como lo ve la cámara.
