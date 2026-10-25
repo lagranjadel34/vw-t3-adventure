@@ -34,22 +34,18 @@ const VAN_BODY_RADIUS := 14.0
 # Largo de la furgo para las físicas (ejes, batalla). Antes salía del alto del sprite cenital.
 const VAN_LENGTH_PX := 64.0
 
-# --- Sprite isométrico de la T3 Dehler (hojas generadas con tools/sprites/export_godot.py) ---
-# Una hoja por estado: d<daño>.png y d<daño>_luces.png. Columnas = rumbos; filas =
-# volante (izq, recto, dcha) × frames de rueda. El sprite no gira: se elige el frame.
+# --- Sprite de la T3 (texturas generadas con tools/sprites/top_hd.py) ---
+# Vista superior en alta resolución, una por estado: top_d<daño>.png y top_d<daño>_luces.png,
+# morro a la derecha. Se gira con la furgo, con filtro lineal y mipmaps: sin escalones.
 const VAN_SPRITE_LIGHTS_SUFFIX := "_luces"
-const VAN_SPRITE_DIRECTIONS := 24
-const VAN_SPRITE_WHEEL_FRAMES := 4
-const VAN_SPRITE_STEER_ROWS := 3
-# Volante por encima de esto (en [-1, 1]) muestra las ruedas giradas.
-const VAN_SPRITE_STEER_THRESHOLD := 0.33
-# Celda 80x80 con el centro de la furgo (en el suelo) en (40, 40).
-const VAN_SPRITE_OFFSET := Vector2.ZERO
-# Escala y cámara con las que se generaron las hojas (cenital con perspectiva, como el mapa).
+# Px de textura por px de juego (HD_SCALE en top_hd.py).
+const VAN_TOP_HD_SCALE := 4.0
+# Sombra: la silueta desplazada en el suelo (px) y semitransparente.
+const VAN_SHADOW_OFFSET := Vector2(2, 3)
+const VAN_SHADOW_COLOR := Color(0, 0, 0, 0.3)
+# Escala y cámara del escape (cenital, como el mapa).
 const VAN_SPRITE_PX_PER_M := 13.0
 const VAN_SPRITE_CAMERA_DEG := 90.0
-# Avance (px) que hace pasar un frame de la rueda.
-const VAN_WHEEL_FRAME_PX := 3.0
 # Estados de daño de la carrocería (0 bien · 1 desgastado · 2 averiado · 3 crítico).
 const VAN_DAMAGE_LEVELS := 4
 
@@ -245,6 +241,7 @@ const CITY_PATTERNS := {
 # --- Vida en la calle: tráfico, semáforos, farolas y peatones (objetos del mapa) ---
 const MAP_ROUTE_TYPE := "ruta"
 const MAP_LIGHT_TYPE := "semaforo"
+const MAP_CROSSING_TYPE := "paso"
 const MAP_LAMP_TYPE := "farola"
 const MAP_BRIDGE_ARCHES_TYPE := "puente_arcos"
 const STREET_Z := 1 # postes y arcos, a la altura de los edificios
@@ -269,9 +266,20 @@ const LIGHT_GREEN_S := 6.0
 const LIGHT_AMBER_S := 1.5
 const LIGHT_POLE_HEIGHT := 22.0
 const LIGHT_BOX := Vector2(3, 7)
-# Los coches paran ante un rojo de su eje si está a esta distancia por delante y de lado.
-const LIGHT_STOP_AHEAD := Vector2(6, 34)
-const LIGHT_STOP_SIDE := 72.0
+# Pasos de peatones (objetos `paso`): cebra y línea de detención antes del paso.
+const ZEBRA_PERIOD := 4.0 # px entre el inicio de una franja y la siguiente
+const ZEBRA_STRIPE := 2.0
+const ZEBRA_MARGIN := 2.0 # px libres a cada lado de las franjas
+const ZEBRA_COLOR := Color(0.92, 0.9, 0.82)
+const STOP_LINE_GAP := 3.0 # px entre la línea de detención y el paso
+# Los coches que llegan al paso paran en rojo (en ámbar, solo si les da para frenar)
+# con el morro a CROSSING_STOP_MARGIN px de la línea; ceden a quien esté cruzando.
+const CROSSING_STOP_MARGIN := 6.0
+const CROSSING_FRONT := 12.0 # del centro del coche al morro (px)
+const CROSSING_AMBER_COMMIT := 0.6 # en ámbar sigue si ya está a menos de esta parte de su frenada
+const CROSSING_INCOMING_DOT := 0.3 # va hacia el cruce (también en diagonal): el semáforo es suyo
+# Los peatones solo empiezan a cruzar al principio de su verde (rojo de los coches).
+const PED_CROSS_WINDOW_S := 3.0
 const LIGHT_COLORS := {
 	"pole": Color("2a2e33"),
 	"box": Color("15171a"),

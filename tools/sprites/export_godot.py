@@ -1,5 +1,8 @@
 """Exporta las hojas de la T3 para Godot: python3 tools/sprites/export_godot.py
 
+El juego ya no las usa (desde G15 gira la vista superior en HD de top_hd.py); se dejan
+para volver a los frames girados si hiciera falta.
+
 Una carpeta por furgo (dehler.MODELS) y una textura por estado (daño 0-3, luces sí/no):
 godot/assets/sprites/<furgo>/d<daño>[_luces].png
 Columnas: 24 direcciones (frame k = rumbo k·15° horario desde la derecha).

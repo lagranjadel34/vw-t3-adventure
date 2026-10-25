@@ -3,20 +3,33 @@ extends Node2D
 ## Algún transeúnte por las aceras, solo cerca de la cámara. Andan de tile en tile de
 ## acera (siguen recto y giran en las esquinas) y se apartan de un salto si llega la T3.
 ## Si la T3 los pilla, quedan tendidos en el suelo con un charco de sangre.
+## Cruzan la calle por los pasos de peatones, solo al principio de su verde; si no, esperan.
 
 var _map: TiledMap
 var _van: Van
+var _street: StreetProps
 var _walkable := {}
+## Tile de un paso de peatones -> índice en _street.crossings.
+var _crossing_tiles := {}
 var _peds: Array[Dictionary] = []
 var _bodies: Array[Dictionary] = []
 var _rng := RandomNumberGenerator.new()
 
 
-static func create(map: TiledMap, van: Van) -> Pedestrians:
+static func create(map: TiledMap, van: Van, street: StreetProps = null) -> Pedestrians:
 	var peds := Pedestrians.new()
 	peds.name = "Pedestrians"
 	peds._map = map
 	peds._van = van
+	peds._street = street
+	if street:
+		for i in street.crossings.size():
+			var r: Rect2 = street.crossings[i].rect
+			var t0 := peds._tile(r.position)
+			var t1 := peds._tile(r.end - Vector2.ONE)
+			for y in range(t0.y, t1.y + 1):
+				for x in range(t0.x, t1.x + 1):
+					peds._crossing_tiles[Vector2i(x, y)] = i
 	for id: int in map.tile_types:
 		if map.tile_types[id] in GameConfig.PED_WALKABLE:
 			peds._walkable[id] = true
@@ -43,6 +56,7 @@ func _process(delta: float) -> void:
 			_add_body(p)
 			continue
 		_walk(p, delta)
+	_mark_busy_crossings()
 	for i in range(_bodies.size() - 1, -1, -1):
 		_bodies[i].clock += delta
 		if _bodies[i].pos.distance_to(center) > GameConfig.PED_DESPAWN_DISTANCE:
@@ -85,13 +99,23 @@ func _walk(p: Dictionary, delta: float) -> void:
 		return
 	p.pos = p.target
 	var tile := _tile(p.pos)
-	var dirs: Array[Vector2i] = []
-	for d: Vector2i in [Vector2i.RIGHT, Vector2i.LEFT, Vector2i.DOWN, Vector2i.UP]:
-		if d != -p.dir and _is_walkable(tile + d):
-			dirs.append(d)
-	var straight := _is_walkable(tile + p.dir) and _rng.randf() > GameConfig.PED_TURN_CHANCE
-	if not straight:
-		p.dir = dirs[_rng.randi() % dirs.size()] if not dirs.is_empty() else -p.dir
+	# En el bordillo esperando el verde: sigue esperando hasta que pueda cruzar.
+	if p.get("waiting", false):
+		if not _may_enter(tile + p.dir):
+			return
+		p.waiting = false
+	# Ya en el paso: recto hasta la otra acera.
+	elif not _crossing_tiles.has(tile):
+		var dirs: Array[Vector2i] = []
+		for d: Vector2i in [Vector2i.RIGHT, Vector2i.LEFT, Vector2i.DOWN, Vector2i.UP]:
+			if d != -p.dir and _can_step(tile + d):
+				dirs.append(d)
+		var straight := _can_step(tile + p.dir) and _rng.randf() > GameConfig.PED_TURN_CHANCE
+		if not straight:
+			p.dir = dirs[_rng.randi() % dirs.size()] if not dirs.is_empty() else -p.dir
+		if not _may_enter(tile + p.dir):
+			p.waiting = true
+			return
 	var j := GameConfig.PED_JITTER
 	p.target = _center(tile + p.dir) + Vector2(_rng.randf_range(-j, j), _rng.randf_range(-j, j))
 
@@ -182,6 +206,30 @@ func _nearest_walkable(pos: Vector2) -> Vector2:
 				best_d = _center(t).distance_to(pos)
 				best = _center(t)
 	return best
+
+
+## Acera o paso de peatones.
+func _can_step(t: Vector2i) -> bool:
+	return _is_walkable(t) or _crossing_tiles.has(t)
+
+
+## Se puede pisar ese tile ahora: si es un paso, solo con el semáforo de peatones en verde.
+func _may_enter(t: Vector2i) -> bool:
+	if not _crossing_tiles.has(t):
+		return true
+	return _street.may_cross(_street.crossings[_crossing_tiles[t]].eje)
+
+
+## Los coches ceden el paso a quien está cruzando.
+func _mark_busy_crossings() -> void:
+	if _street == null:
+		return
+	for c in _street.crossings:
+		c.busy = false
+	for p in _peds:
+		var i: int = _crossing_tiles.get(_tile(p.pos), -1)
+		if i >= 0:
+			_street.crossings[i].busy = true
 
 
 func _is_walkable(t: Vector2i) -> bool:
