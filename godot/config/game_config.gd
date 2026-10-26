@@ -210,12 +210,18 @@ const WORKSHOP_TITLE_SIZE := 18
 const WORKSHOP_TEXT_SIZE := 9
 const WORKSHOP_BUTTON_SIZE := 12
 const WORKSHOP_OUTLINE := 3
-const WORKSHOP_TITLE_Y := 40.0
-const WORKSHOP_TEXT_Y := 78.0
-const WORKSHOP_BUTTON_Y := 130.0
+const WORKSHOP_TITLE_Y := 26.0
+const WORKSHOP_TEXT_Y := 50.0
+const WORKSHOP_ROW_Y := 80.0
+const WORKSHOP_ROW_SPACING := 22.0
 const WORKSHOP_ACCENT := Color("d8742a")
-const WORKSHOP_TEXT := "Próximamente:\nreparaciones, piezas y camperización."
-const WORKSHOP_BUTTON := "Salir del taller"
+const WORKSHOP_DISABLED := Color("7a7a7a")
+# Popup "¿Entrar?": hueco de la foto, pregunta y opciones.
+const WORKSHOP_PHOTO_TOP := 40.0
+const WORKSHOP_PHOTO_SIZE := Vector2(160, 44)
+const WORKSHOP_PHOTO_COLOR := Color("2a2f38")
+const WORKSHOP_QUESTION_Y := 100.0
+const WORKSHOP_ENTRY_ROW_Y := 124.0
 
 const MAP_LABEL_TYPE := "rotulo"
 const MAP_COLLIDES_PROPERTY := "collides"

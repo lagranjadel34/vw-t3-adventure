@@ -23,7 +23,10 @@ var _exit: Variant
 var _exits: Array = []
 # Talleres del mapa: [{name, rect: Rect2, exit: Vector2}].
 var _workshops: Array = []
+var _workshop_entry: WorkshopEntry
 var _workshop_menu: WorkshopMenu
+# Taller del que se ha salido con "Seguir de largo": no vuelve a preguntar hasta salir del portón.
+var _workshop_skipped := ""
 var _fade := ColorRect.new()
 # Cabeceo de la cámara al cambiar de marcha (px de mundo), decae solo.
 var _shift_kick := Vector2.ZERO
@@ -115,18 +118,41 @@ func _load_map(id: StringName) -> void:
 	_camera.limit_bottom = int(_map.size_px.y)
 
 
-## La furgo entra por el portón: juego en pausa y menú del taller.
+## La furgo llega al portón: juego en pausa y popup "¿Entrar?".
 func _check_workshops() -> void:
-	if _workshop_menu:
+	if _workshop_entry or _workshop_menu:
 		return
 	for w: Dictionary in _workshops:
-		if (w.rect as Rect2).has_point(_van.global_position):
-			_van.velocity = Vector2.ZERO
-			get_tree().paused = true
-			_workshop_menu = WorkshopMenu.create(GameConfig.WORKSHOP_NAMES.get(w.name, w.name))
-			_workshop_menu.closed.connect(_leave_workshop.bind(w))
-			add_child(_workshop_menu)
+		var inside := (w.rect as Rect2).has_point(_van.global_position)
+		if w.name == _workshop_skipped:
+			if not inside:
+				_workshop_skipped = ""
+			continue
+		if inside:
+			_ask_workshop(w)
 			return
+
+
+func _ask_workshop(w: Dictionary) -> void:
+	_van.velocity = Vector2.ZERO
+	get_tree().paused = true
+	_workshop_entry = WorkshopEntry.create(GameConfig.WORKSHOP_NAMES.get(w.name, w.name))
+	_workshop_entry.confirmed.connect(_on_workshop_entry_confirmed.bind(w))
+	_workshop_entry.declined.connect(_on_workshop_entry_declined.bind(w))
+	add_child(_workshop_entry)
+
+
+func _on_workshop_entry_confirmed(w: Dictionary) -> void:
+	_workshop_entry = null
+	_workshop_menu = WorkshopMenu.create(GameConfig.WORKSHOP_NAMES.get(w.name, w.name))
+	_workshop_menu.closed.connect(_leave_workshop.bind(w))
+	add_child(_workshop_menu)
+
+
+func _on_workshop_entry_declined(w: Dictionary) -> void:
+	_workshop_entry = null
+	_workshop_skipped = w.name
+	get_tree().paused = false
 
 
 ## Al salir del taller la furgo espera en el carril, parada y mirando a la calle.

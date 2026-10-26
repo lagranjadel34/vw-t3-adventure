@@ -1,6 +1,7 @@
 extends SceneTree
-## Taller Karvans: la furgo baja por el carril, entra por el portón, sale el menú y al
-## salir espera en el carril. godot --headless --path godot -s res://tests/workshop_test.gd
+## Taller Karvans: la furgo baja por el carril, entra por el portón, aparece "¿Entrar?", al
+## confirmar sale el menú de mejoras y al salir espera en el carril.
+## godot --headless --path godot -s res://tests/workshop_test.gd
 
 var world: Node
 var van: Van
@@ -30,13 +31,17 @@ func _physics_process(_delta: float) -> bool:
 	frame += 1
 	# El mando de la escena está apagado (lo lleva la prueba): comprobamos el taller a mano.
 	world._check_workshops()
-	if world._workshop_menu == null:
+	if world._workshop_entry == null and world._workshop_menu == null:
 		van.gas_input = entered_at < 0
-	elif entered_at < 0:
+	elif entered_at < 0 and world._workshop_entry:
 		entered_at = frame
 		if not paused:
-			push_error("El juego no se ha pausado en el taller")
-		print("Taller abierto en el frame %d, furgo en %s" % [frame, van.global_position.round()])
+			push_error("El juego no se ha pausado en el portón")
+		print("Popup del taller en el frame %d, furgo en %s" % [frame, van.global_position.round()])
+		# Como pulsar Entrar.
+		world._workshop_entry.choose(true)
+		if world._workshop_menu == null:
+			push_error("Al entrar no aparece el menú del taller")
 	if entered_at > 0 and frame == entered_at + 10:
 		world._workshop_menu.close()
 	if entered_at > 0 and frame == entered_at + 12:
