@@ -1,7 +1,7 @@
 extends Node2D
 ## Pantalla de título: fondo de acampada, hoguera, estrellas fugaces y menú (portada de MenuScene.ts).
 
-const INTRO_SCENE := "res://scenes/intro.tscn"
+const NAME_SCENE := "res://scenes/name_entry.tscn"
 const OPTIONS_SCENE := "res://scenes/options.tscn"
 const GARAGE_SCENE := "res://scenes/garage.tscn"
 
@@ -153,7 +153,7 @@ func _move_selection(delta: int) -> void:
 
 func _confirm() -> void:
 	if _selected == MenuConfig.START_OPTION:
-		get_tree().change_scene_to_file(INTRO_SCENE)
+		get_tree().change_scene_to_file(NAME_SCENE)
 	elif _selected == MenuConfig.SETTINGS_OPTION:
 		get_tree().change_scene_to_file(OPTIONS_SCENE)
 	elif _selected == MenuConfig.GARAGE_OPTION:

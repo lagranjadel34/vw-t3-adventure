@@ -134,3 +134,21 @@ const SHEET_ROW_H := 11.0
 const SHEET_FONT_SIZE := 8
 const SHEET_CLOSE := "Cerrar"
 const SHEET_CLOSE_BOTTOM := 18.0 # desde abajo
+
+# --- Escribe tu nombre (antes de la intro): el personaje no tiene nombre fijo ---
+const NAME_TITLE := "¿Cómo te llamas?"
+const NAME_TITLE_Y := 30.0
+const NAME_HINT := "Tu nombre en el viaje"
+const NAME_FIELD_Y := 50.0 # arriba: en el móvil el teclado tapa la mitad de abajo
+const NAME_FIELD_SIZE := Vector2(180, 24)
+const NAME_FONT_SIZE := 14
+const NAME_MAX_LENGTH := 16
+const NAME_FIELD_BG := Color(0, 0, 0, 0.6)
+const NAME_FIELD_BORDER := Color("ffd24d")
+const NAME_FIELD_BORDER_W := 1
+const NAME_FIELD_PADDING := 6.0
+const NAME_START := "Empezar »"
+const NAME_START_Y := 92.0
+const NAME_BACK_Y := 120.0
+const NAME_SHAKE_PX := 4.0 # sin nombre, el campo tiembla
+const NAME_SHAKE_S := 0.25
