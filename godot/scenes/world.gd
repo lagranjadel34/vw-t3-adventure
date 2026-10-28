@@ -28,6 +28,8 @@ var _workshop_menu: WorkshopMenu
 # Taller del que se ha salido con "Seguir de largo": no vuelve a preguntar hasta salir del portón.
 var _workshop_skipped := ""
 var _fade := ColorRect.new()
+# Pantalla de paso al campo en curso (el juego está en pausa mientras dura).
+var _transition: MapTransition
 # Cabeceo de la cámara al cambiar de marcha (px de mundo), decae solo.
 var _shift_kick := Vector2.ZERO
 
@@ -166,8 +168,26 @@ func _leave_workshop(w: Dictionary) -> void:
 
 
 ## Al entrar en una salida, la furgo aparece en el otro mapa con la misma velocidad.
+## De la ciudad al campo, antes pasa la pantalla de la furgo alejándose por la carretera.
 func _travel(link: Dictionary) -> void:
-	var spd := _van.speed
+	if link.get("transition", false):
+		get_tree().paused = true
+		_transition = MapTransition.create()
+		_transition.covered.connect(_arrive.bind(link, _van.speed))
+		_transition.finished.connect(_on_transition_finished)
+		add_child(_transition)
+		return
+	_arrive(link, _van.speed)
+	_fade_in()
+
+
+func _on_transition_finished() -> void:
+	_transition = null
+	get_tree().paused = false
+	_fade_in()
+
+
+func _arrive(link: Dictionary, spd: float) -> void:
 	_load_map(link.to)
 	var at: Variant = _map.find_object(link.at)
 	var pos := Vector2(at.x + at.width / 2.0, at.y + at.height / 2.0) if at else _map.size_px / 2
@@ -175,6 +195,9 @@ func _travel(link: Dictionary) -> void:
 	_van.rotation = deg_to_rad(link.rot_deg)
 	_van.velocity = Vector2.from_angle(_van.rotation - PI / 2) * spd
 	_snap_camera()
+
+
+func _fade_in() -> void:
 	_fade.modulate.a = 1.0
 	create_tween().tween_property(_fade, "modulate:a", 0.0, GameConfig.MAP_FADE_S)
 
@@ -187,6 +210,7 @@ func _snap_camera() -> void:
 func _notification(what: int) -> void:
 	# Botón "atrás" de Android: vuelve al menú.
 	if what == NOTIFICATION_WM_GO_BACK_REQUEST:
+		get_tree().paused = false
 		get_tree().change_scene_to_file(MENU_SCENE)
 
 

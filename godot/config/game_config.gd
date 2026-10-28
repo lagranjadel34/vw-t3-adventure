@@ -166,7 +166,8 @@ const MAP_SPAWN := "spawn"
 const MAP_START := &"sevilla"
 # Cada mapa: json, tileset, `campo` (null = el ambiente pasa a campo al acercarse a `ambient_exit`;
 # número = mezcla fija) y `exits`: zona del mapa -> {to: mapa, at: objeto de llegada,
-# offset_tiles: desplazamiento desde su centro, rot_deg: rumbo (0 = norte, 90 = este)}.
+# offset_tiles: desplazamiento desde su centro, rot_deg: rumbo (0 = norte, 90 = este),
+# transition (opcional): pantalla de paso al campo, `ui/map_transition.gd`}.
 const MAPS := {
 	&"sevilla": {
 		"json": "res://assets/maps/sevilla.json",
@@ -176,8 +177,8 @@ const MAPS := {
 		# La T3 sale en el objeto `spawn` (al pie del Puente de Triana, orilla del Arenal).
 		# Dos puertas a la circunvalación del bosque: se entra por una y se vuelve por la otra.
 		"exits": {
-			"salida_a4": {"to": &"bosque", "at": "entrada_a4", "offset_tiles": Vector2.ZERO, "rot_deg": 90.0},
-			"salida_sur": {"to": &"bosque", "at": "entrada_sur", "offset_tiles": Vector2.ZERO, "rot_deg": 90.0},
+			"salida_a4": {"to": &"bosque", "at": "entrada_a4", "offset_tiles": Vector2.ZERO, "rot_deg": 90.0, "transition": true},
+			"salida_sur": {"to": &"bosque", "at": "entrada_sur", "offset_tiles": Vector2.ZERO, "rot_deg": 90.0, "transition": true},
 		},
 	},
 	&"bosque": {

@@ -80,6 +80,12 @@ const BIRD_VARIANTS := 4
 const BIRD_DELAY_S := Vector2(0.8, 3.5)
 const BIRD_DB := -12.0
 const BIRD_PITCH := Vector2(0.85, 1.2)
+# Viento de montaña (pantalla de paso al campo): ruido marrón muy suave con rachas.
+const WIND_LOOP_S := 4.0
+const WIND_SMOOTH := 0.004 # más bajo = más grave
+const WIND_GUSTS_PER_LOOP := 1
+const WIND_GUST_DEPTH := 0.6
+const WIND_GAIN := 0.8
 # Por debajo de este volumen (lineal) una capa se considera apagada.
 const LAYER_SILENT := 0.02
 # Campo según la distancia a la salida de la ciudad (en el mapa de Sevilla: la A-4).
