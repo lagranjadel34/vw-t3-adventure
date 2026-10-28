@@ -8,6 +8,11 @@ Motor: Godot 4.5 (`godot/`). Cada cambio en `godot/` que llega a master genera u
 
 Lo más nuevo arriba. El número coincide con el que muestra Obtainium (0.1.N = Release `apk-N`).
 
+### 0.1.85 · 2026-10-28
+- Al salir de Sevilla hacia el campo hay una pantalla de paso: una carretera de montaña al atardecer con la furgo alejándose hasta perderse tras la curva.
+- Primero solo se oyen el viento y los pájaros; luego el motor rompe el silencio ("BRRRUMMM!") y se va apagando con la distancia. Las onomatopeyas se hacen pequeñas a medida que se aleja.
+- Puedes saltarla con SALTAR (o Esc).
+
 ### 0.1.78 · 2026-10-25
 - La carretera del bosque ya no se acaba: rodea el pinar y te devuelve a Sevilla por una segunda salida (sur). Dentro del circuito, un desvío de tierra te lleva al claro y al spot de acampada.
 
