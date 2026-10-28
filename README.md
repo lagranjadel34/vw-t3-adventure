@@ -8,6 +8,9 @@ Motor: Godot 4.5 (`godot/`). Cada cambio en `godot/` que llega a master genera u
 
 Lo más nuevo arriba. El número coincide con el que muestra Obtainium (0.1.N = Release `apk-N`).
 
+### 0.1.87 · 2026-10-28
+- Al pulsar Empezar, el juego te pregunta "¿Cómo te llamas?" antes de la intro. Tu personaje no tiene un nombre fijo: escribes el tuyo y se guarda para toda la partida.
+
 ### 0.1.85 · 2026-10-28
 - Al salir de Sevilla hacia el campo hay una pantalla de paso: una carretera de montaña al atardecer con la furgo alejándose hasta perderse tras la curva.
 - Primero solo se oyen el viento y los pájaros; luego el motor rompe el silencio ("BRRRUMMM!") y se va apagando con la distancia. Las onomatopeyas se hacen pequeñas a medida que se aleja.
