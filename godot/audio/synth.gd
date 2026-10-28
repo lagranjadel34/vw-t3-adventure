@@ -76,6 +76,30 @@ static func city_loop() -> AudioStreamWAV:
 	return _wav(out, AudioConfig.CITY_GAIN, true)
 
 
+## Viento de montaña: casi silencio, con alguna racha lenta.
+static func wind_loop() -> AudioStreamWAV:
+	var n := _samples(AudioConfig.WIND_LOOP_S)
+	var fade := _samples(AudioConfig.CITY_CROSSFADE_S)
+	var raw := PackedFloat32Array()
+	raw.resize(n + fade)
+	var brown := 0.0
+	var peak := 0.0
+	for i in raw.size():
+		brown += AudioConfig.WIND_SMOOTH * (randf_range(-1.0, 1.0) - brown)
+		raw[i] = brown
+		peak = maxf(peak, absf(brown))
+	var out := PackedFloat32Array()
+	out.resize(n)
+	for i in n:
+		var v := raw[i]
+		if i < fade:
+			var k := float(i) / fade
+			v = v * k + raw[n + i] * (1.0 - k)
+		var gust := 1.0 - AudioConfig.WIND_GUST_DEPTH * (0.5 + 0.5 * cos(TAU * AudioConfig.WIND_GUSTS_PER_LOOP * i / n))
+		out[i] = v / peak * gust
+	return _wav(out, AudioConfig.WIND_GAIN, true)
+
+
 ## Bocinazo de dos tonos (onda cuadrada suavizada), de duración `seconds`.
 static func horn(seconds: float) -> AudioStreamWAV:
 	var n := _samples(seconds)

@@ -41,7 +41,10 @@ func _physics_process(_delta: float) -> bool:
 			van.global_position = _rect(_object(GameConfig.MAPS[&"sevilla"].json, "salida_a4")).get_center()
 			_next()
 		1:
-			if world.map_id == &"bosque":
+			# La pantalla de paso al campo se salta, como con SALTAR.
+			if world._transition:
+				world._transition._end()
+			elif world.map_id == &"bosque" and not paused:
 				start = van.global_position
 				print("bosque: llegada en %s" % start)
 				_next()
