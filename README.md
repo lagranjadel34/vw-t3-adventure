@@ -8,6 +8,10 @@ Motor: Godot 4.5 (`godot/`). Cada cambio en `godot/` que llega a master genera u
 
 Lo más nuevo arriba. El número coincide con el que muestra Obtainium (0.1.N = Release `apk-N`).
 
+### 0.1.89 · 2026-10-29
+- Paso al campo más cinematográfico: la cámara arranca a ras de asfalto y se eleva. La furgo echa humo, lleva los pilotos encendidos, gira en la curva (se le ve el costado) y se pierde tras el cambio de rasante. Al acabar, la imagen se funde con el bosque.
+- Al empezar la partida, un recuadro te dice qué hacer: sal de la ciudad y busca un spot donde pasar la noche. Se cierra al tocar la pantalla o solo.
+
 ### 0.1.87 · 2026-10-28
 - Al pulsar Empezar, el juego te pregunta "¿Cómo te llamas?" antes de la intro. Tu personaje no tiene un nombre fijo: escribes el tuyo y se guarda para toda la partida.
 
