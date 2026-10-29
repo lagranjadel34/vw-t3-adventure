@@ -1,6 +1,6 @@
 # VW T3 Adventure
 
-Juego indie top-down en pixel art, estilo GTA 1. Jugador: Ara.
+Juego indie top-down en pixel art, estilo GTA 1. El personaje no tiene nombre fijo: quien juega escribe el suyo al empezar (`Settings.player_name`).
 Guion: ciudad caótica -> salir en la VW T3 -> bosque -> encontrar spot -> acampar -> FIN.
 
 Estado: ver docs/HITOS.md
@@ -11,11 +11,13 @@ La versión Phaser 3 + TypeScript (`src/`, `public/`) queda congelada como refer
 
 ## Reglas técnicas
 - Resolución lógica 320x180 (Godot: stretch `canvas_items`, se dibuja a la resolución de la pantalla: tiles pixelados con filtro nearest, T3 y polígonos nítidos; líneas con `GameConfig.LINE_WIDTH`). Tiles 16x16.
-- Cámara top-down. Controles: WASD/flechas y, en táctil, joystick flotante (mitad izquierda) = volante y pedales en pantalla (abajo derecha) = acelerar/frenar; sin acelerador no hay potencia; palanca de cambios encima de los pedales (deslizar = subir/bajar, toque = auto/manual; teclado Q/E/M). Zonas de toque >= `TAP_MIN_HEIGHT` (`src/config/touch.ts`).
+- Cámara top-down. Controles: WASD/flechas y, en táctil, joystick flotante (mitad izquierda) = volante y pedales en pantalla (abajo derecha) = acelerar/frenar; sin acelerador no hay potencia; palanca de cambios encima de los pedales (deslizar = subir/bajar, toque = auto/manual; teclado Q/E/M). Zonas de toque >= `TAP_MIN_HEIGHT` (`godot/config/game_config.gd`).
 - Godot: assets en `godot/assets/`, escenas en `godot/scenes/`, entidades en `godot/entities/`, UI en `godot/ui/`.
 - Constantes (tamaños, velocidades) en `godot/config/game_config.gd`. Sin números mágicos.
 - Mapas con Tiled (JSON), cargados en runtime por `godot/scripts/tiled_map.gd`.
 - Placeholders (rectángulos) hasta tener arte. No inventes sprites.
+- Créditos y atribución visible en el juego: "La Granja del 34" (seudónimo), no "Ara".
+- Docs: `docs/HITOS.md` (estado), `docs/VEHICULOS.md` (furgos), `docs/ARTE.md` (arte y referencias en `docs/arte/`), `docs/historico/` (etapa Phaser y migración).
 
 ## Flujo de trabajo
 - Trabaja por hitos (ver `docs/HITOS.md`): un hito = un prompt, una prueba, un commit.
