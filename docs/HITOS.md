@@ -2,6 +2,10 @@
 
 Hito = entregable pequeño, probable y cerrado. Un prompt, una prueba, un commit.
 
+## Phaser (congelado el 2026-10-22)
+
+Los pendientes se rehacen en Godot: 4 → G2 (intro), 6 → G10/G11 (tráfico y peatones), 7 → G9/G14/G17 (salida, carretera y bosque), 10 → G8 (sonido) y controles táctiles de G1, 11 → APK en Releases (G1) en vez de PWA/Capacitor. Siguen abiertos: 8 (spot de acampada; hay un modelo de calzos en `godot/entities/camp_leveling.gd`, sin hito cerrado) y 9 (final).
+
 - [x] 1. Proyecto base: Phaser + Vite arrancando (pantalla negra 320x180).
 - [x] 2. Furgoneta controlable (sprite T3 de Ara): aceleración, giro, inercia.
 - [x] 3. Pantalla de menú/título: fondo (arte de Ara) + Empezar/Elegir VW/Configuración.

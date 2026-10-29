@@ -1,6 +1,6 @@
 # VW T3 Adventure
 
-Juego top-down en pixel art, estilo GTA 1: Ara sale de una Sevilla caótica en su VW T3, llega al bosque, busca un buen spot y acampa.
+Juego top-down en pixel art, estilo GTA 1: sales de una Sevilla caótica en su VW T3, llega al bosque, busca un buen spot y acampa.
 
 Motor: Godot 4.5 (`godot/`). Cada cambio en `godot/` que llega a master genera un APK en [Releases](https://github.com/lagranjadel34/vw-t3-adventure/releases), que Obtainium detecta e instala en el móvil.
 
@@ -20,11 +20,11 @@ Lo más nuevo arriba. El número coincide con el que muestra Obtainium (0.1.N = 
 - Primero solo se oyen el viento y los pájaros; luego el motor rompe el silencio ("BRRRUMMM!") y se va apagando con la distancia. Las onomatopeyas se hacen pequeñas a medida que se aleja.
 - Puedes saltarla con SALTAR (o Esc).
 
-### 0.1.78 · 2026-10-25
-- La carretera del bosque ya no se acaba: rodea el pinar y te devuelve a Sevilla por una segunda salida (sur). Dentro del circuito, un desvío de tierra te lleva al claro y al spot de acampada.
-
 ### 0.1.80 · 2026-10-25
 - Rosa de los vientos arriba a la izquierda: el Norte siempre arriba y un punto amarillo que parpadea y marca dónde está la furgo en el mapa.
+
+### 0.1.78 · 2026-10-25
+- La carretera del bosque ya no se acaba: rodea el pinar y te devuelve a Sevilla por una segunda salida (sur). Dentro del circuito, un desvío de tierra te lleva al claro y al spot de acampada.
 
 ### 0.1.77 · 2026-10-25
 - El juego se ve en alta resolución: la T3 con todo el detalle de su dibujo, y los edificios y textos con bordes finos. El suelo sigue pixelado.
