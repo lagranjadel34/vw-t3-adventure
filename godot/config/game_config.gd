@@ -206,6 +206,29 @@ const WORKSHOP_EXIT_ROT_DEG := 0.0
 const WORKSHOP_NAMES := {"taller_karvans": "Taller Karvans"}
 # Menú del taller (provisional, hasta hacer el de verdad).
 const WORKSHOP_LAYER := 20
+
+# --- Objetivo al empezar la partida (`ui/objective_box.gd`): no pausa; se va al tocar o solo ---
+const OBJECTIVE_TITLE := "Objetivo"
+const OBJECTIVE_TEXT := "Sal de la ciudad y busca un spot donde pasar la noche."
+const OBJECTIVE_TEXT_NAMED := "%s, sal de la ciudad y busca un spot donde pasar la noche."
+const OBJECTIVE_HINT_TOUCH := "Toca para cerrar"
+const OBJECTIVE_HINT_KEYS := "Pulsa una tecla"
+const OBJECTIVE_LAYER := 9 # encima del HUD, debajo de los fundidos
+const OBJECTIVE_DELAY_S := 0.6 # deja ver la calle antes
+const OBJECTIVE_SHOW_S := 7.0 # luego se va solo
+const OBJECTIVE_FADE_S := 0.4
+const OBJECTIVE_WIDTH := 200.0
+const OBJECTIVE_Y := 6.0 # arriba, entre la rosa y el cuentakilómetros, sin tapar la furgo
+const OBJECTIVE_PADDING := 8.0
+const OBJECTIVE_BG := Color(0.05, 0.06, 0.1, 0.82)
+const OBJECTIVE_BORDER := Color("ffd24d")
+const OBJECTIVE_BORDER_W := 1
+const OBJECTIVE_RADIUS := 4
+const OBJECTIVE_TITLE_SIZE := 12
+const OBJECTIVE_TEXT_SIZE := 10
+const OBJECTIVE_HINT_SIZE := 7
+const OBJECTIVE_HINT_ALPHA := 0.7
+const OBJECTIVE_GAP := 3.0 # entre líneas del recuadro
 const WORKSHOP_DIM := Color(0, 0, 0, 0.75)
 const WORKSHOP_TITLE_SIZE := 18
 const WORKSHOP_TEXT_SIZE := 9
