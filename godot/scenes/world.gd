@@ -63,6 +63,8 @@ func _ready() -> void:
 	add_child(_soundscape)
 	add_child(_van_sound)
 	_van_sound.setup(_van)
+	# Al empezar, qué hay que hacer.
+	add_child(ObjectiveBox.create())
 
 
 
@@ -184,7 +186,6 @@ func _travel(link: Dictionary) -> void:
 func _on_transition_finished() -> void:
 	_transition = null
 	get_tree().paused = false
-	_fade_in()
 
 
 func _arrive(link: Dictionary, spd: float) -> void:
