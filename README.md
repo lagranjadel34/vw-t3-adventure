@@ -8,6 +8,10 @@ Motor: Godot 4.5 (`godot/`). Cada cambio en `godot/` que llega a master genera u
 
 Lo más nuevo arriba. El número coincide con el que muestra Obtainium (0.1.N = Release `apk-N`).
 
+### 0.1.93 · 2026-11-01
+- La furgo nota el suelo: en asfalto agarra como antes; en arcén y tierra la cola se suelta antes y el derrape dura más; en hierba y claros se frena más y la velocidad máxima baja.
+- En un charco también agarra menos.
+
 ### 0.1.91 · 2026-11-01
 - Suelo con textura: la hierba tiene briznas, hojas secas y variantes; la tierra, piedrecillas y grietas; el arcén, grava; el asfalto, grano y alguna grieta; los claros, flores. Ya no se repite el mismo cuadro.
 - Pista de tierra del bosque sinuosa y de anchura variable, con surcos de rueda, charcos de barro y hierba comiéndose los bordes.
