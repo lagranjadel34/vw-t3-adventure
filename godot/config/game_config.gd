@@ -421,6 +421,25 @@ const PED_BLOOD_GROW_S := 1.5 # el charco se extiende durante este tiempo
 const PED_BLOOD := Color("7a0d0d")
 const PED_BLOOD_DARK := Color("4f0606")
 const PED_LEGS := Color("2b2b33")
+# Superficie bajo la furgo, por tipo de tile del mapa (Tiled). Sin entrada = asfalto.
+# grip: agarre lateral (más bajo = la cola se suelta antes y el derrape dura más).
+# speed: tope de velocidad de la marcha (fracción). drag: frenada al soltar el gas (fracción).
+const SURFACE_ROAD := {"grip": 1.0, "speed": 1.0, "drag": 1.0}
+const SURFACES := {
+	"arcen": {"grip": 0.75, "speed": 0.9, "drag": 1.2},
+	"arcen2": {"grip": 0.75, "speed": 0.9, "drag": 1.2},
+	"tierra": {"grip": 0.6, "speed": 0.75, "drag": 1.5},
+	"tierra2": {"grip": 0.6, "speed": 0.75, "drag": 1.5},
+	"tierra_hierba": {"grip": 0.55, "speed": 0.7, "drag": 1.6},
+	"rodada_v": {"grip": 0.55, "speed": 0.7, "drag": 1.6},
+	"rodada_h": {"grip": 0.55, "speed": 0.7, "drag": 1.6},
+	"charco": {"grip": 0.5, "speed": 0.8, "drag": 1.0},
+	"hierba": {"grip": 0.45, "speed": 0.6, "drag": 1.8},
+	"hierba2": {"grip": 0.45, "speed": 0.6, "drag": 1.8},
+	"hierba3": {"grip": 0.45, "speed": 0.6, "drag": 1.8},
+	"claro": {"grip": 0.5, "speed": 0.65, "drag": 1.7},
+	"claro2": {"grip": 0.5, "speed": 0.65, "drag": 1.7},
+}
 const PED_WALKABLE := ["acera", "albero", "parque"]
 const PED_SHIRTS: Array[Color] = [Color("c0392b"), Color("2e86c1"), Color("f1c40f"), Color("27ae60"), Color("ecf0f1"), Color("8e44ad"), Color("e67e22")]
 const PED_HAIR: Array[Color] = [Color("2b1d14"), Color("4a3020"), Color("d9b36c"), Color("111111"), Color("8a8a8a")]

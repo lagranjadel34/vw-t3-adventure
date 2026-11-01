@@ -227,6 +227,7 @@ func _on_shifted(from_gear: int, to_gear: int) -> void:
 
 func _physics_process(_delta: float) -> void:
 	_check_workshops()
+	_van.surface = GameConfig.SURFACES.get(_map.type_at(_van.global_position), GameConfig.SURFACE_ROAD)
 	# Joystick = volante; la potencia sale solo de los pedales (pantalla o W/S).
 	_hud.update_pedals(_van.gas_key, _van.brake_key)
 	_van.steer_input = _hud.steer

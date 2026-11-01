@@ -12,6 +12,8 @@ var ground: TileMapLayer
 var objects: Array = []
 var size_px: Vector2
 var width := 0
+## Lado de un tile en píxeles.
+var tile_px := 16
 var height := 0
 ## Id local de tile (desde 0) por celda, -1 si está vacía. Índice = y * width + x.
 var cells := PackedInt32Array()
@@ -27,6 +29,7 @@ static func load_json(json_path: String, tileset_image: Texture2D, ground_layer:
 	var tile := Vector2i(int(data.tilewidth), int(data.tileheight))
 	var width := int(data.width)
 	map.width = width
+	map.tile_px = tile.x
 	map.height = int(data.height)
 	map.size_px = Vector2(width * tile.x, map.height * tile.y)
 
@@ -70,6 +73,16 @@ static func load_json(json_path: String, tileset_image: Texture2D, ground_layer:
 		elif layer.type == "objectgroup" and layer.name == objects_layer:
 			map.objects = layer.objects
 	return map
+
+
+## Tipo del tile bajo una posición del mundo ("" si está vacío o fuera del mapa).
+func type_at(pos: Vector2) -> String:
+	var x := floori(pos.x / tile_px)
+	var y := floori(pos.y / tile_px)
+	if x < 0 or y < 0 or x >= width or y >= height:
+		return ""
+	var local := cells[y * width + x]
+	return tile_types.get(local, "") if local >= 0 else ""
 
 
 ## Objetos de un tipo.
