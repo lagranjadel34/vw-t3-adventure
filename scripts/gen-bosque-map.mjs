@@ -8,6 +8,7 @@
 // Los árboles y rocas llevan volumen (godot/scripts/city_view.gd, mismo formato que Sevilla).
 import { writeFileSync } from 'node:fs';
 import { deflateSync } from 'node:zlib';
+import { shade } from './tile-texture.mjs';
 
 const OUT_DIR = 'godot/assets/maps';
 const TILE = 16;
@@ -16,19 +17,32 @@ const H = 100;
 const ARC_STEP_DEG = 15;
 
 // ---------- Tiles (gid = índice + 1) ----------
-const T = { HIERBA: 1, ASFALTO: 2, ARCEN: 3, TIERRA: 4, CLARO: 5, AGUA: 6, OLIVO: 7, PINO: 8, ROCA: 9, PINO_OCRE: 10 };
+const T = { HIERBA: 1, ASFALTO: 2, ARCEN: 3, TIERRA: 4, CLARO: 5, AGUA: 6, OLIVO: 7, PINO: 8, ROCA: 9, PINO_OCRE: 10,
+  // Variantes para romper la repetición del suelo (mismas propiedades que la base).
+  HIERBA2: 11, HIERBA3: 12, TIERRA2: 13, RODADA_H: 14, RODADA_V: 15, TIERRA_HIERBA: 16, CHARCO: 17,
+  ASFALTO2: 18, ARCEN2: 19, CLARO2: 20 };
 const vol = (altura, tejado, fachada, detalle, patron) => ({ altura, tejado, fachada, detalle, patron });
 const TILE_DEFS = [
-  { name: 'hierba', color: [142, 140, 72], speck: [128, 128, 62] },
-  { name: 'asfalto', color: [96, 80, 70] },
-  { name: 'arcen', color: [196, 164, 122], speck: [172, 140, 100] },
-  { name: 'tierra', color: [180, 124, 72], speck: [160, 106, 60] },
-  { name: 'claro', color: [190, 156, 84], speck: [208, 176, 104] },
+  { name: 'hierba', tex: 'grass', color: [142, 140, 72], speck: [128, 128, 62] },
+  { name: 'asfalto', tex: 'asfalto', color: [96, 80, 70] },
+  { name: 'arcen', tex: 'grava', color: [196, 164, 122], speck: [172, 140, 100] },
+  { name: 'tierra', tex: 'tierra', color: [180, 124, 72], speck: [160, 106, 60] },
+  { name: 'claro', tex: 'flores', color: [190, 156, 84], speck: [208, 176, 104] },
   { name: 'agua', color: [70, 112, 116], wave: [128, 168, 160], collides: true },
-  { name: 'olivo', color: [142, 140, 72], tree: [104, 120, 70], collides: true, vol: vol(18, '#8a9a5c', '#5a4632', '#b4bd82', 'arbol') },
-  { name: 'pino', color: [120, 112, 58], tree: [176, 84, 44], collides: true, vol: vol(34, '#b5532e', '#5a3a28', '#d9743a', 'arbol') },
+  { name: 'olivo', tex: 'grass', color: [142, 140, 72], tree: [104, 120, 70], collides: true, vol: vol(18, '#8a9a5c', '#5a4632', '#b4bd82', 'arbol') },
+  { name: 'pino', tex: 'grass', color: [120, 112, 58], tree: [176, 84, 44], collides: true, vol: vol(34, '#b5532e', '#5a3a28', '#d9743a', 'arbol') },
   { name: 'roca', color: [140, 122, 104], border: [112, 96, 80], collides: true, vol: vol(10, '#a89478', '#7a6652', '#5e4e40', 'ladrillo') },
-  { name: 'pino_ocre', color: [120, 112, 58], tree: [218, 164, 64], collides: true, vol: vol(34, '#d9a040', '#5a3a28', '#f0c060', 'arbol') },
+  { name: 'pino_ocre', tex: 'grass', color: [120, 112, 58], tree: [218, 164, 64], collides: true, vol: vol(34, '#d9a040', '#5a3a28', '#f0c060', 'arbol') },
+  { name: 'hierba2', tex: 'hojas', color: [138, 132, 66] },
+  { name: 'hierba3', tex: 'grass', color: [150, 146, 76], noise: 9 },
+  { name: 'tierra2', tex: 'tierra', color: [172, 118, 68] },
+  { name: 'rodada_h', tex: 'rodada_h', color: [180, 124, 72] },
+  { name: 'rodada_v', tex: 'rodada_v', color: [180, 124, 72] },
+  { name: 'tierra_hierba', tex: 'tierra_hierba', color: [176, 124, 70] },
+  { name: 'charco', tex: 'charco', color: [160, 112, 66] },
+  { name: 'asfalto2', tex: 'asfalto_grietas', color: [96, 80, 70] },
+  { name: 'arcen2', tex: 'grava', color: [188, 156, 116], noise: 9 },
+  { name: 'claro2', tex: 'flores', color: [196, 160, 86] },
 ];
 
 // ---------- RNG con semilla (mapa reproducible) ----------
@@ -82,15 +96,43 @@ const ARCEN_HALF = 3.0;
 // 2) Pista de tierra (3 tiles): sale del asfalto en el cruce de la recta norte, con una explanada
 // de grava en la boca, y baja dentro del circuito hasta el claro (que queda escondido).
 const CRUCE_X = 70;
-const CAMINO = [[CRUCE_X, A4_MID], [CRUCE_X + 2, 34], [CRUCE_X - 3, 44], [CRUCE_X - 7, 54], [62, 62]];
+const LAGUNA = { x: 94, y: 58, rx: 8, ry: 5 };
+const CAMINO_BASE = [[CRUCE_X, A4_MID], [CRUCE_X + 2, 34], [CRUCE_X - 3, 44], [CRUCE_X - 7, 54], [62, 62]];
+// Pista sinuosa: la polilínea se remuestrea cada tile y se desplaza de lado con una onda que se
+// anula en los extremos (cruce y claro quedan donde están).
+const wiggle = (pts, amp, wavelength) => {
+  const out = [];
+  const total = pts.slice(1).reduce((n, p, k) => n + Math.hypot(p[0] - pts[k][0], p[1] - pts[k][1]), 0);
+  let run = 0;
+  for (let k = 1; k < pts.length; k++) {
+    const [ax, ay] = pts[k - 1], [bx, by] = pts[k];
+    const len = Math.hypot(bx - ax, by - ay);
+    const nx = -(by - ay) / len, ny = (bx - ax) / len;
+    for (let t = 0; t < len; t++) {
+      const f = (run + t) / total;
+      const off = amp * Math.sin(f * Math.PI) * Math.sin((run + t) * 2 * Math.PI / wavelength);
+      out.push([ax + (bx - ax) * t / len + nx * off, ay + (by - ay) * t / len + ny * off]);
+    }
+    run += len;
+  }
+  out.push(pts[pts.length - 1]);
+  return out;
+};
+const CAMINO = wiggle(CAMINO_BASE, 2.2, 17);
+// Senda estrecha que se desgaja de la pista hacia la laguna y acaba en un embarcadero de tierra.
+const SENDA_BASE = [CAMINO_BASE[2], [78, 46], [LAGUNA.x - LAGUNA.rx - 3, LAGUNA.y - 1]];
+const SENDA = wiggle(SENDA_BASE, 1.6, 13);
+const SENDA_HALF = 1.15;
+const CAMINO_HALF = 1.6;
 const EXPLANADA = { x: CRUCE_X + 0.5, y: A4_MID + 3.5, r: 2.6 };
 const CLARO = { x: 62, y: 62, r: 8 };
-const LAGUNA = { x: 94, y: 58, rx: 8, ry: 5 };
 for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
   const c = x + 0.5, r = y + 0.5;
   if (Math.hypot(c - CLARO.x, r - CLARO.y) <= CLARO.r) set(x, y, T.CLARO);
   else if (pathDist(c, r, COMARCAL) <= ROAD_HALF) set(x, y, T.ASFALTO);
-  else if (pathDist(c, r, CAMINO) <= 1.6 || Math.hypot(c - EXPLANADA.x, r - EXPLANADA.y) <= EXPLANADA.r) set(x, y, T.TIERRA);
+  else if (pathDist(c, r, CAMINO) <= CAMINO_HALF + 0.3 * Math.sin(c * 0.45) || pathDist(c, r, SENDA) <= SENDA_HALF
+    || Math.hypot(c - EXPLANADA.x, r - EXPLANADA.y) <= EXPLANADA.r
+    || Math.hypot(c - SENDA[SENDA.length - 1][0], r - SENDA[SENDA.length - 1][1]) <= 2.4) set(x, y, T.TIERRA);
   else if (pathDist(c, r, COMARCAL) <= ARCEN_HALF) set(x, y, T.ARCEN);
   if (((c - LAGUNA.x) / LAGUNA.rx) ** 2 + ((r - LAGUNA.y) / LAGUNA.ry) ** 2 <= 1) set(x, y, T.AGUA);
 }
@@ -121,6 +163,36 @@ for (let y = 0; y < H; y++) for (let x = FOREST_X0 - 10; x < W; x++) {
 for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
   const edge = x === 0 || y === 0 || x === W - 1 || y === H - 1;
   if (edge && !DRIVE.has(get(x, y))) set(x, y, x < FOREST_X0 ? T.OLIVO : T.PINO);
+}
+
+// 6) Texturas: variantes del suelo para que no se repita el mismo tile, surcos de rueda y
+// hierba comiéndose los bordes de la pista, charcos de barro y grietas en el asfalto.
+const base = g.slice();
+const cellAt = (x, y) => (inside(x, y) ? base[y * W + x] : T.HIERBA);
+const GREEN = new Set([T.HIERBA, T.OLIVO, T.PINO, T.PINO_OCRE]);
+const heading = (x, y, pts) => {
+  let best = Infinity, dir = [1, 0];
+  for (let k = 1; k < pts.length; k++) {
+    const d = segDist(x + 0.5, y + 0.5, pts[k - 1], pts[k]);
+    if (d < best) { best = d; dir = [pts[k][0] - pts[k - 1][0], pts[k][1] - pts[k - 1][1]]; }
+  }
+  return { dist: best, horizontal: Math.abs(dir[0]) >= Math.abs(dir[1]) };
+};
+for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+  const t = base[y * W + x], r = rnd();
+  if (t === T.HIERBA) set(x, y, r < 0.55 ? T.HIERBA : r < 0.8 ? T.HIERBA2 : T.HIERBA3);
+  else if (t === T.ASFALTO && r < 0.08) set(x, y, T.ASFALTO2);
+  else if (t === T.ARCEN && r < 0.4) set(x, y, T.ARCEN2);
+  else if (t === T.CLARO && r < 0.3) set(x, y, T.CLARO2);
+  else if (t === T.TIERRA) {
+    const edge = [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => GREEN.has(cellAt(x + dx, y + dy)));
+    const h = heading(x, y, CAMINO);
+    const onTrack = h.dist <= CAMINO_HALF;
+    if (edge && r < 0.7) set(x, y, T.TIERRA_HIERBA);
+    else if (onTrack && Math.abs(h.dist - 0.6) < 0.5 && h.dist > 0.1) set(x, y, h.horizontal ? T.RODADA_H : T.RODADA_V);
+    else if (r < 0.04) set(x, y, T.CHARCO);
+    else if (r < 0.2) set(x, y, T.TIERRA2);
+  }
 }
 
 // ---------- Objetos: llegada, vuelta a Sevilla, spot y rótulos ----------
@@ -187,7 +259,7 @@ TILE_DEFS.forEach((d, i) => {
     if (d.speck && (x * 7 + y * 13) % 11 === 0) c = d.speck;
     if (d.wave && (y % 6 === 2) && ((x + y) % 8 < 3)) c = d.wave;
     if (d.tree && Math.hypot(x - 7.5, y - 7.5) < 6) c = d.tree;
-    put(i * TILE + x, y, c);
+    put(i * TILE + x, y, shade(c, d, i, x, y));
   }
 });
 const crcTable = Array.from({ length: 256 }, (_, n) => { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1; return c >>> 0; });

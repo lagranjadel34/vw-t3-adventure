@@ -6,6 +6,7 @@
 // La versión Phaser (congelada) conserva su copia en public/assets/maps.
 import { writeFileSync } from 'node:fs';
 import { deflateSync } from 'node:zlib';
+import { shade } from './tile-texture.mjs';
 
 const OUT_DIR = 'godot/assets/maps';
 const TILE = 16;
@@ -25,15 +26,15 @@ const T = {
 // alta de otro color (campanario) que ocupa remate_frac de la altura; aguja = chapitel.
 const vol = (altura, tejado, fachada, detalle, patron, extra = {}) => ({ altura, tejado, fachada, detalle, patron, ...extra });
 const TILE_DEFS = [
-  { name: 'asfalto', color: [96, 80, 70] },
+  { name: 'asfalto', tex: 'asfalto', color: [96, 80, 70] },
   { name: 'acera', color: [200, 172, 132], grid: [214, 188, 148] },
   { name: 'tejado', color: [178, 98, 70], border: [140, 72, 50], collides: true },
-  { name: 'parque', color: [128, 142, 78] },
+  { name: 'parque', tex: 'grass', color: [128, 142, 78] },
   { name: 'agua', color: [70, 112, 116], wave: [128, 168, 160], collides: true },
   { name: 'puente', color: [150, 120, 96], border: [218, 192, 150] },
   { name: 'monumento', color: [214, 192, 136], border: [170, 146, 96], collides: true },
-  { name: 'albero', color: [222, 168, 82] },
-  { name: 'arbol', color: [128, 142, 78], tree: [86, 108, 52], collides: true, vol: vol(24, '#5a7a3a', '#6b4a2e', '#8a9a4e', 'arbol') },
+  { name: 'albero', tex: 'tierra', color: [222, 168, 82] },
+  { name: 'arbol', tex: 'grass', color: [128, 142, 78], tree: [86, 108, 52], collides: true, vol: vol(24, '#5a7a3a', '#6b4a2e', '#8a9a4e', 'arbol') },
   // Casas de cal con azotea y zócalo de albero; casas ocres y rosadas con teja.
   { name: 'cal', color: [232, 226, 210], border: [190, 180, 160], collides: true, vol: vol(55, '#d6d0c2', '#f2eee2', '#4a3f3a', 'ventanas', { zocalo: '#d6a53c' }) },
   { name: 'ocre', color: [212, 160, 60], border: [170, 120, 40], collides: true, vol: vol(65, '#c6603f', '#e0a83c', '#4a3328', 'ventanas', { zocalo: '#f2eee2' }) },
@@ -55,14 +56,14 @@ const TILE_DEFS = [
   { name: 'barandilla', color: [200, 172, 132], grid: [214, 188, 148], rail: [92, 64, 46], collides: true },
   { name: 'capillita', color: [186, 94, 62], border: [243, 228, 200], collides: true, vol: vol(48, '#6e8a6a', '#b85c3c', '#f2e4c4', 'ladrillo', { remate: '#f2e4c4', remate_frac: 0.2, aguja: '#7a9a6e' }) },
   // Naranjos de las aceras: copa verde con naranjas.
-  { name: 'naranjo', color: [200, 172, 132], tree: [86, 108, 52], collides: true, vol: vol(20, '#5a7a3a', '#6b4a2e', '#ee9030', 'arbol') },
+  { name: 'naranjo', tex: 'grass', color: [200, 172, 132], tree: [86, 108, 52], collides: true, vol: vol(20, '#5a7a3a', '#6b4a2e', '#ee9030', 'arbol') },
   // Taller Karvans: nave de chapa en el polígono junto a la A-4, con portón abierto.
   { name: 'nave', color: [214, 190, 160], border: [150, 120, 96], collides: true, vol: vol(40, '#b09478', '#d6c0a0', '#8e7458', 'chapa', { remate: '#d8742a', remate_frac: 0.25 }) },
   { name: 'taller_suelo', color: [96, 80, 68], grid: [110, 92, 78] },
   // Entrada del taller: franjas amarillas y negras en el suelo.
   { name: 'entrada', color: [60, 46, 38], hatch: [230, 176, 60] },
   // Arcén de la carretera comarcal que sale de la ciudad.
-  { name: 'arcen', color: [196, 164, 122] },
+  { name: 'arcen', tex: 'grava', color: [196, 164, 122] },
 ];
 // La casa rosada con teja usa el tile 'tejado'.
 TILE_DEFS[T.TEJADO - 1].vol = vol(45, '#b85a3c', '#e7b9a0', '#4a3328', 'ventanas', { zocalo: '#f2eee2' });
@@ -557,7 +558,7 @@ TILE_DEFS.forEach((d, i) => {
     if (d.tree && Math.hypot(x - 7.5, y - 7.5) < 6) c = d.tree;
     if (d.rail && (y === 7 || y === 8)) c = d.rail;
     if (d.hatch && (x + y) % 8 < 4) c = d.hatch;
-    put(i * TILE + x, y, c);
+    put(i * TILE + x, y, shade(c, d, i, x, y));
   }
 });
 const crcTable = Array.from({ length: 256 }, (_, n) => { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1; return c >>> 0; });
