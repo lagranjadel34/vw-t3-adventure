@@ -46,7 +46,7 @@ const VAN_SPRITE_LIGHTS_SUFFIX := "_luces"
 const VAN_TOP_HD_SCALE := 4.0
 # Sombra: la silueta desplazada en el suelo (px) y semitransparente.
 const VAN_SHADOW_OFFSET := Vector2(2, 3)
-const VAN_SHADOW_COLOR := Color(0, 0, 0, 0.3)
+const VAN_SHADOW_COLOR := Color(0.24, 0.13, 0.07, 0.3)
 # Escala y cámara del escape (cenital, como el mapa).
 const VAN_SPRITE_PX_PER_M := 13.0
 const VAN_SPRITE_CAMERA_DEG := 90.0
@@ -247,6 +247,8 @@ const WORKSHOP_PHOTO_COLOR := Color("2a2f38")
 const WORKSHOP_QUESTION_Y := 100.0
 const WORKSHOP_ENTRY_ROW_Y := 124.0
 
+# Luz de atardecer: tinte cálido suave sobre el mundo (no afecta al HUD) y sombras marrón cálido.
+const WORLD_TINT := Color(1.0, 0.93, 0.82)
 const MAP_LABEL_TYPE := "rotulo"
 const MAP_COLLIDES_PROPERTY := "collides"
 # Rótulos de barrios y monumentos sobre el mapa.
@@ -278,7 +280,7 @@ const CITY_DRAW_ORDER := {&"wall": 0, &"roof": 1, &"edge": 2, &"tree": 3, &"spir
 # Sombras en el suelo: dirección, largo (fracción de la altura) y color con su transparencia.
 const CITY_SHADOW_DIR := Vector2(0.8, -0.6)
 const CITY_SHADOW_LENGTH := 0.35
-const CITY_SHADOW_COLOR := Color(0, 0, 0, 0.3)
+const CITY_SHADOW_COLOR := Color(0.24, 0.13, 0.07, 0.3)
 # Oscurecido de cada fachada según hacia dónde mira (luz de mediodía desde el sur).
 const CITY_WALL_SHADE := {Vector2i.DOWN: 0.0, Vector2i.LEFT: 0.15, Vector2i.RIGHT: 0.25, Vector2i.UP: 0.35}
 const CITY_EAVE_DARKEN := 0.35 # alero: línea oscura entre tejado y fachada
@@ -400,7 +402,7 @@ const PED_ARM_L := Rect2(-4, -10, 1, 4)
 const PED_ARM_R := Rect2(4, -10, 1, 4)
 const PED_HEAD := Rect2(-2, -16, 5, 5)
 const PED_HAIR_ROWS := 2
-const PED_SHADOW_COLOR := Color(0, 0, 0, 0.3)
+const PED_SHADOW_COLOR := Color(0.24, 0.13, 0.07, 0.3)
 # Atropellos: dentro de la caja de la furgo (medio ancho, medio largo) y por encima de
 # esta velocidad, el peatón queda tendido en el suelo con su charco de sangre.
 const PED_HIT_HALF := Vector2(13, 34)

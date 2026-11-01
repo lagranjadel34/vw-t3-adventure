@@ -16,18 +16,19 @@ const H = 100;
 const ARC_STEP_DEG = 15;
 
 // ---------- Tiles (gid = índice + 1) ----------
-const T = { HIERBA: 1, ASFALTO: 2, ARCEN: 3, TIERRA: 4, CLARO: 5, AGUA: 6, OLIVO: 7, PINO: 8, ROCA: 9 };
+const T = { HIERBA: 1, ASFALTO: 2, ARCEN: 3, TIERRA: 4, CLARO: 5, AGUA: 6, OLIVO: 7, PINO: 8, ROCA: 9, PINO_OCRE: 10 };
 const vol = (altura, tejado, fachada, detalle, patron) => ({ altura, tejado, fachada, detalle, patron });
 const TILE_DEFS = [
-  { name: 'hierba', color: [104, 150, 64], speck: [92, 136, 56] },
-  { name: 'asfalto', color: [58, 58, 64] },
-  { name: 'arcen', color: [150, 142, 132], speck: [128, 120, 110] },
-  { name: 'tierra', color: [168, 128, 82], speck: [150, 112, 70] },
-  { name: 'claro', color: [128, 170, 80], speck: [150, 186, 96] },
-  { name: 'agua', color: [44, 92, 138], wave: [90, 140, 186], collides: true },
-  { name: 'olivo', color: [104, 150, 64], tree: [84, 104, 64], collides: true, vol: vol(18, '#7d8f5a', '#5a4632', '#a3b57a', 'arbol') },
-  { name: 'pino', color: [70, 110, 50], tree: [30, 70, 35], collides: true, vol: vol(34, '#25562b', '#4a3524', '#3d7a3a', 'arbol') },
-  { name: 'roca', color: [120, 118, 110], border: [96, 94, 88], collides: true, vol: vol(10, '#9a958a', '#6e6a62', '#58554e', 'ladrillo') },
+  { name: 'hierba', color: [142, 140, 72], speck: [128, 128, 62] },
+  { name: 'asfalto', color: [96, 80, 70] },
+  { name: 'arcen', color: [196, 164, 122], speck: [172, 140, 100] },
+  { name: 'tierra', color: [180, 124, 72], speck: [160, 106, 60] },
+  { name: 'claro', color: [190, 156, 84], speck: [208, 176, 104] },
+  { name: 'agua', color: [70, 112, 116], wave: [128, 168, 160], collides: true },
+  { name: 'olivo', color: [142, 140, 72], tree: [104, 120, 70], collides: true, vol: vol(18, '#8a9a5c', '#5a4632', '#b4bd82', 'arbol') },
+  { name: 'pino', color: [120, 112, 58], tree: [176, 84, 44], collides: true, vol: vol(34, '#b5532e', '#5a3a28', '#d9743a', 'arbol') },
+  { name: 'roca', color: [140, 122, 104], border: [112, 96, 80], collides: true, vol: vol(10, '#a89478', '#7a6652', '#5e4e40', 'ladrillo') },
+  { name: 'pino_ocre', color: [120, 112, 58], tree: [218, 164, 64], collides: true, vol: vol(34, '#d9a040', '#5a3a28', '#f0c060', 'arbol') },
 ];
 
 // ---------- RNG con semilla (mapa reproducible) ----------
@@ -112,7 +113,7 @@ for (let y = 0; y < H; y++) for (let x = FOREST_X0 - 10; x < W; x++) {
   if (get(x, y) !== T.HIERBA || nearDrive(x, y, 1)) continue;
   const density = Math.min(1, (x - FOREST_X0 + 10) / 40) * 0.5;
   const r = rnd();
-  if (r < density) set(x, y, T.PINO);
+  if (r < density) set(x, y, rnd() < 0.45 ? T.PINO_OCRE : T.PINO);
   else if (r < density + 0.01 && x > FOREST_X0) set(x, y, T.ROCA);
 }
 

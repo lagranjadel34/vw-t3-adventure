@@ -35,6 +35,9 @@ var _shift_kick := Vector2.ZERO
 
 
 func _ready() -> void:
+	var tint := CanvasModulate.new()
+	tint.color = GameConfig.WORLD_TINT
+	add_child(tint)
 	_hud.add_gear_lever(_van.gearbox)
 	_van.gearbox.shifted.connect(_on_shifted)
 	var fade_layer := CanvasLayer.new()

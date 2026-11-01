@@ -25,15 +25,15 @@ const T = {
 // alta de otro color (campanario) que ocupa remate_frac de la altura; aguja = chapitel.
 const vol = (altura, tejado, fachada, detalle, patron, extra = {}) => ({ altura, tejado, fachada, detalle, patron, ...extra });
 const TILE_DEFS = [
-  { name: 'asfalto', color: [58, 58, 64] },
-  { name: 'acera', color: [150, 142, 132], grid: [170, 162, 152] },
+  { name: 'asfalto', color: [96, 80, 70] },
+  { name: 'acera', color: [200, 172, 132], grid: [214, 188, 148] },
   { name: 'tejado', color: [178, 98, 70], border: [140, 72, 50], collides: true },
-  { name: 'parque', color: [86, 140, 62] },
-  { name: 'agua', color: [44, 92, 138], wave: [90, 140, 186], collides: true },
-  { name: 'puente', color: [110, 106, 112], border: [190, 186, 180] },
+  { name: 'parque', color: [128, 142, 78] },
+  { name: 'agua', color: [70, 112, 116], wave: [128, 168, 160], collides: true },
+  { name: 'puente', color: [150, 120, 96], border: [218, 192, 150] },
   { name: 'monumento', color: [214, 192, 136], border: [170, 146, 96], collides: true },
-  { name: 'albero', color: [218, 166, 74] },
-  { name: 'arbol', color: [86, 140, 62], tree: [40, 92, 36], collides: true, vol: vol(24, '#2e6b2a', '#6b4a2e', '#3f8a38', 'arbol') },
+  { name: 'albero', color: [222, 168, 82] },
+  { name: 'arbol', color: [128, 142, 78], tree: [86, 108, 52], collides: true, vol: vol(24, '#5a7a3a', '#6b4a2e', '#8a9a4e', 'arbol') },
   // Casas de cal con azotea y zócalo de albero; casas ocres y rosadas con teja.
   { name: 'cal', color: [232, 226, 210], border: [190, 180, 160], collides: true, vol: vol(55, '#d6d0c2', '#f2eee2', '#4a3f3a', 'ventanas', { zocalo: '#d6a53c' }) },
   { name: 'ocre', color: [212, 160, 60], border: [170, 120, 40], collides: true, vol: vol(65, '#c6603f', '#e0a83c', '#4a3328', 'ventanas', { zocalo: '#f2eee2' }) },
@@ -46,23 +46,23 @@ const TILE_DEFS = [
   { name: 'alcazar', color: [216, 183, 122], border: [170, 140, 90], collides: true, vol: vol(45, '#c9a96a', '#d8b77a', '#a8874a', 'almenas') },
   { name: 'archivo', color: [201, 143, 90], border: [239, 230, 208], collides: true, vol: vol(55, '#b0a090', '#c98f5a', '#efe6d0', 'ventanas') },
   { name: 'setas', color: [232, 210, 166], border: [184, 154, 104], collides: true, vol: vol(60, '#e8d2a6', '#e8d2a6', '#b89a68', 'rejilla') },
-  { name: 'torre_sevilla', color: [143, 179, 201], border: [109, 143, 166], collides: true, vol: vol(200, '#6d8fa6', '#8fb3c9', '#c8dce8', 'cristal') },
-  { name: 'pabellon', color: [232, 232, 232], border: [176, 184, 192], collides: true, vol: vol(35, '#b0b8c0', '#e8e8e8', '#7f9bb0', 'cristal') },
-  { name: 'bloque', color: [201, 194, 181], border: [143, 138, 130], collides: true, vol: vol(110, '#8f8a82', '#c9c2b5', '#4f5d6b', 'ventanas') },
+  { name: 'torre_sevilla', color: [196, 170, 140], border: [160, 128, 100], collides: true, vol: vol(200, '#a8806a', '#c9a58a', '#ecd2b0', 'cristal') },
+  { name: 'pabellon', color: [236, 222, 200], border: [196, 176, 150], collides: true, vol: vol(35, '#c9ad8a', '#ecdcc0', '#b08a68', 'cristal') },
+  { name: 'bloque', color: [214, 190, 160], border: [166, 138, 112], collides: true, vol: vol(110, '#a88a6e', '#d6bd98', '#6e5a48', 'ventanas') },
   // Puente de Triana (Isabel II): calzada, barandilla de hierro y la Capillita del Carmen.
-  { name: 'puente_triana', color: [72, 70, 74] },
+  { name: 'puente_triana', color: [104, 84, 70] },
   // Barandilla: acera con la reja en medio (el juego la levanta en perspectiva).
-  { name: 'barandilla', color: [150, 142, 132], grid: [170, 162, 152], rail: [61, 72, 80], collides: true },
-  { name: 'capillita', color: [180, 85, 58], border: [239, 230, 208], collides: true, vol: vol(48, '#2f7f8a', '#b4553a', '#efe6d0', 'ladrillo', { remate: '#efe6d0', remate_frac: 0.2, aguja: '#2f8f9a' }) },
+  { name: 'barandilla', color: [200, 172, 132], grid: [214, 188, 148], rail: [92, 64, 46], collides: true },
+  { name: 'capillita', color: [186, 94, 62], border: [243, 228, 200], collides: true, vol: vol(48, '#6e8a6a', '#b85c3c', '#f2e4c4', 'ladrillo', { remate: '#f2e4c4', remate_frac: 0.2, aguja: '#7a9a6e' }) },
   // Naranjos de las aceras: copa verde con naranjas.
-  { name: 'naranjo', color: [150, 142, 132], tree: [40, 92, 36], collides: true, vol: vol(20, '#2f6b2a', '#6b4a2e', '#e8892a', 'arbol') },
+  { name: 'naranjo', color: [200, 172, 132], tree: [86, 108, 52], collides: true, vol: vol(20, '#5a7a3a', '#6b4a2e', '#ee9030', 'arbol') },
   // Taller Karvans: nave de chapa en el polígono junto a la A-4, con portón abierto.
-  { name: 'nave', color: [200, 204, 208], border: [125, 134, 140], collides: true, vol: vol(40, '#9aa3a8', '#c8ccd0', '#7d868c', 'chapa', { remate: '#d8742a', remate_frac: 0.25 }) },
-  { name: 'taller_suelo', color: [70, 72, 76], grid: [84, 86, 90] },
+  { name: 'nave', color: [214, 190, 160], border: [150, 120, 96], collides: true, vol: vol(40, '#b09478', '#d6c0a0', '#8e7458', 'chapa', { remate: '#d8742a', remate_frac: 0.25 }) },
+  { name: 'taller_suelo', color: [96, 80, 68], grid: [110, 92, 78] },
   // Entrada del taller: franjas amarillas y negras en el suelo.
-  { name: 'entrada', color: [40, 40, 44], hatch: [226, 186, 40] },
+  { name: 'entrada', color: [60, 46, 38], hatch: [230, 176, 60] },
   // Arcén de la carretera comarcal que sale de la ciudad.
-  { name: 'arcen', color: [150, 142, 132] },
+  { name: 'arcen', color: [196, 164, 122] },
 ];
 // La casa rosada con teja usa el tile 'tejado'.
 TILE_DEFS[T.TEJADO - 1].vol = vol(45, '#b85a3c', '#e7b9a0', '#4a3328', 'ventanas', { zocalo: '#f2eee2' });
