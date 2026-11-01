@@ -15,6 +15,8 @@ var handbrake_input := false
 var load_kg := GameConfig.VAN_DEFAULT_LOAD_KG
 ## La furgo va de lado (para HUD, humo, sonido...).
 var drifting := false
+## Superficie bajo la furgo (GameConfig.SURFACES); la pone la escena cada frame.
+var surface: Dictionary = GameConfig.SURFACE_ROAD
 
 ## Volante aplicado este frame en [-1, 1] (teclado o joystick), para el sprite.
 var steer := 0.0
@@ -137,14 +139,14 @@ func _physics_process(delta: float) -> void:
 	elif gearbox.shifting and gas_input:
 		# Embrague pisado: sin empuje y rodando, la furgo pierde algo de velocidad.
 		spd = _toward_zero(spd, GameConfig.GEAR_SHIFT_DRAG * delta)
-	elif gas_input and spd < Gearbox.max_speed(gearbox.gear):
+	elif gas_input and spd < _top_speed():
 		drive = gearbox.acceleration(spd)
-		spd = minf(spd + drive * weight * delta, Gearbox.max_speed(gearbox.gear))
+		spd = minf(spd + drive * weight * delta, _top_speed())
 	elif not gas_input:
-		spd = _toward_zero(spd, GameConfig.VAN_DRAG * Gearbox.coast_drag_ratio(gearbox.gear) * delta)
+		spd = _toward_zero(spd, GameConfig.VAN_DRAG * surface.drag * Gearbox.coast_drag_ratio(gearbox.gear) * delta)
 	# Pasado de vueltas (tras reducir): el motor retiene hasta el tope de la marcha.
-	if not _reversing and spd > Gearbox.max_speed(gearbox.gear):
-		spd = move_toward(spd, Gearbox.max_speed(gearbox.gear), GameConfig.GEAR_ENGINE_BRAKE * delta)
+	if not _reversing and spd > _top_speed():
+		spd = move_toward(spd, _top_speed(), GameConfig.GEAR_ENGINE_BRAKE * delta)
 	gearbox.update(spd, delta)
 	spd = clampf(spd, -GameConfig.VAN_MAX_REVERSE_SPEED, GameConfig.VAN_MAX_SPEED)
 
@@ -153,20 +155,20 @@ func _physics_process(delta: float) -> void:
 	var lateral_accel := absf(spd * yaw_rate)
 	var moving := absf(spd) > GameConfig.VAN_STOP_SPEED
 	var drive_share := drive / GameConfig.VAN_ACCELERATION
-	var grip_limit := GameConfig.VAN_GRIP_LIMIT * weight * (1.0 - GameConfig.VAN_REAR_DRIVE_GRIP_LOSS * drive_share)
-	var over_limit := lateral_accel > grip_limit
+	var grip_limit: float = GameConfig.VAN_GRIP_LIMIT * surface.grip * weight * (1.0 - GameConfig.VAN_REAR_DRIVE_GRIP_LOSS * drive_share)
+	var over_limit: bool = lateral_accel > grip_limit
 	if moving and (handbrake or over_limit):
 		drifting = true
 	if drifting:
 		_slip = _side_speed()
-		var grip := GameConfig.VAN_HANDBRAKE_GRIP if handbrake else GameConfig.VAN_DRIFT_GRIP
+		var grip: float = (GameConfig.VAN_HANDBRAKE_GRIP if handbrake else GameConfig.VAN_DRIFT_GRIP) * surface.grip
 		if gas_input and not handbrake:
 			grip *= GameConfig.VAN_DRIFT_GAS_GRIP_RATIO
 		_slip *= exp(-grip * delta)
 		# El peso del motor trasero sigue empujando la cola hacia fuera (hay que contravolantear).
 		yaw_rate += clampf(_slip * GameConfig.VAN_DRIFT_TAIL_YAW, -GameConfig.VAN_DRIFT_MAX_TAIL_YAW, GameConfig.VAN_DRIFT_MAX_TAIL_YAW)
 		# Se recupera el agarre cuando la curva ya no pide más y casi no queda velocidad de lado.
-		var settled := not over_limit and absf(_slip) < GameConfig.VAN_DRIFT_END_SLIP
+		var settled: bool = not over_limit and absf(_slip) < GameConfig.VAN_DRIFT_END_SLIP
 		if not handbrake and (settled or not moving):
 			drifting = false
 	if not drifting:
@@ -206,6 +208,11 @@ var heading: Vector2:
 
 func _heading() -> Vector2:
 	return Vector2.from_angle(rotation - PI / 2)
+
+
+## Tope de velocidad de la marcha actual en esta superficie (px/s).
+func _top_speed() -> float:
+	return Gearbox.max_speed(gearbox.gear) * surface.speed
 
 
 ## Izquierda del morro.
