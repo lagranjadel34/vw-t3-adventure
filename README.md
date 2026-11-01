@@ -8,6 +8,15 @@ Motor: Godot 4.5 (`godot/`). Cada cambio en `godot/` que llega a master genera u
 
 Lo más nuevo arriba. El número coincide con el que muestra Obtainium (0.1.N = Release `apk-N`).
 
+### 0.1.91 · 2026-11-01
+- Suelo con textura: la hierba tiene briznas, hojas secas y variantes; la tierra, piedrecillas y grietas; el arcén, grava; el asfalto, grano y alguna grieta; los claros, flores. Ya no se repite el mismo cuadro.
+- Pista de tierra del bosque sinuosa y de anchura variable, con surcos de rueda, charcos de barro y hierba comiéndose los bordes.
+- Nueva senda estrecha desde la pista hasta un embarcadero en la laguna.
+
+### 0.1.90 · 2026-11-01
+- Paleta cálida en Sevilla y el bosque: ocres, marrones cálidos, naranjas de atardecer y verdes apagados, en vez de grises y azules fríos.
+- Pinar otoñal en naranja óxido y ocre, y luz suave y cálida sobre todo el mundo, con sombras en marrón cálido.
+
 ### 0.1.89 · 2026-10-29
 - Paso al campo más cinematográfico: la cámara arranca a ras de asfalto y se eleva. La furgo echa humo, lleva los pilotos encendidos, gira en la curva (se le ve el costado) y se pierde tras el cambio de rasante. Al acabar, la imagen se funde con el bosque.
 - Al empezar la partida, un recuadro te dice qué hacer: sal de la ciudad y busca un spot donde pasar la noche. Se cierra al tocar la pantalla o solo.
