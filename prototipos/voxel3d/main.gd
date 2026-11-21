@@ -6,6 +6,7 @@ extends Node
 
 const PIXEL_RES := Vector2i(320, 180)      # misma resolución lógica que el juego
 const CAM_OFFSET := Vector3(0, 24, 17)     # cámara alta y oblicua, como el vídeo
+const CAM_OFFSET_NEAR := Vector3(-5, 8, 8)  # --cerca: plano corto para capturas
 const CAM_FOV := 38.0
 const CAM_LERP := 4.0
 const WORLD_SIZE := 160.0
@@ -13,6 +14,7 @@ const ROAD_WIDTH := 5.0
 const TREE_COUNT := 260
 const BUSH_COUNT := 420
 const SEED := 34
+const VAN_MODEL := "res://dehler.json"  # tools/sprites/export_mesh3d.py dehler ... --detalle
 
 const MAX_SPEED := 14.0        # m/s
 const ACCEL := 6.0
@@ -40,6 +42,7 @@ var speed := 0.0
 var heading := 0.0
 var road_pts: PackedVector3Array = []
 var auto_drive := false
+var cam_offset := CAM_OFFSET
 var shot_path := ""
 var shot_frames := 90
 var frame := 0
@@ -52,6 +55,8 @@ func _ready() -> void:
 		if a.begins_with("--shot="):
 			shot_path = a.substr(7)
 			auto_drive = true
+		elif a == "--cerca":
+			cam_offset = CAM_OFFSET_NEAR
 		elif a.begins_with("--frames="):
 			shot_frames = int(a.substr(9))
 	_build_viewport()
@@ -59,12 +64,12 @@ func _ready() -> void:
 	_build_ground()
 	_build_road()
 	_build_vegetation()
-	van = _build_van()
+	van = _load_van() if FileAccess.file_exists(VAN_MODEL) else _build_van()
 	view.add_child(van)
 	var start := road_pts[2]
 	van.position = start
 	heading = atan2(road_pts[3].x - start.x, road_pts[3].z - start.z)
-	cam.position = van.position + CAM_OFFSET
+	cam.position = van.position + cam_offset
 	cam.look_at(van.position)
 
 
@@ -217,6 +222,15 @@ func _build_vegetation() -> void:
 		view.add_child(b)
 
 
+func _load_van() -> Node3D:
+	var v := Node3D.new()
+	var body := Node3D.new()
+	body.name = "Body"
+	v.add_child(body)
+	body.add_child(VanMesh.load_van(VAN_MODEL))
+	return v
+
+
 func _build_van() -> Node3D:
 	# T3 Dehler Profi a bloques (medidas reales aprox.: 4,6 x 1,85 m, techo alto).
 	var v := Node3D.new()
@@ -264,9 +278,9 @@ func _physics_process(delta: float) -> void:
 	van.position += Vector3(sin(heading), 0, cos(heading)) * speed * delta
 	# Balanceo leve de la caja al girar: suaviza y da peso.
 	van.get_node("Body").rotation.z = lerpf(van.get_node("Body").rotation.z, -steer * speed / MAX_SPEED * 0.06, 0.1)
-	var target := van.position + CAM_OFFSET
+	var target := van.position + cam_offset
 	cam.position = cam.position.lerp(target, clampf(CAM_LERP * delta, 0.0, 1.0))
-	cam.look_at(cam.position - CAM_OFFSET)
+	cam.look_at(cam.position - cam_offset)
 
 
 func _auto_steer() -> float:
@@ -283,6 +297,7 @@ func _auto_steer() -> float:
 
 
 func _process(_delta: float) -> void:
+	fps_label.visible = shot_path == ""
 	fps_label.text = "%d fps" % Engine.get_frames_per_second()
 	frame += 1
 	if shot_path != "" and frame == shot_frames:

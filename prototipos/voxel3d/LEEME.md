@@ -4,3 +4,9 @@ Mundo 3D de bloques renderizado a 320x180 en un SubViewport y escalado con filtr
 
 - Jugar: abrir `prototipos/voxel3d/project.godot` en Godot 4.5 y F5. Flechas/WASD.
 - Captura sin manos: `godot --path prototipos/voxel3d -- --shot=/tmp/shot.png --frames=160`
+
+## Ficha 3D de la Dehler Profi
+1. Modelo: `python3 tools/sprites/export_mesh3d.py dehler prototipos/voxel3d/dehler.json --detalle` (mismo modelo que los sprites + piezas de detalle).
+2. Vistas: `godot --path prototipos/voxel3d res://render_ficha.tscn -- --out=/carpeta` (8 PNG).
+3. En el mundo: `godot --path prototipos/voxel3d -- --shot=/carpeta/mundo.png --frames=150 --cerca`.
+4. Ficha: `python3 prototipos/voxel3d/componer_ficha.py /carpeta godot/assets/fonts/Fredoka-Variable.ttf ficha.png` (espera las vistas en `/carpeta/ficha/`).
