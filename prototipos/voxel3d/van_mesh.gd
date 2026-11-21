@@ -25,3 +25,44 @@ static func load_van(path: String) -> MeshInstance3D:
 	mi.mesh = st.commit()
 	mi.material_override = mat
 	return mi
+
+
+## Modelo con curvas de tools/sprites/t3_sdf.py: float32, 9 valores por vértice
+## (posición, normal, color), tres vértices por triángulo.
+static func load_van_bin(path: String) -> MeshInstance3D:
+	var f := FileAccess.get_file_as_bytes(path).to_float32_array()
+	var n := f.size() / 9
+	var pos := PackedVector3Array()
+	var nor := PackedVector3Array()
+	var col := PackedColorArray()
+	pos.resize(n)
+	nor.resize(n)
+	col.resize(n)
+	for i in n:
+		var k := i * 9
+		pos[i] = Vector3(f[k], f[k + 1], f[k + 2])
+		nor[i] = Vector3(f[k + 3], f[k + 4], f[k + 5])
+		col[i] = Color(f[k + 6], f[k + 7], f[k + 8])
+	var arr := []
+	arr.resize(Mesh.ARRAY_MAX)
+	arr[Mesh.ARRAY_VERTEX] = pos
+	arr[Mesh.ARRAY_NORMAL] = nor
+	arr[Mesh.ARRAY_COLOR] = col
+	var mesh := ArrayMesh.new()
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arr)
+	var mat := StandardMaterial3D.new()
+	mat.vertex_color_use_as_albedo = true
+	mat.vertex_color_is_srgb = true
+	mat.roughness = 0.75
+	mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+	var mi := MeshInstance3D.new()
+	mi.mesh = mesh
+	mi.material_override = mat
+	return mi
+
+
+## Carga el modelo con curvas si existe; si no, el de polígonos planos.
+static func load_best(bin_path: String, json_path: String) -> MeshInstance3D:
+	if FileAccess.file_exists(bin_path):
+		return load_van_bin(bin_path)
+	return load_van(json_path)

@@ -6,7 +6,7 @@ Mundo 3D de bloques renderizado a 320x180 en un SubViewport y escalado con filtr
 - Captura sin manos: `godot --path prototipos/voxel3d -- --shot=/tmp/shot.png --frames=160`
 
 ## Ficha 3D de la Dehler Profi
-1. Modelo: `python3 tools/sprites/export_mesh3d.py dehler prototipos/voxel3d/dehler.json --detalle` (mismo modelo que los sprites + piezas de detalle).
+1. Modelo con curvas: `python3 tools/sprites/t3_sdf.py prototipos/voxel3d/dehler_curvas.bin` (necesita scikit-image; si no existe se usa el de polígonos planos). Modelo plano: `python3 tools/sprites/export_mesh3d.py dehler prototipos/voxel3d/dehler.json --detalle` (mismo modelo que los sprites + piezas de detalle).
 2. Vistas: `godot --path prototipos/voxel3d res://render_ficha.tscn -- --out=/carpeta` (8 PNG).
 3. En el mundo: `godot --path prototipos/voxel3d -- --shot=/carpeta/mundo.png --frames=150 --cerca`.
 4. Ficha: `python3 prototipos/voxel3d/componer_ficha.py /carpeta godot/assets/fonts/Fredoka-Variable.ttf ficha.png` (espera las vistas en `/carpeta/ficha/`).

@@ -8,6 +8,7 @@ const UPSCALE := 3
 const DIST := 9.0
 const FOV := 30.0
 const MODEL := "res://dehler.json"
+const MODEL_BIN := "res://dehler_curvas.bin"  # tools/sprites/t3_sdf.py
 const BG := Color("bfe0e0")
 const FLOOR_SHADE := 0.72  # el suelo iluminado queda del tono del fondo
 # nombre, yaw (grados, 0 = de frente), elevación (grados), ortogonal, tamaño (m) o distancia relativa
@@ -64,7 +65,7 @@ func _ready() -> void:
 	var g := MeshInstance3D.new()
 	g.mesh = pm
 	view.add_child(g)
-	view.add_child(VanMesh.load_van(MODEL))
+	view.add_child(VanMesh.load_best(MODEL_BIN, MODEL))
 	cam = Camera3D.new()
 	view.add_child(cam)
 	_next()

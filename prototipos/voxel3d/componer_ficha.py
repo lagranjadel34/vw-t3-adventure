@@ -11,7 +11,7 @@ def f(sz, wt=600):
     except Exception: pass
     return ft
 d.text((W // 2, 50), "FICHA 3D: VW T3 DEHLER PROFI 1983", font=f(64, 700), fill=INK, anchor="mt")
-d.text((W // 2, 130), "Modelo 3D low-poly · render pixelado en Godot (Compatibility) · prototipo de estilo",
+d.text((W // 2, 130), "Modelo 3D con curvas · render pixelado en Godot (Compatibility) · prototipo de estilo",
        font=f(30, 400), fill=SUB, anchor="mt")
 def put(name, box, label, crop=None):
     x, y, w, h = box
@@ -38,7 +38,7 @@ d.rounded_rectangle((x, y, 1900, 1490), 18, fill=CARD)
 rows = [("Año", "1983"), ("Motor", "1.9 gasolina, 90 CV · caja de 4 marchas"),
         ("Techo", "Alto de fibra, con escotilla y carriles"),
         ("Medidas", "4,57 x 1,84 x 2,34 m · batalla 2,46 m"),
-        ("Modelo 3D", "319 polígonos · 1.044 triángulos · color por cara, sin texturas"),
+        ("Modelo 3D", "Curvas suaves, techo abombado, pasos de rueda"),
         ("Render", "320x240 en 3D, ampliado x3 con píxel duro (nearest)")]
 for i, (k, v) in enumerate(rows):
     yy = y + 25 + i * 50

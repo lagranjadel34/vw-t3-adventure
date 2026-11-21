@@ -15,6 +15,7 @@ const TREE_COUNT := 260
 const BUSH_COUNT := 420
 const SEED := 34
 const VAN_MODEL := "res://dehler.json"  # tools/sprites/export_mesh3d.py dehler ... --detalle
+const VAN_MODEL_BIN := "res://dehler_curvas.bin"  # tools/sprites/t3_sdf.py
 
 const MAX_SPEED := 14.0        # m/s
 const ACCEL := 6.0
@@ -227,7 +228,7 @@ func _load_van() -> Node3D:
 	var body := Node3D.new()
 	body.name = "Body"
 	v.add_child(body)
-	body.add_child(VanMesh.load_van(VAN_MODEL))
+	body.add_child(VanMesh.load_best(VAN_MODEL_BIN, VAN_MODEL))
 	return v
 
 
