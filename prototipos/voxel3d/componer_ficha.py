@@ -38,7 +38,7 @@ d.rounded_rectangle((x, y, 1900, 1490), 18, fill=CARD)
 rows = [("Año", "1983"), ("Motor", "1.9 gasolina, 90 CV · caja de 4 marchas"),
         ("Techo", "Alto de fibra: ventana lateral, escotilla y claraboya"),
         ("Medidas", "4,57 x 1,84 x 2,34 m · batalla 2,46 m"),
-        ("Modelo 3D", "Medido sobre tu ficha dehler-profi-1983 · curvas suaves"),
+        ("Modelo 3D", "Medido y superpuesto sobre tu ficha dehler-profi-1983"),
         ("Render", "320x240 en 3D, ampliado x3 con píxel duro (nearest)")]
 for i, (k, v) in enumerate(rows):
     yy = y + 25 + i * 50

@@ -41,7 +41,7 @@ EU = rgb(40, 70, 160)
 TYRE = rgb(36, 37, 40)
 TYRE_WALL = rgb(50, 51, 54)
 STEEL = rgb(40, 42, 46)
-HUB = rgb(178, 188, 189)
+HUB = rgb(150, 160, 163)
 HUB_DARK = rgb(120, 128, 130)
 HATCH = rgb(76, 75, 80)
 SKY = rgb(173, 194, 199)
@@ -60,15 +60,13 @@ ARCH_R = 0.45
 ROUND = 0.06
 
 SIDE = ([(X_REAR, Z_SILL), (2.24, Z_SILL), (2.28, 0.62), (2.29, 1.12), (2.26, 1.24), (1.70, 1.92),
-         (1.40, 2.07), (1.08, 2.20), (0.80, 2.28), (0.55, Z_TOP), (-1.58, Z_TOP), (-1.76, 2.29),
-         (-1.92, 2.18), (-2.02, 2.02), (-2.07, 1.85), (X_REAR, 1.2)])
-_HT = 0.84   # medio ancho del techo alto (más estrecho que la caja, con hombros redondos)
-FRONT = ([(-HW, Z_SILL), (HW, Z_SILL), (HW, Z_CREASE), (0.90, Z_WIN0), (0.865, Z_WIN1), (0.875, Z_GUTTER),
-          (_HT, Z_GUTTER + 0.03), (_HT, 2.06)]
-         + arc(_HT - 0.26, 2.06, 0.26, 0, math.pi / 2)[1:]
-         + [(-x, z) for x, z in arc(_HT - 0.26, 2.06, 0.26, math.pi / 2, 0)][:-1]
-         + [(-_HT, 2.06), (-_HT, Z_GUTTER + 0.03), (-0.875, Z_GUTTER), (-0.865, Z_WIN1), (-0.90, Z_WIN0),
-            (-HW, Z_CREASE)])
+         (1.40, 2.07), (1.08, 2.20), (0.80, 2.28), (0.55, Z_TOP), (-1.86, Z_TOP), (-1.97, 2.27),
+         (-2.03, 2.15), (-2.06, 1.95), (-2.08, 1.6), (X_REAR, 1.2)])
+# Sección (y, z) medida en la trasera de la ficha: costados que se cierran por encima de la moldura,
+# canalón con reborde y techo alto en trapecio (más estrecho arriba) con esquinas suaves.
+_R = [(HW, Z_SILL), (HW, Z_CREASE), (0.895, Z_WIN0), (0.85, Z_WIN1), (0.86, Z_GUTTER),
+      (0.80, Z_GUTTER + 0.04), (0.68, 2.22)] + arc(0.58, 2.22, 0.10, math.radians(20), math.pi / 2)[1:]
+FRONT = _R + [(-y, z) for y, z in reversed(_R)]
 CX = (X_FRONT + X_REAR) / 2
 HX = (X_FRONT - X_REAR) / 2 + 0.03
 
@@ -83,7 +81,6 @@ def parts(x, y, z):
         arch = np.maximum(np.hypot(x - wx, z - WZ) - ARCH_R, 0.62 - np.abs(y))
         body = smax(body, -arch, 0.03)
     P = {"body": body}
-    P["chassis"] = sd_box(x, y, z, (0.05, 0, 0.3), (2.0, 0.72, 0.12), 0.03)
     # Moldura de las manetas y moldura negra baja, en relieve
     rub = sd_box(x, y, z, (CX, 0, Z_CREASE), (HX - 0.04, HW + 0.012, 0.018), 0.012)
     low = sd_box(x, y, z, (CX, 0, 0.6), (HX - 0.05, HW + 0.012, 0.035), 0.012)
@@ -93,7 +90,7 @@ def parts(x, y, z):
     P["rub"] = rub
     P["molding"] = low
     P["bumper_f"] = sd_box(x, y, z, (2.31, 0, 0.53), (0.08, 0.95, 0.11), 0.045)
-    P["bumper_r"] = sd_box(x, y, z, (-2.15, 0, 0.51), (0.08, 0.95, 0.10), 0.045)
+    P["bumper_r"] = sd_box(x, y, z, (-2.15, 0, 0.47), (0.08, 0.95, 0.085), 0.045)
     w = None
     for wx in (WX, -WX):
         for s in (1, -1):
@@ -138,7 +135,7 @@ def paint(part, x, y, z, n):
     put(b & (nx > 0.2) & (nz > 0.4) & (z > 2.0) & rbox(x, y, 1.03, 1.33, -0.34, 0.34, 0.04), SKY)
     # Ventanas laterales: goma negra, luna, reflejo
     for x0, x1 in WINDOWS:
-        put(side & rbox(x, z, x0 - 0.03, x1 + 0.03, Z_WIN0 - 0.03, Z_WIN1 + 0.03, 0.08), RUBBER)
+        put(side & rbox(x, z, x0 - 0.045, x1 + 0.045, Z_WIN0 - 0.045, Z_WIN1 + 0.045, 0.1), RUBBER)
         put(side & rbox(x, z, x0, x1, Z_WIN0, Z_WIN1, 0.06), GLASS)
         d = (x - x0) / (x1 - x0) + (z - Z_WIN0) / (Z_WIN1 - Z_WIN0) * 0.5 * np.sign(y)
         put(side & (np.abs(d - 0.75) < 0.12) & rbox(x, z, x0 + 0.02, x1 - 0.02, Z_WIN0 + 0.02, Z_WIN1 - 0.02, 0.05),
@@ -146,10 +143,10 @@ def paint(part, x, y, z, n):
     put(side & (np.abs(x - 0.08) < 0.012) & (z > Z_WIN0) & (z < Z_WIN1), RUBBER)
     put(side & (np.abs(z - 1.60) < 0.012) & (x > -0.42) & (x < 0.58), RUBBER)
     put(side & (np.abs(x - 1.52) < 0.012) & (z > Z_WIN0) & (z < Z_WIN1), RUBBER)   # ventanilla de la puerta
-    # Rejilla del pilar trasero (lamas inclinadas)
-    for k in range(7):
-        z0 = 1.42 + k * 0.05
-        put(side & (z > z0) & (z < z0 + 0.025) & (x > -1.94 + (z - 1.42) * 0.12) & (x < -1.66), RUBBER)
+    # Rejilla del pilar trasero: panel oscuro inclinado con lamas
+    louv = side & (z > 1.40) & (z < 1.82) & (x > -1.99 + (z - 1.40) * 0.3) & (x < -1.66 + (z - 1.40) * 0.1)
+    put(louv, RUBBER)
+    put(louv & (((z - 1.40) % 0.052) < 0.022), UPPER * 0.62)
     # Juntas: puerta delantera, corredera (derecha, y < 0) y paneles; manetas; tapón
     for xs in (0.74, 1.98):
         put(side & (np.abs(x - xs) < 0.01) & (z > 0.45) & (z < Z_GUTTER), SEAM)
@@ -191,16 +188,17 @@ def paint(part, x, y, z, n):
     put(rear & rbox(y, z, -0.73, 0.73, Z_WIN0 - 0.05, Z_WIN1 - 0.03, 0.08), GLASS)
     put(rear & (np.abs(-y * 0.8 + (z - 1.55) - 0.3) < 0.07) & rbox(y, z, -0.7, 0.7, Z_WIN0 - 0.02, Z_WIN1 - 0.06, 0.07),
         GLASS_HI)
-    put(rear & (ay > 0.46) & (ay < 0.84) & (z > 0.66) & (z < 0.82), RED)
-    put(rear & (ay > 0.74) & (ay < 0.84) & (z > 0.66) & (z < 0.82), AMBER)
-    put(rear & (ay > 0.46) & (ay < 0.54) & (z > 0.66) & (z < 0.82), WHITE)
-    put(rear & (ay < 0.27) & (z > 0.63) & (z < 0.74), PLATE)
-    put(rear & disc(y, z, 0, 1.08, 0.065), CHROME)
-    put(rear & disc(y, z, 0, 1.08, 0.048), LOWER)
-    put(rear & (y > 0.28) & (y < 0.6) & (z > 1.05) & (z < 1.11), RUBBER)
+    put(rear & (ay > 0.48) & (ay < 0.84) & (z > 0.61) & (z < 0.77), RED)
+    put(rear & (ay > 0.66) & (ay < 0.84) & (z > 0.72) & (z < 0.77), AMBER)
+    put(rear & (ay > 0.48) & (ay < 0.66) & (z > 0.72) & (z < 0.77), WHITE)
+    put(rear & (ay > 0.48) & (ay < 0.84) & ((np.abs(z - 0.72) < 0.006) | (np.abs(np.abs(y) - 0.66) < 0.006)), RUBBER)
+    put(rear & (ay < 0.25) & (z > 0.61) & (z < 0.72), PLATE)
+    put(rear & disc(y, z, 0, 1.0, 0.075), CHROME)
+    put(rear & disc(y, z, 0, 1.0, 0.056), LOWER)
+    put(rear & (y < -0.28) & (y > -0.62) & (z > 0.94) & (z < 1.01), RUBBER)
     for k in range(6):
-        yy = 0.31 + k * 0.05
-        put(rear & (y > yy) & (y < yy + 0.03) & (z > 1.065) & (z < 1.095), CHROME)
+        yy = -0.31 - k * 0.05
+        put(rear & (y < yy) & (y > yy - 0.03) & (z > 0.955) & (z < 0.995), CHROME)
     put(rear & (ay < 0.88) & ((np.abs(z - 1.2) < 0.008) | (np.abs(z - 0.86) < 0.008)), SEAM)
     # Otras piezas
     put(part == "chassis", BLACK)
@@ -226,9 +224,10 @@ def paint(part, x, y, z, n):
     put(wm, TYRE)
     put(wm & (rr > WR - 0.035) & (np.sin(ang * 28) > 0), TYRE_WALL)
     face = wm & (np.abs(ny) > 0.7) & (ay > WY)
-    put(face & (rr < 0.22), STEEL)
-    put(face & (rr < 0.17), HUB)
-    put(face & (rr < 0.11) & (rr > 0.095), HUB_DARK)
+    put(face & (rr < 0.235), STEEL)
+    put(face & (rr < 0.19), HUB)
+    put(face & (rr < 0.135) & (rr > 0.12), HUB_DARK)
+    put(face & (rr < 0.08) & (rr > 0.07), HUB_DARK)
     put(face & (rr < 0.035), HUB_DARK)
     return c
 
