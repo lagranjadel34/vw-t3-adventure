@@ -3,7 +3,7 @@ from PIL import Image, ImageDraw, ImageFont
 S, FONT, OUT = sys.argv[1], sys.argv[2], sys.argv[3]
 D = S + "/ficha/"
 W, H = 2400, 1500
-BG = (191, 224, 224); INK = (20, 28, 48); SUB = (70, 90, 110); CARD = (214, 236, 236)
+BG = (220, 228, 230); INK = (20, 28, 48); SUB = (70, 90, 110); CARD = (234, 239, 240)
 im = Image.new("RGB", (W, H), BG); d = ImageDraw.Draw(im)
 def f(sz, wt=600):
     ft = ImageFont.truetype(FONT, sz)
@@ -36,16 +36,16 @@ put("superior", (1920, 810, 440, 680), "SUPERIOR", (330, 0, 630, 720))
 x, y = 40, 1160
 d.rounded_rectangle((x, y, 1900, 1490), 18, fill=CARD)
 rows = [("Año", "1983"), ("Motor", "1.9 gasolina, 90 CV · caja de 4 marchas"),
-        ("Techo", "Alto de fibra, con escotilla y carriles"),
+        ("Techo", "Alto de fibra: ventana lateral, escotilla y claraboya"),
         ("Medidas", "4,57 x 1,84 x 2,34 m · batalla 2,46 m"),
-        ("Modelo 3D", "Curvas suaves, techo abombado, pasos de rueda"),
+        ("Modelo 3D", "Medido sobre tu ficha dehler-profi-1983 · curvas suaves"),
         ("Render", "320x240 en 3D, ampliado x3 con píxel duro (nearest)")]
 for i, (k, v) in enumerate(rows):
     yy = y + 25 + i * 50
     d.text((x + 30, yy), k, font=f(30, 700), fill=INK)
     d.text((x + 260, yy), v, font=f(30, 400), fill=INK)
 # paleta
-pal = [(52, 82, 134), (45, 78, 131), (152, 189, 198), (133, 167, 194), (40, 50, 58), (48, 52, 55), (172, 180, 186), (226, 140, 40)]
+pal = [(86, 103, 113), (128, 143, 150), (92, 109, 118), (150, 164, 168), (18, 26, 32), (112, 130, 137), (178, 188, 189), (222, 132, 40)]
 d.text((1560, y + 25), "Paleta", font=f(30, 700), fill=INK)
 for i, c in enumerate(pal):
     cx, cy = 1560 + (i % 4) * 80, y + 90 + (i // 4) * 80

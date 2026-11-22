@@ -9,8 +9,8 @@ const DIST := 9.0
 const FOV := 30.0
 const MODEL := "res://dehler.json"
 const MODEL_BIN := "res://dehler_curvas.bin"  # tools/sprites/t3_sdf.py
-const BG := Color("bfe0e0")
-const FLOOR_SHADE := 0.72  # el suelo iluminado queda del tono del fondo
+const BG := Color("dce4e6")
+const FLOOR_SHADE := 0.6  # el suelo iluminado queda del tono del fondo
 # nombre, yaw (grados, 0 = de frente), elevación (grados), ortogonal, tamaño (m) o distancia relativa
 const VIEWS := [
 	["tres_cuartos", 35.0, 22.0, false, 1.0],
@@ -43,18 +43,18 @@ func _ready() -> void:
 	env.background_color = BG
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	env.ambient_light_color = Color("9fb4c8")
-	env.ambient_light_energy = 0.5
+	env.ambient_light_energy = 0.85
 	var we := WorldEnvironment.new()
 	we.environment = env
 	view.add_child(we)
 	var sun := DirectionalLight3D.new()
 	sun.light_color = Color("fff0dc")
-	sun.light_energy = 1.0
+	sun.light_energy = 1.1
 	sun.shadow_enabled = true
 	sun.shadow_bias = 0.3
 	sun.shadow_normal_bias = 4.0
 	sun.directional_shadow_mode = DirectionalLight3D.SHADOW_ORTHOGONAL
-	sun.rotation_degrees = Vector3(-55, 30, 0)
+	sun.rotation_degrees = Vector3(-55, -30, 0)
 	view.add_child(sun)
 	var floor_mat := StandardMaterial3D.new()
 	floor_mat.albedo_color = BG * FLOOR_SHADE
