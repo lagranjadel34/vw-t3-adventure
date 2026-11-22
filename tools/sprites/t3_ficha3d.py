@@ -51,21 +51,22 @@ EXHAUST = rgb(96, 96, 98)
 X_FRONT, X_REAR = 2.27, -2.12
 HW = 0.92
 Z_SILL = 0.40
-Z_CREASE = 1.18      # moldura (altura de las manetas)
+Z_CREASE = 1.12      # moldura (altura de las manetas); por encima los costados se cierran
 Z_WIN0, Z_WIN1 = 1.37, 1.84
 Z_GUTTER = 1.89
 Z_TOP = 2.32
-WX, WZ, WR, WY, WHW = 1.23, 0.33, 0.33, 0.80, 0.105
+WX, WZ, WR, WY, WHW = 1.23, 0.33, 0.33, 0.755, 0.125   # rueda de 0,25 m de ancho (vista trasera)
 ARCH_R = 0.45
-ROUND = 0.06
+ROUND = 0.09
 
 SIDE = ([(X_REAR, Z_SILL), (2.24, Z_SILL), (2.28, 0.62), (2.29, 1.12), (2.26, 1.24), (1.70, 1.92),
          (1.40, 2.07), (1.08, 2.20), (0.80, 2.28), (0.55, Z_TOP), (-1.86, Z_TOP), (-1.97, 2.27),
-         (-2.03, 2.15), (-2.06, 1.95), (-2.08, 1.6), (X_REAR, 1.2)])
+         (-2.02, 2.15), (-2.04, 1.92), (-2.09, 1.45), (X_REAR, 1.12)])
 # Sección (y, z) medida en la trasera de la ficha: costados que se cierran por encima de la moldura,
 # canalón con reborde y techo alto en trapecio (más estrecho arriba) con esquinas suaves.
-_R = [(HW, Z_SILL), (HW, Z_CREASE), (0.895, Z_WIN0), (0.85, Z_WIN1), (0.86, Z_GUTTER),
-      (0.80, Z_GUTTER + 0.04), (0.68, 2.22)] + arc(0.58, 2.22, 0.10, math.radians(20), math.pi / 2)[1:]
+# Medido en la trasera de la ficha (129 px/m): 0,92 abajo, 0,72 en el canalón, techo de ±0,40 arriba.
+_R = [(HW, Z_SILL), (HW, 1.06), (0.89, Z_CREASE + 0.02), (0.80, 1.5), (0.72, Z_WIN1), (0.73, Z_GUTTER - 0.02),
+      (0.69, Z_GUTTER + 0.02), (0.62, 2.07)] + arc(0.40, Z_TOP - 0.22, 0.22, math.radians(15), math.pi / 2)[1:]
 FRONT = _R + [(-y, z) for y, z in reversed(_R)]
 CX = (X_FRONT + X_REAR) / 2
 HX = (X_FRONT - X_REAR) / 2 + 0.03
@@ -75,7 +76,7 @@ WINDOWS = ((-1.54, -0.54), (-0.42, 0.58), (0.85, 1.80))
 
 
 def parts(x, y, z):
-    body = smax(smax(sd_poly(x, z, SIDE), sd_round_rect(x - CX, y, HX, HW, 0.2), ROUND),
+    body = smax(smax(sd_poly(x, z, SIDE), sd_round_rect(x - CX, y, HX, HW, 0.3), ROUND),
                 sd_poly(y, z, FRONT), ROUND)
     for wx in (WX, -WX):
         arch = np.maximum(np.hypot(x - wx, z - WZ) - ARCH_R, 0.62 - np.abs(y))
@@ -87,6 +88,9 @@ def parts(x, y, z):
     for wx in (WX, -WX):  # se cortan en los pasos de rueda
         cut = np.hypot(x - wx, z - WZ) - ARCH_R - 0.02
         low = np.maximum(low, -cut)
+    plan = sd_round_rect(x - CX, y, HX + 0.012, HW + 0.012, 0.3)   # las molduras siguen las esquinas
+    rub = np.maximum(rub, plan)
+    low = np.maximum(low, plan)
     P["rub"] = rub
     P["molding"] = low
     P["bumper_f"] = sd_box(x, y, z, (2.31, 0, 0.53), (0.08, 0.95, 0.11), 0.045)
@@ -94,13 +98,13 @@ def parts(x, y, z):
     w = None
     for wx in (WX, -WX):
         for s in (1, -1):
-            d = sd_cyl_y(x, y, z, wx, WY * s, WZ, WR, WHW, 0.07)
+            d = sd_cyl_y(x, y, z, wx, WY * s, WZ, WR, WHW, 0.09)
             w = d if w is None else np.minimum(w, d)
     P["wheel"] = w
     m = None
     for s in (1, -1):
         d = sd_box(x, y, z, (1.55, 0.99 * s, 1.48), (0.035, 0.05, 0.13), 0.025)
-        d = np.minimum(d, sd_box(x, y, z, (1.58, 0.94 * s, 1.40), (0.015, 0.05, 0.015), 0.008))
+        d = np.minimum(d, sd_box(x, y, z, (1.58, 0.87 * s, 1.40), (0.015, 0.12, 0.015), 0.008))
         m = d if m is None else np.minimum(m, d)
     P["mirror"] = m
     P["hatch"] = sd_box(x, y, z, (0.18, 0, Z_TOP + 0.03), (0.29, 0.29, 0.06), 0.03)
