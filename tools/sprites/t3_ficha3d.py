@@ -48,20 +48,24 @@ SKY = rgb(173, 194, 199)
 EXHAUST = rgb(96, 96, 98)
 
 # Medidas (m), ejes: x adelante, y izquierda, z arriba; suelo en z = 0
-X_FRONT, X_REAR = 2.27, -2.12
+X_FRONT, X_REAR = 2.30, -2.13
 HW = 0.92
 Z_SILL = 0.40
 Z_CREASE = 1.12      # moldura (altura de las manetas); por encima los costados se cierran
 Z_WIN0, Z_WIN1 = 1.37, 1.84
 Z_GUTTER = 1.89
-Z_TOP = 2.32
+Z_TOP = 2.33
 WX, WZ, WR, WY, WHW = 1.23, 0.33, 0.33, 0.755, 0.125   # rueda de 0,25 m de ancho (vista trasera)
 ARCH_R = 0.45
 ROUND = 0.09
 
-SIDE = ([(X_REAR, Z_SILL), (2.24, Z_SILL), (2.28, 0.62), (2.29, 1.12), (2.26, 1.24), (1.70, 1.92),
-         (1.40, 2.07), (1.08, 2.20), (0.80, 2.28), (0.55, Z_TOP), (-1.86, Z_TOP), (-1.97, 2.27),
-         (-2.02, 2.15), (-2.04, 1.92), (-2.09, 1.45), (X_REAR, 1.12)])
+# Contorno lateral sacado píxel a píxel de la ficha (130 px/m, suelo y = 383, x = 0 entre ejes).
+# La trasera no es vertical: se inclina hacia delante desde la moldura hasta el techo alto.
+SIDE = [(-2.08, Z_SILL), (2.22, Z_SILL), (2.25, 0.62), (2.27, 0.70), (2.30, 0.97), (2.30, 1.08), (2.26, 1.24),
+        (1.68, 1.93), (1.58, 2.01), (1.45, 2.08), (1.19, 2.17), (0.96, 2.24), (0.81, 2.28), (0.58, Z_TOP),
+        (-0.35, Z_TOP), (-0.65, 2.31), (-1.12, 2.29), (-1.50, 2.27), (-1.585, 2.24), (-1.65, 2.16),
+        (-1.71, 2.08), (-1.79, 1.93), (-1.88, 1.78), (-1.95, 1.62), (-2.02, 1.47), (-2.08, 1.32),
+        (-2.12, 1.20), (-2.13, 1.08), (-2.11, 0.93), (-2.08, 0.78), (-2.06, 0.62)]
 # Sección (y, z) medida en la trasera de la ficha: costados que se cierran por encima de la moldura,
 # canalón con reborde y techo alto en trapecio (más estrecho arriba) con esquinas suaves.
 # Medido en la trasera de la ficha (129 px/m): 0,92 abajo, 0,72 en el canalón, techo de ±0,40 arriba.
@@ -71,8 +75,39 @@ FRONT = _R + [(-y, z) for y, z in reversed(_R)]
 CX = (X_FRONT + X_REAR) / 2
 HX = (X_FRONT - X_REAR) / 2 + 0.03
 
-# Ventanas laterales (x0, x1); la del medio va partida en cuatro
-WINDOWS = ((-1.54, -0.54), (-0.42, 0.58), (0.85, 1.80))
+# Lunas laterales medidas en la ficha (x, z), por dentro de la goma. La trasera tiene el canto
+# de atrás inclinado como el pilar; la de la puerta, el de delante inclinado como el parabrisas.
+WINDOWS = (
+    [(-1.555, 1.385), (-0.57, 1.385), (-0.57, 1.825), (-1.47, 1.825)],
+    [(-0.41, 1.385), (0.625, 1.385), (0.625, 1.825), (-0.41, 1.825)],
+    [(0.875, 1.40), (2.06, 1.40), (1.74, 1.80), (0.875, 1.80)],
+)
+MULLION_X, MULLION_Z = 0.104, 1.615          # cruz de la ventana del medio
+VENT = ((1.466, 1.40), (1.712, 1.80))        # junta inclinada del cristal de la puerta
+
+
+def inset(poly, r):
+    """Encoge un polígono convexo (antihorario) r metros hacia dentro."""
+    n = len(poly)
+    lines = []
+    for i in range(n):
+        (x0, z0), (x1, z1) = poly[i], poly[(i + 1) % n]
+        dx, dz = x1 - x0, z1 - z0
+        L = math.hypot(dx, dz)
+        nx, nz = -dz / L, dx / L          # normal hacia dentro (antihorario)
+        lines.append(((x0 + nx * r, z0 + nz * r), (dx, dz)))
+    out = []
+    for i in range(n):
+        (p, d), (q, e) = lines[i - 1], lines[i]
+        den = d[0] * e[1] - d[1] * e[0]
+        t = ((q[0] - p[0]) * e[1] - (q[1] - p[1]) * e[0]) / den
+        out.append((p[0] + d[0] * t, p[1] + d[1] * t))
+    return out
+
+
+def rpoly(a, b, poly, r, grow=0.0):
+    """Polígono con esquinas redondeadas de radio r (y agrandado grow)."""
+    return sd_poly(a, b, inset(poly, r)) < r + grow
 
 
 def parts(x, y, z):
@@ -138,22 +173,25 @@ def paint(part, x, y, z, n):
     put(b & (nx > 0.2) & (nz > 0.4) & (z > 2.0) & rbox(x, y, 1.0, 1.36, -0.37, 0.37, 0.05), RUBBER)
     put(b & (nx > 0.2) & (nz > 0.4) & (z > 2.0) & rbox(x, y, 1.03, 1.33, -0.34, 0.34, 0.04), SKY)
     # Ventanas laterales: goma negra, luna, reflejo
-    for x0, x1 in WINDOWS:
-        put(side & rbox(x, z, x0 - 0.045, x1 + 0.045, Z_WIN0 - 0.045, Z_WIN1 + 0.045, 0.1), RUBBER)
-        put(side & rbox(x, z, x0, x1, Z_WIN0, Z_WIN1, 0.06), GLASS)
+    for w in WINDOWS:
+        x0, x1 = min(p[0] for p in w), max(p[0] for p in w)
+        put(side & rpoly(x, z, w, 0.06, grow=0.035), RUBBER)
+        put(side & rpoly(x, z, w, 0.06), GLASS)
         d = (x - x0) / (x1 - x0) + (z - Z_WIN0) / (Z_WIN1 - Z_WIN0) * 0.5 * np.sign(y)
-        put(side & (np.abs(d - 0.75) < 0.12) & rbox(x, z, x0 + 0.02, x1 - 0.02, Z_WIN0 + 0.02, Z_WIN1 - 0.02, 0.05),
-            GLASS_HI)
-    put(side & (np.abs(x - 0.08) < 0.012) & (z > Z_WIN0) & (z < Z_WIN1), RUBBER)
-    put(side & (np.abs(z - 1.60) < 0.012) & (x > -0.42) & (x < 0.58), RUBBER)
-    put(side & (np.abs(x - 1.52) < 0.012) & (z > Z_WIN0) & (z < Z_WIN1), RUBBER)   # ventanilla de la puerta
+        put(side & (np.abs(d - 0.75) < 0.12) & rpoly(x, z, w, 0.06, grow=-0.02), GLASS_HI)
+    w1 = WINDOWS[1]
+    put(side & (np.abs(x - MULLION_X) < 0.011) & (z > w1[0][1]) & (z < w1[2][1]), RUBBER)
+    put(side & (np.abs(z - MULLION_Z) < 0.011) & (x > w1[0][0]) & (x < w1[1][0]), RUBBER)
+    (vx0, vz0), (vx1, vz1) = VENT
+    vx = vx0 + (z - vz0) * (vx1 - vx0) / (vz1 - vz0)
+    put(side & (np.abs(x - vx) < 0.012) & (z > vz0) & (z < vz1), RUBBER)
     # Rejilla del pilar trasero: panel oscuro inclinado con lamas
-    louv = side & (z > 1.40) & (z < 1.82) & (x > -1.99 + (z - 1.40) * 0.3) & (x < -1.66 + (z - 1.40) * 0.1)
+    louv = side & (z > 1.36) & (z < 1.76) & (x > -2.04 + (z - 1.24) * 0.426) & (x < -1.63)
     put(louv, RUBBER)
-    put(louv & (((z - 1.40) % 0.052) < 0.022), UPPER * 0.62)
+    put(louv & (((z - 1.36) % 0.05) < 0.02), UPPER * 0.62)
     # Juntas: puerta delantera, corredera (derecha, y < 0) y paneles; manetas; tapón
-    for xs in (0.74, 1.98):
-        put(side & (np.abs(x - xs) < 0.01) & (z > 0.45) & (z < Z_GUTTER), SEAM)
+    put(side & (np.abs(x - 0.74) < 0.01) & (z > 0.45) & (z < Z_GUTTER), SEAM)
+    put(side & (np.abs(x - 2.12) < 0.01) & (z > 0.45) & (z < Z_CREASE), SEAM)
     for xs in (-0.47, -1.62):
         put(side & (y > 0) & (np.abs(x - xs) < 0.01) & (z > 0.45) & (z < Z_CREASE), SEAM)
     put(side & (y < 0) & (np.abs(x + 0.47) < 0.01) & (z > 0.45) & (z < Z_GUTTER), SEAM)
