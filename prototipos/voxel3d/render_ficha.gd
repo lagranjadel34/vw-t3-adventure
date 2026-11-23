@@ -65,7 +65,7 @@ func _ready() -> void:
 	var g := MeshInstance3D.new()
 	g.mesh = pm
 	view.add_child(g)
-	view.add_child(VanMesh.load_best(MODEL_BIN, MODEL))
+	view.add_child(VanMesh.load_full(MODEL_BIN) if FileAccess.file_exists(MODEL_BIN) else VanMesh.load_van(MODEL))
 	cam = Camera3D.new()
 	view.add_child(cam)
 	_next()

@@ -4,6 +4,8 @@ extends Node
 ## renderer Compatibility. No es parte del juego: todo se genera por código.
 ## Teclas: flechas/WASD conducen. Argumentos: --shot=ruta.png [--frames=N]
 
+const WHEEL_RADIUS := 0.33
+const MAX_WHEEL_STEER := 0.45   # radianes de giro de las ruedas delanteras
 const PIXEL_RES := Vector2i(320, 180)      # misma resolución lógica que el juego
 const CAM_OFFSET := Vector3(0, 24, 17)     # cámara alta y oblicua, como el vídeo
 const CAM_OFFSET_NEAR := Vector3(-5, 8, 8)  # --cerca: plano corto para capturas
@@ -39,6 +41,7 @@ var rng := RandomNumberGenerator.new()
 var view: SubViewport
 var cam: Camera3D
 var van: Node3D
+var wheel_roll := 0.0
 var speed := 0.0
 var heading := 0.0
 var road_pts: PackedVector3Array = []
@@ -228,7 +231,15 @@ func _load_van() -> Node3D:
 	var body := Node3D.new()
 	body.name = "Body"
 	v.add_child(body)
-	body.add_child(VanMesh.load_best(VAN_MODEL_BIN, VAN_MODEL))
+	if FileAccess.file_exists(VAN_MODEL_BIN):
+		var full := VanMesh.load_full(VAN_MODEL_BIN)
+		var wheels := full.get_node_or_null("Ruedas")
+		if wheels:
+			full.remove_child(wheels)
+			v.add_child(wheels)   # las ruedas no se inclinan con la carrocería
+		body.add_child(full)
+	else:
+		body.add_child(VanMesh.load_van(VAN_MODEL))
 	return v
 
 
@@ -277,6 +288,8 @@ func _physics_process(delta: float) -> void:
 	heading += steer * STEER_RATE * clampf(speed / MAX_SPEED, -1.0, 1.0) * delta
 	van.rotation.y = heading
 	van.position += Vector3(sin(heading), 0, cos(heading)) * speed * delta
+	wheel_roll += speed * delta / WHEEL_RADIUS
+	VanMesh.set_wheels(van, wheel_roll, steer * MAX_WHEEL_STEER)
 	# Balanceo leve de la caja al girar: suaviza y da peso.
 	van.get_node("Body").rotation.z = lerpf(van.get_node("Body").rotation.z, -steer * speed / MAX_SPEED * 0.06, 0.1)
 	var target := van.position + cam_offset

@@ -15,7 +15,7 @@ var frame := 0
 func _ready() -> void:
 	super._ready()
 	for c in view.get_children():
-		if c is Node3D and not (c is Camera3D or c is DirectionalLight3D or c is MeshInstance3D and (c as MeshInstance3D).mesh is PlaneMesh):
+		if c is Node3D and c.has_node("Carroceria"):
 			van = c
 	var elev := GAME_ELEVATION
 	var alto := 0.9
@@ -44,6 +44,9 @@ func _process(_d: float) -> void:
 	if van == null:
 		return
 	van.rotation_degrees.y = frame * 360.0 / FRAMES
+	# Ruedas: ruedan como si avanzara y las delanteras giran a un lado y a otro
+	var t := float(frame) / FRAMES
+	VanMesh.set_wheels(van, t * TAU * 3.0, sin(t * TAU * 2.0) * 0.45)
 	wait += 1
 	if wait == 4:
 		var img := view.get_texture().get_image()

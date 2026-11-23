@@ -13,3 +13,6 @@ Mundo 3D de bloques renderizado a 320x180 en un SubViewport y escalado con filtr
 
 ## Animación girando
 `godot --path . res://giro.tscn -- --out=/carpeta` guarda 72 fotogramas (`giro_000.png`…) con la cámara del juego; se montan en GIF/MP4 con ffmpeg (escalado `neighbor`).
+
+## Ruedas sueltas
+`python3 tools/sprites/t3_ficha3d.py prototipos/voxel3d/dehler_curvas.bin 0.014 0.01` genera la carrocería (`dehler_curvas.bin`), una rueda (`dehler_curvas_rueda.bin`) y sus posiciones (`dehler_curvas_ruedas.json`). `VanMesh.load_full()` monta la furgo con cuatro pivotes de rueda y `VanMesh.set_wheels(van, giro, direccion)` las hace rodar y girar.
