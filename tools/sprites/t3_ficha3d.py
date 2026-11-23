@@ -28,6 +28,9 @@ RUB = rgb(50, 53, 58)
 RUBBER = rgb(18, 26, 32)
 GLASS = rgb(112, 130, 137)
 GLASS_HI = rgb(169, 193, 197)
+GLASS_DARK = rgb(52, 63, 70)        # ventana lateral trasera, oscurecida
+GLASS_DARK_HI = rgb(84, 98, 104)
+G = 0.019    # recorte de cada cristal por lado: 5 px de la ficha (130 px/m) entre los dos lados
 SEAM = rgb(48, 60, 68)
 BLACK = rgb(32, 34, 38)
 BUMPER = rgb(52, 54, 57)
@@ -69,8 +72,9 @@ SIDE = [(-2.08, Z_SILL), (2.22, Z_SILL), (2.25, 0.62), (2.27, 0.70), (2.30, 0.97
 # Sección (y, z) medida en la trasera de la ficha: costados que se cierran por encima de la moldura,
 # canalón con reborde y techo alto en trapecio (más estrecho arriba) con esquinas suaves.
 # Medido en la trasera de la ficha (129 px/m): 0,92 abajo, 0,72 en el canalón, techo de ±0,40 arriba.
-_R = [(HW, Z_SILL), (HW, 1.06), (0.89, Z_CREASE + 0.02), (0.80, 1.5), (0.72, Z_WIN1), (0.73, Z_GUTTER - 0.02),
-      (0.69, Z_GUTTER + 0.02), (0.62, 2.07)] + arc(0.40, Z_TOP - 0.22, 0.22, math.radians(15), math.pi / 2)[1:]
+# Techo alto sin escalón ni ángulos rectos: el contorno de la trasera de la ficha, punto a punto.
+_R = [(HW, Z_SILL), (HW, 1.06), (0.89, Z_CREASE + 0.02), (0.80, 1.5), (0.72, Z_WIN1), (0.69, 1.90),
+      (0.66, 1.98), (0.62, 2.07), (0.60, 2.14), (0.56, 2.21), (0.50, 2.27), (0.42, 2.31), (0.30, Z_TOP)]
 FRONT = _R + [(-y, z) for y, z in reversed(_R)]
 CX = (X_FRONT + X_REAR) / 2
 HX = (X_FRONT - X_REAR) / 2 + 0.03
@@ -168,17 +172,19 @@ def paint(part, x, y, z, n):
     put(b & ~top & (z >= Z_GUTTER) & (z < Z_GUTTER + 0.035), SEAM)
     # Ventana lateral del techo alto, claraboya delantera
     hs = b & (np.abs(ny) > 0.6) & (z > 1.95)
-    put(hs & rbox(x, z, -0.34, 0.53, 2.03, 2.27, 0.05), RUBBER)
-    put(hs & rbox(x, z, -0.31, 0.50, 2.06, 2.24, 0.04), GLASS_HI)
-    put(b & (nx > 0.2) & (nz > 0.4) & (z > 2.0) & rbox(x, y, 1.0, 1.36, -0.37, 0.37, 0.05), RUBBER)
-    put(b & (nx > 0.2) & (nz > 0.4) & (z > 2.0) & rbox(x, y, 1.03, 1.33, -0.34, 0.34, 0.04), SKY)
+    put(hs & rbox(x, z, -0.34 + G, 0.53 - G, 2.03 + G, 2.27 - G, 0.05), RUBBER)
+    put(hs & rbox(x, z, -0.31 + G, 0.50 - G, 2.06 + G, 2.24 - G, 0.04), GLASS_HI)
+    sky = b & (nx > 0.2) & (nz > 0.4) & (z > 2.0)
+    put(sky & rbox(x, y, 1.0 + G, 1.36 - G, -0.37 + G, 0.37 - G, 0.11), RUBBER)
+    put(sky & rbox(x, y, 1.03 + G, 1.33 - G, -0.34 + G, 0.34 - G, 0.09), SKY)
     # Ventanas laterales: goma negra, luna, reflejo
-    for w in WINDOWS:
+    for i, w in enumerate(WINDOWS):
         x0, x1 = min(p[0] for p in w), max(p[0] for p in w)
-        put(side & rpoly(x, z, w, 0.06, grow=0.035), RUBBER)
-        put(side & rpoly(x, z, w, 0.06), GLASS)
+        glass, hi = (GLASS_DARK, GLASS_DARK_HI) if i == 0 else (GLASS, GLASS_HI)
+        put(side & rpoly(x, z, w, 0.06, grow=0.035 - G), RUBBER)
+        put(side & rpoly(x, z, w, 0.06, grow=-G), glass)
         d = (x - x0) / (x1 - x0) + (z - Z_WIN0) / (Z_WIN1 - Z_WIN0) * 0.5 * np.sign(y)
-        put(side & (np.abs(d - 0.75) < 0.12) & rpoly(x, z, w, 0.06, grow=-0.02), GLASS_HI)
+        put(side & (np.abs(d - 0.75) < 0.12) & rpoly(x, z, w, 0.06, grow=-0.02 - G), hi)
     w1 = WINDOWS[1]
     put(side & (np.abs(x - MULLION_X) < 0.011) & (z > w1[0][1]) & (z < w1[2][1]), RUBBER)
     put(side & (np.abs(z - MULLION_Z) < 0.011) & (x > w1[0][0]) & (x < w1[1][0]), RUBBER)
@@ -200,13 +206,13 @@ def paint(part, x, y, z, n):
     put(side & (y < 0) & (x > 0.52) & (x < 0.66) & (z > 1.21) & (z < 1.25), RUB)
     put(side & (y > 0) & disc(x, z, 0.85, 0.72, 0.045), SEAM)
     put(side & (y > 0) & disc(x, z, 0.85, 0.72, 0.03), LOWER)
-    put(side & (x > 2.12) & (x < 2.2) & (z > 0.7) & (z < 0.77), AMBER)
+    put(side & (x > 2.135) & (x < 2.185) & (z > 0.71) & (z < 0.76), AMBER)
     for wx in (WX, -WX):
         put(b & (np.hypot(x - wx, z - WZ) < ARCH_R + 0.012) & (ay < 0.93), BLACK)
     # Parabrisas con limpias
     ws = b & (nx > 0.4) & (nz > 0.25)
-    put(ws & rbox(y, z, -0.84, 0.84, 1.27, 1.88, 0.1), RUBBER)
-    put(ws & rbox(y, z, -0.81, 0.81, 1.29, 1.86, 0.08), GLASS)
+    put(ws & rbox(y, z, -0.84 + G, 0.84 - G, 1.27 + G, 1.88 - G, 0.1), RUBBER)
+    put(ws & rbox(y, z, -0.81 + G, 0.81 - G, 1.29 + G, 1.86 - G, 0.08), GLASS)
     put(ws & (np.abs(y * 0.8 + (z - 1.57) - 0.35) < 0.07) & rbox(y, z, -0.78, 0.78, 1.32, 1.83, 0.07), GLASS_HI)
     put(ws & (z > 1.3) & (z < 1.33) & (ay > 0.06) & (ay < 0.68), BLACK)
     # Frontal: rejilla alta con logo y faros redondos, rejilla baja, intermitentes
@@ -224,16 +230,17 @@ def paint(part, x, y, z, n):
         put(fz & disc(y, z, 0.74 * s, 1.0, 0.12), CHROME)
         put(fz & disc(y, z, 0.74 * s, 1.0, 0.095), LENS)
         put(fz & disc(y, z, 0.74 * s + 0.03, 1.03, 0.025), WHITE)
-        put(fz & (np.sign(y) == s) & (ay > 0.62) & (ay < 0.86) & (z > 0.66) & (z < 0.80), AMBER)
+        put(fz & (np.sign(y) == s) & (ay > 0.62) & (ay < 0.79) & (z > 0.68) & (z < 0.78), AMBER)
     # Trasera: luneta, pilotos, matrícula, logo VW y placa DEHLER, tapa del motor
-    put(rear & rbox(y, z, -0.76, 0.76, Z_WIN0 - 0.08, Z_WIN1 + 0.0, 0.1), RUBBER)
-    put(rear & rbox(y, z, -0.73, 0.73, Z_WIN0 - 0.05, Z_WIN1 - 0.03, 0.08), GLASS)
+    put(rear & rbox(y, z, -0.76 + G, 0.76 - G, Z_WIN0 - 0.08 + G, Z_WIN1 - G, 0.1), RUBBER)
+    put(rear & rbox(y, z, -0.73 + G, 0.73 - G, Z_WIN0 - 0.05 + G, Z_WIN1 - 0.03 - G, 0.08), GLASS)
     put(rear & (np.abs(-y * 0.8 + (z - 1.55) - 0.3) < 0.07) & rbox(y, z, -0.7, 0.7, Z_WIN0 - 0.02, Z_WIN1 - 0.06, 0.07),
         GLASS_HI)
     put(rear & (ay > 0.48) & (ay < 0.84) & (z > 0.61) & (z < 0.77), RED)
-    put(rear & (ay > 0.66) & (ay < 0.84) & (z > 0.72) & (z < 0.77), AMBER)
+    put(rear & (ay > 0.69) & (ay < 0.82) & (z > 0.725) & (z < 0.765), AMBER)
     put(rear & (ay > 0.48) & (ay < 0.66) & (z > 0.72) & (z < 0.77), WHITE)
-    put(rear & (ay > 0.48) & (ay < 0.84) & ((np.abs(z - 0.72) < 0.006) | (np.abs(np.abs(y) - 0.66) < 0.006)), RUBBER)
+    put(rear & (ay > 0.48) & (ay < 0.84) & (z > 0.61) & (z < 0.77)
+        & ((np.abs(z - 0.72) < 0.006) | (np.abs(np.abs(y) - 0.66) < 0.006)), RUBBER)
     put(rear & (ay < 0.25) & (z > 0.61) & (z < 0.72), PLATE)
     put(rear & disc(y, z, 0, 1.0, 0.075), CHROME)
     put(rear & disc(y, z, 0, 1.0, 0.056), LOWER)
