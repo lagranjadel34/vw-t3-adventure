@@ -12,7 +12,7 @@ import sys
 import numpy as np
 from skimage.measure import marching_cubes
 
-from t3_sdf import sd_poly, sd_round_rect, sd_box, sd_cyl_y, sd_cyl_x, smax, arc, rbox, disc
+from t3_sdf import sd_poly, sd_round_rect, sd_box, sd_cyl_y, sd_cyl_x, smax, smin, arc, rbox, disc
 
 
 def rgb(*c):
@@ -92,6 +92,11 @@ _RYB = 0.73 - G
 _RYT = _RYB - 0.243 * (_RT - _RB)
 REAR_GLASS = [(-_RYB, _RB), (_RYB, _RB), (_RYT, _RT), (-_RYT, _RT)]
 WS_SHRINK = 0.039                            # parabrisas 10 px menor (5 px por lado, ficha 129 px/m)
+# Parabrisas: igual que la luneta, abajo mantiene ancho y arriba se estrecha siguiendo el costado.
+_FB, _FT = 1.29 + G + WS_SHRINK, 1.86 - G - WS_SHRINK
+_FYB = 0.81 - G - WS_SHRINK
+_FYT = _FYB - 0.243 * (_FT - _FB)
+FRONT_GLASS = [(-_FYB, _FB), (_FYB, _FB), (_FYT, _FT), (-_FYT, _FT)]
 MULLION_X, MULLION_Z = 0.104, 1.615          # cruz de la ventana del medio
 VENT = ((1.466, 1.40), (1.712, 1.80))        # junta inclinada del cristal de la puerta
 
@@ -126,6 +131,12 @@ def parts(x, y, z):
     for wx in (WX, -WX):
         arch = np.maximum(np.hypot(x - wx, z - WZ) - ARCH_R, 0.62 - np.abs(y))
         body = smax(body, -arch, 0.03)
+    # Guardabarros: labio toroidal en el borde del arco que sobresale del costado.
+    for wx in (WX, -WX):
+        rad = np.hypot(x - wx, z - WZ)
+        flare = np.hypot(rad - (ARCH_R + 0.03), np.abs(y) - HW) - 0.075
+        flare = np.maximum(flare, 0.46 - z)          # solo la ceja del arco, por encima del faldón
+        body = smin(body, flare, 0.05)
     P = {"body": body}
     # Moldura de las manetas y moldura negra baja, en relieve
     rub = sd_box(x, y, z, (CX, 0, Z_CREASE), (HX - 0.04, HW + 0.012, 0.018), 0.012)
@@ -198,7 +209,7 @@ def paint(part, x, y, z, n):
     vx = vx0 + (z - vz0) * (vx1 - vx0) / (vz1 - vz0)
     put(side & (np.abs(x - vx) < 0.012) & (z > vz0) & (z < vz1), RUBBER)
     # Rejilla del pilar trasero: panel oscuro inclinado con lamas
-    louv = side & (z > 1.36) & (z < 1.76) & (x > -2.04 + (z - 1.24) * 0.426) & (x < -1.63)
+    louv = side & (z > 1.40) & (z < 1.73) & (x > -1.97 + (z - 1.24) * 0.426) & (x < -1.70)
     put(louv, RUBBER)
     put(louv & (((z - 1.36) % 0.05) < 0.02), UPPER * 0.62)
     # Juntas: puerta delantera, corredera (derecha, y < 0) y paneles; manetas; tapón
@@ -217,10 +228,9 @@ def paint(part, x, y, z, n):
         put(b & (np.hypot(x - wx, z - WZ) < ARCH_R + 0.012) & (ay < 0.93), BLACK)
     # Parabrisas con limpias
     ws = b & (nx > 0.4) & (nz > 0.25)
-    W = G + WS_SHRINK
-    put(ws & rbox(y, z, -0.84 + W, 0.84 - W, 1.27 + W, 1.88 - W, 0.1), RUBBER)
-    put(ws & rbox(y, z, -0.81 + W, 0.81 - W, 1.29 + W, 1.86 - W, 0.08), GLASS)
-    put(ws & (np.abs(y * 0.8 + (z - 1.57) - 0.35) < 0.07) & rbox(y, z, -0.78, 0.78, 1.32, 1.83, 0.07), GLASS_HI)
+    put(ws & rpoly(y, z, FRONT_GLASS, 0.08, grow=0.03), RUBBER)
+    put(ws & rpoly(y, z, FRONT_GLASS, 0.08), GLASS)
+    put(ws & (np.abs(y * 0.8 + (z - 1.57) - 0.35) < 0.07) & rpoly(y, z, FRONT_GLASS, 0.08, grow=-0.03), GLASS_HI)
     put(ws & (z > 1.3) & (z < 1.33) & (ay > 0.06) & (ay < 0.68), BLACK)
     # Frontal: rejilla alta con logo y faros redondos, rejilla baja, intermitentes
     fz = front & (z < 1.26)
