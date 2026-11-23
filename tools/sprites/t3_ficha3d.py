@@ -73,8 +73,11 @@ SIDE = [(-2.08, Z_SILL), (2.22, Z_SILL), (2.25, 0.62), (2.27, 0.70), (2.30, 0.97
 # canalón con reborde y techo alto en trapecio (más estrecho arriba) con esquinas suaves.
 # Medido en la trasera de la ficha (129 px/m): 0,92 abajo, 0,72 en el canalón, techo de ±0,40 arriba.
 # Techo alto sin escalón ni ángulos rectos: el contorno de la trasera de la ficha, punto a punto.
-_R = [(HW, Z_SILL), (HW, 1.06), (0.89, Z_CREASE + 0.02), (0.80, 1.5), (0.72, Z_WIN1), (0.69, 1.90),
-      (0.66, 1.98), (0.62, 2.07), (0.60, 2.14), (0.56, 2.21), (0.50, 2.27), (0.42, 2.31), (0.30, Z_TOP)]
+# 2026-11-23: costados más rectos y techo alto más ancho arriba (medido fila a fila en la trasera
+# de la ficha) para quitar el aspecto de cono truncado.
+_R = [(HW, Z_SILL), (HW, 1.06), (0.905, 1.16), (0.89, 1.30), (0.85, 1.50), (0.815, 1.65), (0.78, 1.78),
+      (0.755, Z_WIN1), (0.735, 1.90), (0.70, 1.97), (0.665, 2.08), (0.61, 2.18), (0.56, 2.24),
+      (0.50, 2.29), (0.42, 2.32), (0.30, Z_TOP)]
 FRONT = _R + [(-y, z) for y, z in reversed(_R)]
 CX = (X_FRONT + X_REAR) / 2
 HX = (X_FRONT - X_REAR) / 2 + 0.03
@@ -82,9 +85,9 @@ HX = (X_FRONT - X_REAR) / 2 + 0.03
 # Lunas laterales medidas en la ficha (x, z), por dentro de la goma. La trasera tiene el canto
 # de atrás inclinado como el pilar; la de la puerta, el de delante inclinado como el parabrisas.
 WINDOWS = (
-    [(-1.555, 1.385), (-0.57, 1.385), (-0.57, 1.825), (-1.47, 1.825)],
-    [(-0.41, 1.385), (0.625, 1.385), (0.625, 1.825), (-0.41, 1.825)],
-    [(0.875, 1.40), (1.983, 1.40), (1.663, 1.80), (0.875, 1.80)],
+    [(-1.548, 1.4235), (-0.57, 1.4235), (-0.57, 1.7865), (-1.478, 1.7865)],
+    [(-0.41, 1.4235), (0.625, 1.4235), (0.625, 1.7865), (-0.41, 1.7865)],
+    [(0.875, 1.4385), (1.952, 1.4385), (1.694, 1.7615), (0.875, 1.7615)],
 )
 # Luneta trasera: abajo igual de ancha; arriba se estrecha siguiendo el costado de la caja.
 _RB, _RT = Z_WIN0 - 0.05 + G, Z_WIN1 - 0.03 - G
@@ -97,8 +100,8 @@ _FB, _FT = 1.29 + G + WS_SHRINK, 1.86 - G - WS_SHRINK
 _FYB = 0.81 - G - WS_SHRINK
 _FYT = _FYB - 0.243 * (_FT - _FB)
 FRONT_GLASS = [(-_FYB, _FB), (_FYB, _FB), (_FYT, _FT), (-_FYT, _FT)]
-MULLION_X, MULLION_Z = 0.104, 1.615          # cruz de la ventana del medio
-VENT = ((1.466, 1.40), (1.712, 1.80))        # junta inclinada del cristal de la puerta
+MULLION_X, MULLION_Z = 0.104, 1.605          # cruz de la ventana del medio
+VENT = ((1.67, 1.4385), (1.67, 1.7615))      # junta vertical: rectángulo detrás, triángulo delante (ficha)
 
 
 def inset(poly, r):
@@ -152,9 +155,9 @@ def parts(x, y, z):
     # Guardabarros: labio toroidal en el borde del arco que sobresale del costado.
     for wx in (WX, -WX):
         rad = np.hypot(x - wx, z - WZ)
-        flare = np.hypot(rad - (ARCH_R + 0.015), np.abs(y) - HW) - 0.03
+        flare = np.hypot(rad - (ARCH_R + 0.008), np.abs(y) - HW) - 0.014
         flare = np.maximum(flare, 0.46 - z)          # solo la ceja del arco, por encima del faldón
-        body = smin(body, flare, 0.05)
+        body = smin(body, flare, 0.02)
     P = {"body": body}
     # Moldura de las manetas y moldura negra baja, en relieve
     rub = sd_box(x, y, z, (CX, 0, Z_CREASE), (HX - 0.04, HW + 0.012, 0.018), 0.012)
@@ -264,9 +267,9 @@ def paint(part, x, y, z, n):
     put(fz & disc(y, z, 0, 1.005, 0.06), BLACK)
     put(fz & (np.abs(ay - (1.06 - z) * 0.45) < 0.008) & (z > 0.96) & (z < 1.05), CHROME)
     for s in (1, -1):
-        put(fz & disc(y, z, 0.74 * s, 1.0, 0.12), CHROME)
-        put(fz & disc(y, z, 0.74 * s, 1.0, 0.095), LENS)
-        put(fz & disc(y, z, 0.74 * s + 0.03, 1.03, 0.025), WHITE)
+        put(fz & disc(y, z, 0.74 * s, 1.0, 0.10), CHROME)
+        put(fz & disc(y, z, 0.74 * s, 1.0, 0.078), LENS)
+        put(fz & disc(y, z, 0.74 * s + 0.025, 1.025, 0.02), WHITE)
         put(fz & (np.sign(y) == s) & (ay > 0.62) & (ay < 0.79) & (z > 0.68) & (z < 0.78), AMBER)
     # Trasera: luneta, pilotos, matrícula, logo VW y placa DEHLER, tapa del motor
     put(rear & rpoly(y, z, REAR_GLASS, 0.08, grow=0.03), RUBBER)

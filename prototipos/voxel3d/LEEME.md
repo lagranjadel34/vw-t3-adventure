@@ -10,3 +10,6 @@ Mundo 3D de bloques renderizado a 320x180 en un SubViewport y escalado con filtr
 2. Vistas: `godot --path prototipos/voxel3d res://render_ficha.tscn -- --out=/carpeta` (8 PNG).
 3. En el mundo: `godot --path prototipos/voxel3d -- --shot=/carpeta/mundo.png --frames=150 --cerca`.
 4. Ficha: `python3 prototipos/voxel3d/componer_ficha.py /carpeta godot/assets/fonts/Fredoka-Variable.ttf ficha.png` (espera las vistas en `/carpeta/ficha/`).
+
+## Animación girando
+`godot --path . res://giro.tscn -- --out=/carpeta` guarda 72 fotogramas (`giro_000.png`…) con la cámara del juego; se montan en GIF/MP4 con ffmpeg (escalado `neighbor`).
