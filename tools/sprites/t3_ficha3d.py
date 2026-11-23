@@ -84,8 +84,14 @@ HX = (X_FRONT - X_REAR) / 2 + 0.03
 WINDOWS = (
     [(-1.555, 1.385), (-0.57, 1.385), (-0.57, 1.825), (-1.47, 1.825)],
     [(-0.41, 1.385), (0.625, 1.385), (0.625, 1.825), (-0.41, 1.825)],
-    [(0.875, 1.40), (2.06, 1.40), (1.74, 1.80), (0.875, 1.80)],
+    [(0.875, 1.40), (1.983, 1.40), (1.663, 1.80), (0.875, 1.80)],
 )
+# Luneta trasera: abajo igual de ancha; arriba se estrecha siguiendo el costado de la caja.
+_RB, _RT = Z_WIN0 - 0.05 + G, Z_WIN1 - 0.03 - G
+_RYB = 0.73 - G
+_RYT = _RYB - 0.243 * (_RT - _RB)
+REAR_GLASS = [(-_RYB, _RB), (_RYB, _RB), (_RYT, _RT), (-_RYT, _RT)]
+WS_SHRINK = 0.039                            # parabrisas 10 px menor (5 px por lado, ficha 129 px/m)
 MULLION_X, MULLION_Z = 0.104, 1.615          # cruz de la ventana del medio
 VENT = ((1.466, 1.40), (1.712, 1.80))        # junta inclinada del cristal de la puerta
 
@@ -180,7 +186,7 @@ def paint(part, x, y, z, n):
     # Ventanas laterales: goma negra, luna, reflejo
     for i, w in enumerate(WINDOWS):
         x0, x1 = min(p[0] for p in w), max(p[0] for p in w)
-        glass, hi = (GLASS_DARK, GLASS_DARK_HI) if i == 0 else (GLASS, GLASS_HI)
+        glass, hi = (GLASS_DARK, GLASS_DARK_HI) if i < 2 else (GLASS, GLASS_HI)
         put(side & rpoly(x, z, w, 0.06, grow=0.035 - G), RUBBER)
         put(side & rpoly(x, z, w, 0.06, grow=-G), glass)
         d = (x - x0) / (x1 - x0) + (z - Z_WIN0) / (Z_WIN1 - Z_WIN0) * 0.5 * np.sign(y)
@@ -211,8 +217,9 @@ def paint(part, x, y, z, n):
         put(b & (np.hypot(x - wx, z - WZ) < ARCH_R + 0.012) & (ay < 0.93), BLACK)
     # Parabrisas con limpias
     ws = b & (nx > 0.4) & (nz > 0.25)
-    put(ws & rbox(y, z, -0.84 + G, 0.84 - G, 1.27 + G, 1.88 - G, 0.1), RUBBER)
-    put(ws & rbox(y, z, -0.81 + G, 0.81 - G, 1.29 + G, 1.86 - G, 0.08), GLASS)
+    W = G + WS_SHRINK
+    put(ws & rbox(y, z, -0.84 + W, 0.84 - W, 1.27 + W, 1.88 - W, 0.1), RUBBER)
+    put(ws & rbox(y, z, -0.81 + W, 0.81 - W, 1.29 + W, 1.86 - W, 0.08), GLASS)
     put(ws & (np.abs(y * 0.8 + (z - 1.57) - 0.35) < 0.07) & rbox(y, z, -0.78, 0.78, 1.32, 1.83, 0.07), GLASS_HI)
     put(ws & (z > 1.3) & (z < 1.33) & (ay > 0.06) & (ay < 0.68), BLACK)
     # Frontal: rejilla alta con logo y faros redondos, rejilla baja, intermitentes
@@ -232,10 +239,9 @@ def paint(part, x, y, z, n):
         put(fz & disc(y, z, 0.74 * s + 0.03, 1.03, 0.025), WHITE)
         put(fz & (np.sign(y) == s) & (ay > 0.62) & (ay < 0.79) & (z > 0.68) & (z < 0.78), AMBER)
     # Trasera: luneta, pilotos, matrícula, logo VW y placa DEHLER, tapa del motor
-    put(rear & rbox(y, z, -0.76 + G, 0.76 - G, Z_WIN0 - 0.08 + G, Z_WIN1 - G, 0.1), RUBBER)
-    put(rear & rbox(y, z, -0.73 + G, 0.73 - G, Z_WIN0 - 0.05 + G, Z_WIN1 - 0.03 - G, 0.08), GLASS)
-    put(rear & (np.abs(-y * 0.8 + (z - 1.55) - 0.3) < 0.07) & rbox(y, z, -0.7, 0.7, Z_WIN0 - 0.02, Z_WIN1 - 0.06, 0.07),
-        GLASS_HI)
+    put(rear & rpoly(y, z, REAR_GLASS, 0.08, grow=0.03), RUBBER)
+    put(rear & rpoly(y, z, REAR_GLASS, 0.08), GLASS)
+    put(rear & (np.abs(-y * 0.8 + (z - 1.55) - 0.3) < 0.07) & rpoly(y, z, REAR_GLASS, 0.08, grow=-0.03), GLASS_HI)
     put(rear & (ay > 0.48) & (ay < 0.84) & (z > 0.61) & (z < 0.77), RED)
     put(rear & (ay > 0.69) & (ay < 0.82) & (z > 0.725) & (z < 0.765), AMBER)
     put(rear & (ay > 0.48) & (ay < 0.66) & (z > 0.72) & (z < 0.77), WHITE)
