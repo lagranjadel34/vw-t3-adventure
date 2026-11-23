@@ -155,6 +155,9 @@ LOUVRE_DEPTH = 0.02
 LOUVRE_SLAT = 0.042       # paso de las lamas (10 lamas)
 
 
+HATCH_X = 0.10
+
+
 def parts(x, y, z):
     body = smax(smax(sd_poly(x, z, SIDE), sd_round_rect(x - CX, y, HX, HW, 0.3), ROUND),
                 sd_poly(y, z, FRONT), ROUND)
@@ -198,7 +201,10 @@ def parts(x, y, z):
         d = np.minimum(d, sd_box(x, y, z, (1.58, 0.87 * s, 1.40), (0.015, 0.12, 0.015), 0.008))
         m = d if m is None else np.minimum(m, d)
     P["mirror"] = m
-    P["hatch"] = sd_box(x, y, z, (0.18, 0, Z_TOP + 0.03), (0.29, 0.29, 0.06), 0.03)
+    # Claraboya del techo (ficha lateral: x -0,31..0,52, solo 7 cm de alto, en dos escalones)
+    base = sd_box(x, y, z, (HATCH_X, 0, Z_TOP + 0.012), (0.415, 0.34, 0.024), 0.02)
+    dome = sd_box(x, y, z, (HATCH_X, 0, Z_TOP + 0.042), (0.38, 0.305, 0.022), 0.03)
+    P["hatch"] = smin(base, dome, 0.015)
     P["exhaust"] = sd_cyl_x(x, y, z, -2.26, -2.05, 0.5, 0.25, 0.035)
     return P
 
@@ -325,7 +331,10 @@ def paint(part, x, y, z, n):
         yy = 0.15 - k * 0.065
         put(bf & (y > yy - 0.04) & (y < yy) & (z > 0.5) & (z < 0.56), SEAM)
     put(part == "hatch", HITOP)
-    put((part == "hatch") & (nz > 0.7), HATCH)
+    hm = part == "hatch"
+    put(hm & (z > Z_TOP + 0.03), GLASS_DARK)                       # cúpula ahumada
+    put(hm & (nz > 0.7) & (z > Z_TOP + 0.05) & (np.abs(x - HATCH_X) < 0.30) & (ay < 0.29), HATCH)
+    put(hm & (nz > 0.7) & (z > Z_TOP + 0.05) & (np.abs(x - HATCH_X - 0.12) < 0.07) & (ay < 0.2), GLASS_DARK_HI)
     put(part == "exhaust", EXHAUST)
     # Ruedas: neumático, llanta de chapa negra y tapacubos plateado
     wm = part == "wheel"
