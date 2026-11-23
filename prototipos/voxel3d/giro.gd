@@ -1,7 +1,8 @@
 extends "res://render_ficha.gd"
 ## Animación de la Dehler girando sobre sí misma con la cámara del juego (alta y oblicua).
 ## El sol queda fijo, así que luces y sombras cambian como en el juego al girar.
-## Uso: godot --path . res://giro.tscn -- --out=/carpeta  (guarda giro_000.png ...)
+## Uso: godot --path . res://giro.tscn -- --out=/carpeta [--elev=50] [--alto=0.9] [--dist=1.25]
+## (guarda giro_000.png ...). --elev=0 --alto=1.0 = cámara a la altura de la parrilla.
 
 const FRAMES := 72            # 5° por fotograma
 const GAME_ELEVATION := 50.0  # grados
@@ -16,11 +17,21 @@ func _ready() -> void:
 	for c in view.get_children():
 		if c is Node3D and not (c is Camera3D or c is DirectionalLight3D or c is MeshInstance3D and (c as MeshInstance3D).mesh is PlaneMesh):
 			van = c
-	var el := deg_to_rad(GAME_ELEVATION)
-	var target := Vector3(0, 0.9, 0)
+	var elev := GAME_ELEVATION
+	var alto := 0.9
+	var dist := GAME_DIST
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--elev="):
+			elev = float(a.substr(7))
+		elif a.begins_with("--alto="):
+			alto = float(a.substr(7))
+		elif a.begins_with("--dist="):
+			dist = float(a.substr(7))
+	var el := deg_to_rad(elev)
+	var target := Vector3(0, alto, 0)
 	cam.projection = Camera3D.PROJECTION_PERSPECTIVE
 	cam.fov = FOV
-	cam.position = target + Vector3(0, sin(el), cos(el)) * DIST * GAME_DIST
+	cam.position = target + Vector3(0, sin(el), cos(el)) * DIST * dist
 	cam.look_at(target, Vector3.UP)
 
 
