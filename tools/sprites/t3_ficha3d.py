@@ -125,6 +125,24 @@ def rpoly(a, b, poly, r, grow=0.0):
     return sd_poly(a, b, inset(poly, r)) < r + grow
 
 
+# Paragolpes: (cara exterior en x, fin de la aleta lateral en x, altura centro, media altura)
+BUMPER_F = (2.29, 1.90, 0.53, 0.07)
+BUMPER_R = (-2.13, -1.86, 0.47, 0.065)
+BUMPER_T = 0.035          # medio grosor de la chapa
+BUMPER_Y = 0.955          # costado exterior (encaja sobre la carrocería, HW = 0.92)
+
+
+def bumper(x, y, z, spec):
+    face, end, zc, hz = spec
+    s = 1.0 if face > 0 else -1.0
+    hx = 0.55
+    cx = face - s * hx
+    shell = np.abs(sd_round_rect(x - cx, y, hx, BUMPER_Y, 0.25)) - BUMPER_T
+    shell = np.maximum(shell, s * (end - x))
+    shell = np.maximum(shell, np.abs(z - zc) - hz)
+    return shell - 0.012
+
+
 def parts(x, y, z):
     body = smax(smax(sd_poly(x, z, SIDE), sd_round_rect(x - CX, y, HX, HW, 0.3), ROUND),
                 sd_poly(y, z, FRONT), ROUND)
@@ -134,7 +152,7 @@ def parts(x, y, z):
     # Guardabarros: labio toroidal en el borde del arco que sobresale del costado.
     for wx in (WX, -WX):
         rad = np.hypot(x - wx, z - WZ)
-        flare = np.hypot(rad - (ARCH_R + 0.03), np.abs(y) - HW) - 0.075
+        flare = np.hypot(rad - (ARCH_R + 0.015), np.abs(y) - HW) - 0.03
         flare = np.maximum(flare, 0.46 - z)          # solo la ceja del arco, por encima del faldón
         body = smin(body, flare, 0.05)
     P = {"body": body}
@@ -149,8 +167,10 @@ def parts(x, y, z):
     low = np.maximum(low, plan)
     P["rub"] = rub
     P["molding"] = low
-    P["bumper_f"] = sd_box(x, y, z, (2.31, 0, 0.53), (0.08, 0.95, 0.11), 0.045)
-    P["bumper_r"] = sd_box(x, y, z, (-2.15, 0, 0.47), (0.08, 0.95, 0.085), 0.045)
+    # Paragolpes finos en U: barra frontal y aletas que abrazan el costado hasta cerca del paso
+    # de rueda. Pieza independiente (se podrá deformar o caer con los golpes).
+    P["bumper_f"] = bumper(x, y, z, BUMPER_F)
+    P["bumper_r"] = bumper(x, y, z, BUMPER_R)
     w = None
     for wx in (WX, -WX):
         for s in (1, -1):
@@ -273,8 +293,8 @@ def paint(part, x, y, z, n):
         put(part == p, BUMPER)
     put((part == "mirror") & (np.abs(ny) > 0.5) & (z > 1.37) & (z < 1.59) & (nx < 0.5), rgb(70, 82, 88))
     bf = (part == "bumper_f") & (nx > 0.6)
-    put(bf & (ay < 0.26) & (z > 0.47) & (z < 0.59), PLATE)
-    put(bf & (y > 0.21) & (y < 0.26) & (z > 0.47) & (z < 0.59), EU)
+    put(bf & (ay < 0.26) & (z > 0.48) & (z < 0.58), PLATE)
+    put(bf & (y > 0.21) & (y < 0.26) & (z > 0.48) & (z < 0.58), EU)
     for k in range(6):
         yy = 0.15 - k * 0.065
         put(bf & (y > yy - 0.04) & (y < yy) & (z > 0.5) & (z < 0.56), SEAM)
